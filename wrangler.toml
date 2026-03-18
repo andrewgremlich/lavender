@@ -1,0 +1,11 @@
+name = "lavendar"
+main = "src/worker/index.ts"
+compatibility_date = "2025-01-01"
+
+[assets]
+not_found_handling = "single-page-application"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "lavendar-db"
+database_id = "placeholder-id"
