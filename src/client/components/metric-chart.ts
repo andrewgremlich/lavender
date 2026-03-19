@@ -14,6 +14,7 @@ import {
 	INDICATORS,
 } from "../utils/indicators";
 import { celsiusToFahrenheit, getUnitSystem } from "../utils/units";
+import type { CycleCalendar } from "./cycle-calendar";
 
 interface HealthEntryData {
 	id: string;
@@ -30,6 +31,9 @@ interface HealthEntryData {
 	cervixChanges?: boolean;
 	fluidRetention?: boolean;
 	cramping?: boolean;
+	bleedingStart?: boolean;
+	bleedingEnd?: boolean;
+	bleedingFlow?: "light" | "medium" | "heavy";
 	notes?: string;
 }
 
@@ -50,6 +54,11 @@ class MetricChart extends HTMLElement {
 	private fertility: FertilityIndicators = {
 		ovulationDays: new Set(),
 		fertileWindowDays: new Set(),
+		periodDays: new Set(),
+		predictedPeriodDays: new Set(),
+		predictedOvulationDays: new Set(),
+		predictedFertileDays: new Set(),
+		averageCycleLength: null,
 	};
 	private selectedRange: DateRange = "30";
 
@@ -136,6 +145,7 @@ class MetricChart extends HTMLElement {
           flex-shrink: 0;
         }
 
+        .calendar-section { margin-bottom: 1.5rem; }
         .summary-section { margin-top: 1.5rem; }
         .summary-section h3 {
           font-size: 1.125rem;
@@ -293,6 +303,9 @@ class MetricChart extends HTMLElement {
           <div class="legend-item"><span class="legend-dot" style="background:rgba(244,114,182,0.5);border-radius:2px"></span> Indicators</div>
         </div>
       </div>
+      <div class="calendar-section">
+        <cycle-calendar id="cycle-calendar"></cycle-calendar>
+      </div>
       <div class="summary-section">
         <h3>Recent Entries</h3>
         <div class="entry-list" id="entry-list"></div>
@@ -310,6 +323,16 @@ class MetricChart extends HTMLElement {
 		const filtered = this.getFilteredEntries();
 		this.renderChart(filtered);
 		this.renderRecentEntries(filtered);
+
+		const calendarEl = this.shadow.querySelector(
+			"#cycle-calendar",
+		) as CycleCalendar | null;
+		if (calendarEl) {
+			calendarEl.setData({
+				fertility: this.fertility,
+				currentMonth: new Date(),
+			});
+		}
 	}
 
 	private getFilteredEntries(): HealthEntryData[] {
