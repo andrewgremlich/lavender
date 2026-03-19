@@ -1,4 +1,4 @@
-import { createElement, House, CirclePlus, Settings, LogOut } from "lucide";
+import { CirclePlus, createElement, House, LogOut, Settings } from "lucide";
 import { currentRoute, navigate } from "../router";
 import { logout } from "../services/auth";
 
@@ -150,16 +150,18 @@ class NavBar extends HTMLElement {
     `;
 
 		const iconMap: Record<string, Parameters<typeof createElement>[0]> = {
-			"house": House,
+			house: House,
 			"circle-plus": CirclePlus,
-			"settings": Settings,
+			settings: Settings,
 			"log-out": LogOut,
 		};
 
-		this.shadow.querySelectorAll<HTMLElement>(".icon[data-icon]").forEach((el) => {
-			const icon = iconMap[el.dataset.icon ?? ""];
-			if (icon) el.appendChild(createElement(icon));
-		});
+		this.shadow
+			.querySelectorAll<HTMLElement>(".icon[data-icon]")
+			.forEach((el) => {
+				const icon = iconMap[el.dataset.icon ?? ""];
+				if (icon) el.appendChild(createElement(icon));
+			});
 	}
 
 	private setupListeners() {

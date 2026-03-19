@@ -179,7 +179,9 @@ export class LoginForm extends HTMLElement {
 				this.shadow.querySelector("#password") as HTMLInputElement
 			).value;
 			if (!username || !password) {
-				this.showError("Username and password are required to derive your encryption key.");
+				this.showError(
+					"Username and password are required to derive your encryption key.",
+				);
 				return;
 			}
 

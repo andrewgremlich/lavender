@@ -16,17 +16,17 @@ export async function register(
 	storeKey(encryptionKey);
 }
 
-export async function login(
-	username: string,
-	password: string,
-): Promise<void> {
+export async function login(username: string, password: string): Promise<void> {
 	const result = await api.auth.login(username, password);
 	setToken(result.token);
 	const encryptionKey = await deriveKeyFromPassword(password, username);
 	storeKey(encryptionKey);
 }
 
-export async function loginWithPasskey(username: string, password: string): Promise<void> {
+export async function loginWithPasskey(
+	username: string,
+	password: string,
+): Promise<void> {
 	const { startAuthentication } = await import("@simplewebauthn/browser");
 	const options = await api.passkeys.getAuthenticationOptions();
 	const authResponse = await startAuthentication({ optionsJSON: options });
