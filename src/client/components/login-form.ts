@@ -1,6 +1,6 @@
 import { login, loginWithPasskey } from "../services/auth.js";
 
-class LoginForm extends HTMLElement {
+export class LoginForm extends HTMLElement {
 	private shadow: ShadowRoot;
 
 	constructor() {
@@ -117,10 +117,6 @@ class LoginForm extends HTMLElement {
           <label for="password">Password</label>
           <input type="password" id="password" name="password" required autocomplete="current-password" />
         </div>
-        <div class="form-group">
-          <label for="encryption-key">Encryption Key</label>
-          <input type="password" id="encryption-key" name="encryption-key" required placeholder="Paste your encryption key" autocomplete="off" />
-        </div>
         <button type="submit" class="btn-primary" id="login-btn">Sign In</button>
         <div class="divider"><span>or</span></div>
         <button type="button" class="btn-secondary" id="passkey-btn">Sign In with Passkey</button>
@@ -144,14 +140,11 @@ class LoginForm extends HTMLElement {
 			const password = (
 				this.shadow.querySelector("#password") as HTMLInputElement
 			).value;
-			const encryptionKey = (
-				this.shadow.querySelector("#encryption-key") as HTMLInputElement
-			).value.trim();
 			const loginBtn = this.shadow.querySelector(
 				"#login-btn",
 			) as HTMLButtonElement;
 
-			if (!username || !password || !encryptionKey) {
+			if (!username || !password) {
 				this.showError("All fields are required.");
 				return;
 			}
@@ -161,7 +154,7 @@ class LoginForm extends HTMLElement {
 				loginBtn.innerHTML =
 					'<span class="loading-spinner"></span>Signing in...';
 
-				await login(username, password, encryptionKey);
+				await login(username, password);
 
 				window.dispatchEvent(new CustomEvent("auth-success"));
 			} catch (err: unknown) {
@@ -179,11 +172,14 @@ class LoginForm extends HTMLElement {
 		passkeyBtn.addEventListener("click", async () => {
 			this.clearError();
 
-			const encryptionKey = (
-				this.shadow.querySelector("#encryption-key") as HTMLInputElement
+			const username = (
+				this.shadow.querySelector("#username") as HTMLInputElement
 			).value.trim();
-			if (!encryptionKey) {
-				this.showError("Encryption key is required even when using a passkey.");
+			const password = (
+				this.shadow.querySelector("#password") as HTMLInputElement
+			).value;
+			if (!username || !password) {
+				this.showError("Username and password are required to derive your encryption key.");
 				return;
 			}
 
@@ -192,7 +188,7 @@ class LoginForm extends HTMLElement {
 				passkeyBtn.innerHTML =
 					'<span class="loading-spinner"></span>Authenticating...';
 
-				await loginWithPasskey(encryptionKey);
+				await loginWithPasskey(username, password);
 
 				window.dispatchEvent(new CustomEvent("auth-success"));
 			} catch (err: unknown) {
