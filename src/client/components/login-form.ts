@@ -1,20 +1,20 @@
-import { login, loginWithPasskey } from '../services/auth.js';
+import { login, loginWithPasskey } from "../services/auth.js";
 
 class LoginForm extends HTMLElement {
-  private shadow: ShadowRoot;
+	private shadow: ShadowRoot;
 
-  constructor() {
-    super();
-    this.shadow = this.attachShadow({ mode: 'open' });
-  }
+	constructor() {
+		super();
+		this.shadow = this.attachShadow({ mode: "open" });
+	}
 
-  connectedCallback() {
-    this.render();
-    this.setupListeners();
-  }
+	connectedCallback() {
+		this.render();
+		this.setupListeners();
+	}
 
-  private render() {
-    this.shadow.innerHTML = `
+	private render() {
+		this.shadow.innerHTML = `
       <link rel="stylesheet" href="/styles/main.css">
       <style>
         :host { display: block; }
@@ -126,79 +126,97 @@ class LoginForm extends HTMLElement {
         <button type="button" class="btn-secondary" id="passkey-btn">Sign In with Passkey</button>
       </form>
     `;
-  }
+	}
 
-  private setupListeners() {
-    const form = this.shadow.querySelector('#login-form') as HTMLFormElement;
-    const passkeyBtn = this.shadow.querySelector('#passkey-btn') as HTMLButtonElement;
+	private setupListeners() {
+		const form = this.shadow.querySelector("#login-form") as HTMLFormElement;
+		const passkeyBtn = this.shadow.querySelector(
+			"#passkey-btn",
+		) as HTMLButtonElement;
 
-    form.addEventListener('submit', async (e: Event) => {
-      e.preventDefault();
-      this.clearError();
+		form.addEventListener("submit", async (e: Event) => {
+			e.preventDefault();
+			this.clearError();
 
-      const username = (this.shadow.querySelector('#username') as HTMLInputElement).value.trim();
-      const password = (this.shadow.querySelector('#password') as HTMLInputElement).value;
-      const encryptionKey = (this.shadow.querySelector('#encryption-key') as HTMLInputElement).value.trim();
-      const loginBtn = this.shadow.querySelector('#login-btn') as HTMLButtonElement;
+			const username = (
+				this.shadow.querySelector("#username") as HTMLInputElement
+			).value.trim();
+			const password = (
+				this.shadow.querySelector("#password") as HTMLInputElement
+			).value;
+			const encryptionKey = (
+				this.shadow.querySelector("#encryption-key") as HTMLInputElement
+			).value.trim();
+			const loginBtn = this.shadow.querySelector(
+				"#login-btn",
+			) as HTMLButtonElement;
 
-      if (!username || !password || !encryptionKey) {
-        this.showError('All fields are required.');
-        return;
-      }
+			if (!username || !password || !encryptionKey) {
+				this.showError("All fields are required.");
+				return;
+			}
 
-      try {
-        loginBtn.disabled = true;
-        loginBtn.innerHTML = '<span class="loading-spinner"></span>Signing in...';
+			try {
+				loginBtn.disabled = true;
+				loginBtn.innerHTML =
+					'<span class="loading-spinner"></span>Signing in...';
 
-        await login(username, password, encryptionKey);
+				await login(username, password, encryptionKey);
 
-        window.dispatchEvent(new CustomEvent('auth-success'));
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Login failed. Please check your credentials.';
-        this.showError(message);
-      } finally {
-        loginBtn.disabled = false;
-        loginBtn.textContent = 'Sign In';
-      }
-    });
+				window.dispatchEvent(new CustomEvent("auth-success"));
+			} catch (err: unknown) {
+				const message =
+					err instanceof Error
+						? err.message
+						: "Login failed. Please check your credentials.";
+				this.showError(message);
+			} finally {
+				loginBtn.disabled = false;
+				loginBtn.textContent = "Sign In";
+			}
+		});
 
-    passkeyBtn.addEventListener('click', async () => {
-      this.clearError();
+		passkeyBtn.addEventListener("click", async () => {
+			this.clearError();
 
-      const encryptionKey = (this.shadow.querySelector('#encryption-key') as HTMLInputElement).value.trim();
-      if (!encryptionKey) {
-        this.showError('Encryption key is required even when using a passkey.');
-        return;
-      }
+			const encryptionKey = (
+				this.shadow.querySelector("#encryption-key") as HTMLInputElement
+			).value.trim();
+			if (!encryptionKey) {
+				this.showError("Encryption key is required even when using a passkey.");
+				return;
+			}
 
-      try {
-        passkeyBtn.disabled = true;
-        passkeyBtn.innerHTML = '<span class="loading-spinner"></span>Authenticating...';
+			try {
+				passkeyBtn.disabled = true;
+				passkeyBtn.innerHTML =
+					'<span class="loading-spinner"></span>Authenticating...';
 
-        await loginWithPasskey(encryptionKey);
+				await loginWithPasskey(encryptionKey);
 
-        window.dispatchEvent(new CustomEvent('auth-success'));
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Passkey authentication failed.';
-        this.showError(message);
-      } finally {
-        passkeyBtn.disabled = false;
-        passkeyBtn.textContent = 'Sign In with Passkey';
-      }
-    });
-  }
+				window.dispatchEvent(new CustomEvent("auth-success"));
+			} catch (err: unknown) {
+				const message =
+					err instanceof Error ? err.message : "Passkey authentication failed.";
+				this.showError(message);
+			} finally {
+				passkeyBtn.disabled = false;
+				passkeyBtn.textContent = "Sign In with Passkey";
+			}
+		});
+	}
 
-  private showError(msg: string) {
-    const errorEl = this.shadow.querySelector('#error') as HTMLElement;
-    errorEl.textContent = msg;
-    errorEl.classList.add('visible');
-  }
+	private showError(msg: string) {
+		const errorEl = this.shadow.querySelector("#error") as HTMLElement;
+		errorEl.textContent = msg;
+		errorEl.classList.add("visible");
+	}
 
-  private clearError() {
-    const errorEl = this.shadow.querySelector('#error') as HTMLElement;
-    errorEl.textContent = '';
-    errorEl.classList.remove('visible');
-  }
+	private clearError() {
+		const errorEl = this.shadow.querySelector("#error") as HTMLElement;
+		errorEl.textContent = "";
+		errorEl.classList.remove("visible");
+	}
 }
 
-customElements.define('login-form', LoginForm);
+customElements.define("login-form", LoginForm);

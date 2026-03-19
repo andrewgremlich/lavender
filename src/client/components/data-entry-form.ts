@@ -1,54 +1,57 @@
-import { api } from '../services/api.js';
-import { encrypt, getStoredKey, importKey } from '../crypto/encryption.js';
-import { navigate } from '../router.js';
+import { encrypt, getStoredKey, importKey } from "../crypto/encryption.js";
+import { navigate } from "../router.js";
+import { api } from "../services/api.js";
 
 interface HealthEntryData {
-  date: string;
-  basalBodyTemp?: number;
-  cervicalMucus?: 'dry' | 'sticky' | 'creamy' | 'watery' | 'eggWhite';
-  lhSurge?: boolean;
-  ovulationDay?: boolean;
-  fertileWindow?: boolean;
-  notes?: string;
+	date: string;
+	basalBodyTemp?: number;
+	cervicalMucus?: "dry" | "sticky" | "creamy" | "watery" | "eggWhite";
+	lhSurge?: boolean;
+	ovulationDay?: boolean;
+	fertileWindow?: boolean;
+	notes?: string;
 }
 
-type TempUnit = 'C' | 'F';
+type TempUnit = "C" | "F";
 
 class DataEntryForm extends HTMLElement {
-  private shadow: ShadowRoot;
-  private tempUnit: TempUnit = 'C';
+	private shadow: ShadowRoot;
+	private tempUnit: TempUnit = "C";
 
-  constructor() {
-    super();
-    this.shadow = this.attachShadow({ mode: 'open' });
-  }
+	constructor() {
+		super();
+		this.shadow = this.attachShadow({ mode: "open" });
+	}
 
-  connectedCallback() {
-    this.render();
-    this.setupListeners();
-  }
+	connectedCallback() {
+		this.render();
+		this.setupListeners();
+	}
 
-  private getTodayDate(): string {
-    const now = new Date();
-    return now.toISOString().split('T')[0];
-  }
+	private getTodayDate(): string {
+		const now = new Date();
+		return now.toISOString().split("T")[0];
+	}
 
-  private celsiusToFahrenheit(c: number): number {
-    return Math.round((c * 9 / 5 + 32) * 100) / 100;
-  }
+	private celsiusToFahrenheit(c: number): number {
+		return Math.round(((c * 9) / 5 + 32) * 100) / 100;
+	}
 
-  private fahrenheitToCelsius(f: number): number {
-    return Math.round(((f - 32) * 5 / 9) * 100) / 100;
-  }
+	private fahrenheitToCelsius(f: number): number {
+		return Math.round((((f - 32) * 5) / 9) * 100) / 100;
+	}
 
-  private render() {
-    const today = this.getTodayDate();
-    const tempMin = this.tempUnit === 'C' ? '35' : '95';
-    const tempMax = this.tempUnit === 'C' ? '42' : '107.6';
-    const tempPlaceholder = this.tempUnit === 'C' ? '36.50' : '97.70';
-    const tempLabel = this.tempUnit === 'C' ? 'Basal Body Temperature (\u00b0C)' : 'Basal Body Temperature (\u00b0F)';
+	private render() {
+		const today = this.getTodayDate();
+		const tempMin = this.tempUnit === "C" ? "35" : "95";
+		const tempMax = this.tempUnit === "C" ? "42" : "107.6";
+		const tempPlaceholder = this.tempUnit === "C" ? "36.50" : "97.70";
+		const tempLabel =
+			this.tempUnit === "C"
+				? "Basal Body Temperature (\u00b0C)"
+				: "Basal Body Temperature (\u00b0F)";
 
-    this.shadow.innerHTML = `
+		this.shadow.innerHTML = `
       <link rel="stylesheet" href="/styles/main.css">
       <style>
         :host { display: block; }
@@ -275,8 +278,8 @@ class DataEntryForm extends HTMLElement {
             <div class="temp-header">
               <label for="bbt">${tempLabel}</label>
               <div class="unit-toggle">
-                <button type="button" data-unit="C" class="${this.tempUnit === 'C' ? 'active' : ''}">°C</button>
-                <button type="button" data-unit="F" class="${this.tempUnit === 'F' ? 'active' : ''}">°F</button>
+                <button type="button" data-unit="C" class="${this.tempUnit === "C" ? "active" : ""}">°C</button>
+                <button type="button" data-unit="F" class="${this.tempUnit === "F" ? "active" : ""}">°F</button>
               </div>
             </div>
             <input type="number" id="bbt" step="0.01" min="${tempMin}" max="${tempMax}" placeholder="${tempPlaceholder}" />
@@ -359,149 +362,179 @@ class DataEntryForm extends HTMLElement {
         </form>
       </div>
     `;
-  }
+	}
 
-  private setupListeners() {
-    const form = this.shadow.querySelector('#entry-form') as HTMLFormElement;
-    const successMsg = this.shadow.querySelector('#success-msg') as HTMLElement;
-    const addAnotherBtn = this.shadow.querySelector('#add-another-btn') as HTMLButtonElement;
-    const viewChartBtn = this.shadow.querySelector('#view-chart-btn') as HTMLButtonElement;
+	private setupListeners() {
+		const form = this.shadow.querySelector("#entry-form") as HTMLFormElement;
+		const successMsg = this.shadow.querySelector("#success-msg") as HTMLElement;
+		const addAnotherBtn = this.shadow.querySelector(
+			"#add-another-btn",
+		) as HTMLButtonElement;
+		const viewChartBtn = this.shadow.querySelector(
+			"#view-chart-btn",
+		) as HTMLButtonElement;
 
-    // Temperature unit toggle
-    const unitBtns = this.shadow.querySelectorAll('.unit-toggle button');
-    unitBtns.forEach((btn) => {
-      btn.addEventListener('click', () => {
-        const newUnit = (btn as HTMLElement).dataset.unit as TempUnit;
-        if (newUnit === this.tempUnit) return;
+		// Temperature unit toggle
+		const unitBtns = this.shadow.querySelectorAll(".unit-toggle button");
+		unitBtns.forEach((btn) => {
+			btn.addEventListener("click", () => {
+				const newUnit = (btn as HTMLElement).dataset.unit as TempUnit;
+				if (newUnit === this.tempUnit) return;
 
-        const bbtInput = this.shadow.querySelector('#bbt') as HTMLInputElement;
-        const currentVal = Number.parseFloat(bbtInput.value);
+				const bbtInput = this.shadow.querySelector("#bbt") as HTMLInputElement;
+				const currentVal = Number.parseFloat(bbtInput.value);
 
-        this.tempUnit = newUnit;
+				this.tempUnit = newUnit;
 
-        // Convert existing value
-        if (!Number.isNaN(currentVal)) {
-          if (newUnit === 'F') {
-            bbtInput.value = this.celsiusToFahrenheit(currentVal).toString();
-          } else {
-            bbtInput.value = this.fahrenheitToCelsius(currentVal).toString();
-          }
-        }
+				// Convert existing value
+				if (!Number.isNaN(currentVal)) {
+					if (newUnit === "F") {
+						bbtInput.value = this.celsiusToFahrenheit(currentVal).toString();
+					} else {
+						bbtInput.value = this.fahrenheitToCelsius(currentVal).toString();
+					}
+				}
 
-        // Update constraints
-        if (newUnit === 'C') {
-          bbtInput.min = '35';
-          bbtInput.max = '42';
-          bbtInput.placeholder = '36.50';
-        } else {
-          bbtInput.min = '95';
-          bbtInput.max = '107.6';
-          bbtInput.placeholder = '97.70';
-        }
+				// Update constraints
+				if (newUnit === "C") {
+					bbtInput.min = "35";
+					bbtInput.max = "42";
+					bbtInput.placeholder = "36.50";
+				} else {
+					bbtInput.min = "95";
+					bbtInput.max = "107.6";
+					bbtInput.placeholder = "97.70";
+				}
 
-        // Update active state
-        unitBtns.forEach((b) => {
-          b.classList.remove('active');
-        });
-        btn.classList.add('active');
+				// Update active state
+				unitBtns.forEach((b) => {
+					b.classList.remove("active");
+				});
+				btn.classList.add("active");
 
-        // Update label
-        const label = this.shadow.querySelector('.temp-header label') as HTMLElement;
-        label.textContent = newUnit === 'C'
-          ? 'Basal Body Temperature (\u00b0C)'
-          : 'Basal Body Temperature (\u00b0F)';
-      });
-    });
+				// Update label
+				const label = this.shadow.querySelector(
+					".temp-header label",
+				) as HTMLElement;
+				label.textContent =
+					newUnit === "C"
+						? "Basal Body Temperature (\u00b0C)"
+						: "Basal Body Temperature (\u00b0F)";
+			});
+		});
 
-    form.addEventListener('submit', async (e: Event) => {
-      e.preventDefault();
-      this.clearMessages();
+		form.addEventListener("submit", async (e: Event) => {
+			e.preventDefault();
+			this.clearMessages();
 
-      const submitBtn = this.shadow.querySelector('#submit-btn') as HTMLButtonElement;
+			const submitBtn = this.shadow.querySelector(
+				"#submit-btn",
+			) as HTMLButtonElement;
 
-      const date = (this.shadow.querySelector('#entry-date') as HTMLInputElement).value;
-      const bbtRaw = (this.shadow.querySelector('#bbt') as HTMLInputElement).value;
-      const mucusEl = this.shadow.querySelector('input[name="cervical-mucus"]:checked') as HTMLInputElement | null;
-      const lhSurge = (this.shadow.querySelector('#lh-surge') as HTMLInputElement).checked;
-      const ovulationDay = (this.shadow.querySelector('#ovulation-day') as HTMLInputElement).checked;
-      const fertileWindow = (this.shadow.querySelector('#fertile-window') as HTMLInputElement).checked;
-      const notes = (this.shadow.querySelector('#notes') as HTMLTextAreaElement).value.trim();
+			const date = (
+				this.shadow.querySelector("#entry-date") as HTMLInputElement
+			).value;
+			const bbtRaw = (this.shadow.querySelector("#bbt") as HTMLInputElement)
+				.value;
+			const mucusEl = this.shadow.querySelector(
+				'input[name="cervical-mucus"]:checked',
+			) as HTMLInputElement | null;
+			const lhSurge = (
+				this.shadow.querySelector("#lh-surge") as HTMLInputElement
+			).checked;
+			const ovulationDay = (
+				this.shadow.querySelector("#ovulation-day") as HTMLInputElement
+			).checked;
+			const fertileWindow = (
+				this.shadow.querySelector("#fertile-window") as HTMLInputElement
+			).checked;
+			const notes = (
+				this.shadow.querySelector("#notes") as HTMLTextAreaElement
+			).value.trim();
 
-      if (!date) {
-        this.showError('Please select a date.');
-        return;
-      }
+			if (!date) {
+				this.showError("Please select a date.");
+				return;
+			}
 
-      // Build entry data (always store temp in Celsius)
-      const entry: HealthEntryData = { date };
+			// Build entry data (always store temp in Celsius)
+			const entry: HealthEntryData = { date };
 
-      if (bbtRaw) {
-        let tempC = Number.parseFloat(bbtRaw);
-        if (this.tempUnit === 'F') {
-          tempC = this.fahrenheitToCelsius(tempC);
-        }
-        entry.basalBodyTemp = tempC;
-      }
+			if (bbtRaw) {
+				let tempC = Number.parseFloat(bbtRaw);
+				if (this.tempUnit === "F") {
+					tempC = this.fahrenheitToCelsius(tempC);
+				}
+				entry.basalBodyTemp = tempC;
+			}
 
-      if (mucusEl) {
-        entry.cervicalMucus = mucusEl.value as HealthEntryData['cervicalMucus'];
-      }
+			if (mucusEl) {
+				entry.cervicalMucus = mucusEl.value as HealthEntryData["cervicalMucus"];
+			}
 
-      if (lhSurge) entry.lhSurge = true;
-      if (ovulationDay) entry.ovulationDay = true;
-      if (fertileWindow) entry.fertileWindow = true;
-      if (notes) entry.notes = notes;
+			if (lhSurge) entry.lhSurge = true;
+			if (ovulationDay) entry.ovulationDay = true;
+			if (fertileWindow) entry.fertileWindow = true;
+			if (notes) entry.notes = notes;
 
-      try {
-        submitBtn.disabled = true;
-        submitBtn.innerHTML = '<span class="loading-spinner"></span>Encrypting & saving...';
+			try {
+				submitBtn.disabled = true;
+				submitBtn.innerHTML =
+					'<span class="loading-spinner"></span>Encrypting & saving...';
 
-        const storedKey = getStoredKey();
-        if (!storedKey) {
-          this.showError('Encryption key not found. Please log in again.');
-          return;
-        }
+				const storedKey = getStoredKey();
+				if (!storedKey) {
+					this.showError("Encryption key not found. Please log in again.");
+					return;
+				}
 
-        const cryptoKey = await importKey(storedKey);
-        const { encrypted, iv } = await encrypt(JSON.stringify(entry), cryptoKey);
-        await api.metrics.create(encrypted, iv);
+				const cryptoKey = await importKey(storedKey);
+				const { encrypted, iv } = await encrypt(
+					JSON.stringify(entry),
+					cryptoKey,
+				);
+				await api.metrics.create(encrypted, iv);
 
-        form.style.display = 'none';
-        successMsg.classList.add('visible');
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Failed to save entry. Please try again.';
-        this.showError(message);
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.textContent = 'Save Entry';
-      }
-    });
+				form.style.display = "none";
+				successMsg.classList.add("visible");
+			} catch (err: unknown) {
+				const message =
+					err instanceof Error
+						? err.message
+						: "Failed to save entry. Please try again.";
+				this.showError(message);
+			} finally {
+				submitBtn.disabled = false;
+				submitBtn.textContent = "Save Entry";
+			}
+		});
 
-    addAnotherBtn.addEventListener('click', () => {
-      form.reset();
-      (this.shadow.querySelector('#entry-date') as HTMLInputElement).value = this.getTodayDate();
-      form.style.display = '';
-      successMsg.classList.remove('visible');
-    });
+		addAnotherBtn.addEventListener("click", () => {
+			form.reset();
+			(this.shadow.querySelector("#entry-date") as HTMLInputElement).value =
+				this.getTodayDate();
+			form.style.display = "";
+			successMsg.classList.remove("visible");
+		});
 
-    viewChartBtn.addEventListener('click', () => {
-      navigate('/');
-    });
-  }
+		viewChartBtn.addEventListener("click", () => {
+			navigate("/");
+		});
+	}
 
-  private showError(msg: string) {
-    const errorEl = this.shadow.querySelector('#error-msg') as HTMLElement;
-    errorEl.textContent = msg;
-    errorEl.classList.add('visible');
-  }
+	private showError(msg: string) {
+		const errorEl = this.shadow.querySelector("#error-msg") as HTMLElement;
+		errorEl.textContent = msg;
+		errorEl.classList.add("visible");
+	}
 
-  private clearMessages() {
-    const errorEl = this.shadow.querySelector('#error-msg') as HTMLElement;
-    const successEl = this.shadow.querySelector('#success-msg') as HTMLElement;
-    errorEl.textContent = '';
-    errorEl.classList.remove('visible');
-    successEl.classList.remove('visible');
-  }
+	private clearMessages() {
+		const errorEl = this.shadow.querySelector("#error-msg") as HTMLElement;
+		const successEl = this.shadow.querySelector("#success-msg") as HTMLElement;
+		errorEl.textContent = "";
+		errorEl.classList.remove("visible");
+		successEl.classList.remove("visible");
+	}
 }
 
-customElements.define('data-entry-form', DataEntryForm);
+customElements.define("data-entry-form", DataEntryForm);

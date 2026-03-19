@@ -1,25 +1,25 @@
-import { getStoredKey, importKey, storeKey } from '../crypto/encryption.js';
-import { api } from '../services/api.js';
-import { logout, registerPasskey } from '../services/auth.js';
+import { getStoredKey, importKey, storeKey } from "../crypto/encryption.js";
+import { api } from "../services/api.js";
+import { logout, registerPasskey } from "../services/auth.js";
 
 class SettingsPanel extends HTMLElement {
-  private shadow: ShadowRoot;
+	private shadow: ShadowRoot;
 
-  constructor() {
-    super();
-    this.shadow = this.attachShadow({ mode: 'open' });
-  }
+	constructor() {
+		super();
+		this.shadow = this.attachShadow({ mode: "open" });
+	}
 
-  connectedCallback() {
-    this.render();
-    this.setupListeners();
-    this.loadPasskeys();
-  }
+	connectedCallback() {
+		this.render();
+		this.setupListeners();
+		this.loadPasskeys();
+	}
 
-  private render() {
-    const hasKey = !!getStoredKey();
+	private render() {
+		const hasKey = !!getStoredKey();
 
-    this.shadow.innerHTML = `
+		this.shadow.innerHTML = `
       <link rel="stylesheet" href="/styles/main.css">
       <style>
         :host { display: block; }
@@ -194,12 +194,13 @@ class SettingsPanel extends HTMLElement {
         <h3>Encryption Key</h3>
         <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
           <span>Status:</span>
-          ${hasKey
-            ? '<span class="status-badge active"><span class="status-dot"></span>Key Loaded</span>'
-            : '<span class="status-badge inactive"><span class="status-dot"></span>Not Loaded</span>'
-          }
+          ${
+						hasKey
+							? '<span class="status-badge active"><span class="status-dot"></span>Key Loaded</span>'
+							: '<span class="status-badge inactive"><span class="status-dot"></span>Not Loaded</span>'
+					}
         </div>
-        <div id="key-entry-section" style="${hasKey ? 'display:none' : ''}">
+        <div id="key-entry-section" style="${hasKey ? "display:none" : ""}">
           <div class="form-row">
             <label for="re-enter-key">Re-enter Encryption Key</label>
             <input type="password" id="re-enter-key" placeholder="Paste your encryption key" autocomplete="off" />
@@ -207,7 +208,7 @@ class SettingsPanel extends HTMLElement {
           <button class="btn btn-primary" id="load-key-btn">Load Key</button>
           <div class="message" id="key-msg"></div>
         </div>
-        ${hasKey ? '<button class="btn btn-outline" id="show-key-entry" style="font-size:0.8125rem;">Re-enter Key</button>' : ''}
+        ${hasKey ? '<button class="btn btn-outline" id="show-key-entry" style="font-size:0.8125rem;">Re-enter Key</button>' : ""}
       </div>
 
       <!-- Data Retention -->
@@ -270,159 +271,214 @@ class SettingsPanel extends HTMLElement {
         Log Out
       </button>
     `;
-  }
+	}
 
-  private setupListeners() {
-    // Show key entry if already loaded
-    const showKeyEntryBtn = this.shadow.querySelector('#show-key-entry');
-    if (showKeyEntryBtn) {
-      showKeyEntryBtn.addEventListener('click', () => {
-        const section = this.shadow.querySelector('#key-entry-section') as HTMLElement;
-        section.style.display = '';
-        showKeyEntryBtn.remove();
-      });
-    }
+	private setupListeners() {
+		// Show key entry if already loaded
+		const showKeyEntryBtn = this.shadow.querySelector("#show-key-entry");
+		if (showKeyEntryBtn) {
+			showKeyEntryBtn.addEventListener("click", () => {
+				const section = this.shadow.querySelector(
+					"#key-entry-section",
+				) as HTMLElement;
+				section.style.display = "";
+				showKeyEntryBtn.remove();
+			});
+		}
 
-    // Load key
-    this.shadow.querySelector('#load-key-btn')?.addEventListener('click', async () => {
-      const input = this.shadow.querySelector('#re-enter-key') as HTMLInputElement;
-      const msgEl = this.shadow.querySelector('#key-msg') as HTMLElement;
-      const keyValue = input.value.trim();
+		// Load key
+		this.shadow
+			.querySelector("#load-key-btn")
+			?.addEventListener("click", async () => {
+				const input = this.shadow.querySelector(
+					"#re-enter-key",
+				) as HTMLInputElement;
+				const msgEl = this.shadow.querySelector("#key-msg") as HTMLElement;
+				const keyValue = input.value.trim();
 
-      if (!keyValue) {
-        this.showMessage(msgEl, 'Please enter your encryption key.', 'error');
-        return;
-      }
+				if (!keyValue) {
+					this.showMessage(msgEl, "Please enter your encryption key.", "error");
+					return;
+				}
 
-      try {
-        await importKey(keyValue); // Validate the key by attempting import
-        storeKey(keyValue);
-        this.showMessage(msgEl, 'Encryption key loaded successfully.', 'success');
-        input.value = '';
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Invalid encryption key.';
-        this.showMessage(msgEl, message, 'error');
-      }
-    });
+				try {
+					await importKey(keyValue); // Validate the key by attempting import
+					storeKey(keyValue);
+					this.showMessage(
+						msgEl,
+						"Encryption key loaded successfully.",
+						"success",
+					);
+					input.value = "";
+				} catch (err: unknown) {
+					const message =
+						err instanceof Error ? err.message : "Invalid encryption key.";
+					this.showMessage(msgEl, message, "error");
+				}
+			});
 
-    // Save retention
-    this.shadow.querySelector('#save-retention-btn')?.addEventListener('click', async () => {
-      const select = this.shadow.querySelector('#retention-period') as HTMLSelectElement;
-      const msgEl = this.shadow.querySelector('#retention-msg') as HTMLElement;
-      try {
-        await api.settings.update(Number.parseInt(select.value, 10));
-        this.showMessage(msgEl, 'Retention period saved.', 'success');
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Failed to save.';
-        this.showMessage(msgEl, message, 'error');
-      }
-    });
+		// Save retention
+		this.shadow
+			.querySelector("#save-retention-btn")
+			?.addEventListener("click", async () => {
+				const select = this.shadow.querySelector(
+					"#retention-period",
+				) as HTMLSelectElement;
+				const msgEl = this.shadow.querySelector(
+					"#retention-msg",
+				) as HTMLElement;
+				try {
+					await api.settings.update(Number.parseInt(select.value, 10));
+					this.showMessage(msgEl, "Retention period saved.", "success");
+				} catch (err: unknown) {
+					const message =
+						err instanceof Error ? err.message : "Failed to save.";
+					this.showMessage(msgEl, message, "error");
+				}
+			});
 
-    // Register passkey
-    this.shadow.querySelector('#register-passkey-btn')?.addEventListener('click', async () => {
-      const btn = this.shadow.querySelector('#register-passkey-btn') as HTMLButtonElement;
-      const msgEl = this.shadow.querySelector('#passkey-msg') as HTMLElement;
-      try {
-        btn.disabled = true;
-        btn.innerHTML = '<span class="loading-spinner"></span> Registering...';
-        await registerPasskey();
-        this.showMessage(msgEl, 'Passkey registered successfully.', 'success');
-        this.loadPasskeys();
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Failed to register passkey.';
-        this.showMessage(msgEl, message, 'error');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Register New Passkey';
-      }
-    });
+		// Register passkey
+		this.shadow
+			.querySelector("#register-passkey-btn")
+			?.addEventListener("click", async () => {
+				const btn = this.shadow.querySelector(
+					"#register-passkey-btn",
+				) as HTMLButtonElement;
+				const msgEl = this.shadow.querySelector("#passkey-msg") as HTMLElement;
+				try {
+					btn.disabled = true;
+					btn.innerHTML =
+						'<span class="loading-spinner"></span> Registering...';
+					await registerPasskey();
+					this.showMessage(
+						msgEl,
+						"Passkey registered successfully.",
+						"success",
+					);
+					this.loadPasskeys();
+				} catch (err: unknown) {
+					const message =
+						err instanceof Error ? err.message : "Failed to register passkey.";
+					this.showMessage(msgEl, message, "error");
+				} finally {
+					btn.disabled = false;
+					btn.textContent = "Register New Passkey";
+				}
+			});
 
-    // Delete all data
-    const deleteDataBtn = this.shadow.querySelector('#delete-data-btn') as HTMLElement;
-    const deleteDataConfirm = this.shadow.querySelector('#delete-data-confirm') as HTMLElement;
-    deleteDataBtn.addEventListener('click', () => deleteDataConfirm.classList.add('visible'));
-    this.shadow.querySelector('#cancel-delete-data')?.addEventListener('click', () => deleteDataConfirm.classList.remove('visible'));
-    this.shadow.querySelector('#confirm-delete-data')?.addEventListener('click', async () => {
-      try {
-        await api.metrics.deleteAll();
-        deleteDataConfirm.classList.remove('visible');
-        deleteDataBtn.textContent = 'All data deleted';
-        (deleteDataBtn as HTMLButtonElement).disabled = true;
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Unknown error';
-        alert(`Failed to delete data: ${message}`);
-      }
-    });
+		// Delete all data
+		const deleteDataBtn = this.shadow.querySelector(
+			"#delete-data-btn",
+		) as HTMLElement;
+		const deleteDataConfirm = this.shadow.querySelector(
+			"#delete-data-confirm",
+		) as HTMLElement;
+		deleteDataBtn.addEventListener("click", () =>
+			deleteDataConfirm.classList.add("visible"),
+		);
+		this.shadow
+			.querySelector("#cancel-delete-data")
+			?.addEventListener("click", () =>
+				deleteDataConfirm.classList.remove("visible"),
+			);
+		this.shadow
+			.querySelector("#confirm-delete-data")
+			?.addEventListener("click", async () => {
+				try {
+					await api.metrics.deleteAll();
+					deleteDataConfirm.classList.remove("visible");
+					deleteDataBtn.textContent = "All data deleted";
+					(deleteDataBtn as HTMLButtonElement).disabled = true;
+				} catch (err: unknown) {
+					const message = err instanceof Error ? err.message : "Unknown error";
+					alert(`Failed to delete data: ${message}`);
+				}
+			});
 
-    // Delete account
-    const deleteAccountBtn = this.shadow.querySelector('#delete-account-btn') as HTMLElement;
-    const deleteAccountConfirm = this.shadow.querySelector('#delete-account-confirm') as HTMLElement;
-    deleteAccountBtn.addEventListener('click', () => deleteAccountConfirm.classList.add('visible'));
-    this.shadow.querySelector('#cancel-delete-account')?.addEventListener('click', () => deleteAccountConfirm.classList.remove('visible'));
-    this.shadow.querySelector('#confirm-delete-account')?.addEventListener('click', async () => {
-      try {
-        await api.auth.deleteAccount();
-        logout();
-        window.dispatchEvent(new CustomEvent('user-logout'));
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Unknown error';
-        alert(`Failed to delete account: ${message}`);
-      }
-    });
+		// Delete account
+		const deleteAccountBtn = this.shadow.querySelector(
+			"#delete-account-btn",
+		) as HTMLElement;
+		const deleteAccountConfirm = this.shadow.querySelector(
+			"#delete-account-confirm",
+		) as HTMLElement;
+		deleteAccountBtn.addEventListener("click", () =>
+			deleteAccountConfirm.classList.add("visible"),
+		);
+		this.shadow
+			.querySelector("#cancel-delete-account")
+			?.addEventListener("click", () =>
+				deleteAccountConfirm.classList.remove("visible"),
+			);
+		this.shadow
+			.querySelector("#confirm-delete-account")
+			?.addEventListener("click", async () => {
+				try {
+					await api.auth.deleteAccount();
+					logout();
+					window.dispatchEvent(new CustomEvent("user-logout"));
+				} catch (err: unknown) {
+					const message = err instanceof Error ? err.message : "Unknown error";
+					alert(`Failed to delete account: ${message}`);
+				}
+			});
 
-    // Logout
-    this.shadow.querySelector('#logout-btn')?.addEventListener('click', () => {
-      logout();
-      window.dispatchEvent(new CustomEvent('user-logout'));
-    });
-  }
+		// Logout
+		this.shadow.querySelector("#logout-btn")?.addEventListener("click", () => {
+			logout();
+			window.dispatchEvent(new CustomEvent("user-logout"));
+		});
+	}
 
-  private async loadPasskeys() {
-    const list = this.shadow.querySelector('#passkey-list') as HTMLElement;
-    try {
-      const passkeys = await api.passkeys.list();
+	private async loadPasskeys() {
+		const list = this.shadow.querySelector("#passkey-list") as HTMLElement;
+		try {
+			const passkeys = await api.passkeys.list();
 
-      if (passkeys.length === 0) {
-        list.innerHTML = '<p style="font-size:0.8125rem;color:var(--color-text-secondary,#6b7280);">No passkeys registered.</p>';
-        return;
-      }
+			if (passkeys.length === 0) {
+				list.innerHTML =
+					'<p style="font-size:0.8125rem;color:var(--color-text-secondary,#6b7280);">No passkeys registered.</p>';
+				return;
+			}
 
-      list.innerHTML = passkeys
-        .map(
-          (pk) => `
+			list.innerHTML = passkeys
+				.map(
+					(pk) => `
         <div class="passkey-item" data-id="${pk.id}">
           <span class="passkey-name">Passkey ${pk.credential_id.slice(0, 8)} <span style="color:var(--color-text-secondary,#6b7280);font-size:0.75rem;">(${new Date(pk.created_at).toLocaleDateString()})</span></span>
           <button class="passkey-delete" data-id="${pk.id}">Remove</button>
         </div>
-      `
-        )
-        .join('');
+      `,
+				)
+				.join("");
 
-      list.querySelectorAll('.passkey-delete').forEach((btn) => {
-        btn.addEventListener('click', async () => {
-          const id = (btn as HTMLElement).dataset.id;
-          if (!confirm('Remove this passkey?')) return;
-          try {
-            if (id) await api.passkeys.delete(id);
-            this.loadPasskeys();
-          } catch (err: unknown) {
-            const message = err instanceof Error ? err.message : 'Unknown error';
-            alert(`Failed to remove passkey: ${message}`);
-          }
-        });
-      });
-    } catch {
-      list.innerHTML = '<p style="font-size:0.8125rem;color:var(--color-text-secondary,#6b7280);">Could not load passkeys.</p>';
-    }
-  }
+			list.querySelectorAll(".passkey-delete").forEach((btn) => {
+				btn.addEventListener("click", async () => {
+					const id = (btn as HTMLElement).dataset.id;
+					if (!confirm("Remove this passkey?")) return;
+					try {
+						if (id) await api.passkeys.delete(id);
+						this.loadPasskeys();
+					} catch (err: unknown) {
+						const message =
+							err instanceof Error ? err.message : "Unknown error";
+						alert(`Failed to remove passkey: ${message}`);
+					}
+				});
+			});
+		} catch {
+			list.innerHTML =
+				'<p style="font-size:0.8125rem;color:var(--color-text-secondary,#6b7280);">Could not load passkeys.</p>';
+		}
+	}
 
-  private showMessage(el: HTMLElement, msg: string, type: 'success' | 'error') {
-    el.textContent = msg;
-    el.className = `message visible ${type}`;
-    setTimeout(() => {
-      el.classList.remove('visible');
-    }, 4000);
-  }
+	private showMessage(el: HTMLElement, msg: string, type: "success" | "error") {
+		el.textContent = msg;
+		el.className = `message visible ${type}`;
+		setTimeout(() => {
+			el.classList.remove("visible");
+		}, 4000);
+	}
 }
 
-customElements.define('settings-panel', SettingsPanel);
+customElements.define("settings-panel", SettingsPanel);

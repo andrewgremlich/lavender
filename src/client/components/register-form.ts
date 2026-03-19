@@ -1,21 +1,21 @@
-import { importKey } from '../crypto/encryption.js';
-import { register } from '../services/auth.js';
+import { importKey } from "../crypto/encryption.js";
+import { register } from "../services/auth.js";
 
 class RegisterForm extends HTMLElement {
-  private shadow: ShadowRoot;
+	private shadow: ShadowRoot;
 
-  constructor() {
-    super();
-    this.shadow = this.attachShadow({ mode: 'open' });
-  }
+	constructor() {
+		super();
+		this.shadow = this.attachShadow({ mode: "open" });
+	}
 
-  connectedCallback() {
-    this.render();
-    this.setupListeners();
-  }
+	connectedCallback() {
+		this.render();
+		this.setupListeners();
+	}
 
-  private render() {
-    this.shadow.innerHTML = `
+	private render() {
+		this.shadow.innerHTML = `
       <link rel="stylesheet" href="/styles/main.css">
       <style>
         :host { display: block; }
@@ -197,107 +197,129 @@ class RegisterForm extends HTMLElement {
         </div>
       </div>
     `;
-  }
+	}
 
-  private setupListeners() {
-    const form = this.shadow.querySelector('#register-form') as HTMLFormElement;
-    const registerStep = this.shadow.querySelector('#register-step') as HTMLElement;
-    const keyStep = this.shadow.querySelector('#key-step') as HTMLElement;
-    const keyValueEl = this.shadow.querySelector('#key-value') as HTMLElement;
-    const copyBtn = this.shadow.querySelector('#copy-btn') as HTMLButtonElement;
-    const ackCheckbox = this.shadow.querySelector('#ack-checkbox') as HTMLInputElement;
-    const continueBtn = this.shadow.querySelector('#continue-btn') as HTMLButtonElement;
+	private setupListeners() {
+		const form = this.shadow.querySelector("#register-form") as HTMLFormElement;
+		const registerStep = this.shadow.querySelector(
+			"#register-step",
+		) as HTMLElement;
+		const keyStep = this.shadow.querySelector("#key-step") as HTMLElement;
+		const keyValueEl = this.shadow.querySelector("#key-value") as HTMLElement;
+		const copyBtn = this.shadow.querySelector("#copy-btn") as HTMLButtonElement;
+		const ackCheckbox = this.shadow.querySelector(
+			"#ack-checkbox",
+		) as HTMLInputElement;
+		const continueBtn = this.shadow.querySelector(
+			"#continue-btn",
+		) as HTMLButtonElement;
 
-    form.addEventListener('submit', async (e: Event) => {
-      e.preventDefault();
-      this.clearError();
+		form.addEventListener("submit", async (e: Event) => {
+			e.preventDefault();
+			this.clearError();
 
-      const username = (this.shadow.querySelector('#reg-username') as HTMLInputElement).value.trim();
-      const password = (this.shadow.querySelector('#reg-password') as HTMLInputElement).value;
-      const confirm = (this.shadow.querySelector('#reg-confirm') as HTMLInputElement).value;
-      const registerBtn = this.shadow.querySelector('#register-btn') as HTMLButtonElement;
+			const username = (
+				this.shadow.querySelector("#reg-username") as HTMLInputElement
+			).value.trim();
+			const password = (
+				this.shadow.querySelector("#reg-password") as HTMLInputElement
+			).value;
+			const confirm = (
+				this.shadow.querySelector("#reg-confirm") as HTMLInputElement
+			).value;
+			const registerBtn = this.shadow.querySelector(
+				"#register-btn",
+			) as HTMLButtonElement;
 
-      if (!username || !password || !confirm) {
-        this.showError('All fields are required.');
-        return;
-      }
+			if (!username || !password || !confirm) {
+				this.showError("All fields are required.");
+				return;
+			}
 
-      if (password.length < 8) {
-        this.showError('Password must be at least 8 characters.');
-        return;
-      }
+			if (password.length < 8) {
+				this.showError("Password must be at least 8 characters.");
+				return;
+			}
 
-      if (password !== confirm) {
-        this.showError('Passwords do not match.');
-        return;
-      }
+			if (password !== confirm) {
+				this.showError("Passwords do not match.");
+				return;
+			}
 
-      try {
-        registerBtn.disabled = true;
-        registerBtn.innerHTML = '<span class="loading-spinner"></span>Creating account...';
+			try {
+				registerBtn.disabled = true;
+				registerBtn.innerHTML =
+					'<span class="loading-spinner"></span>Creating account...';
 
-        const result = await register(username, password);
-        const encryptionKey = result.encryptionKey;
+				const result = await register(username, password);
+				const encryptionKey = result.encryptionKey;
 
-        keyValueEl.textContent = encryptionKey;
-        registerStep.style.display = 'none';
-        keyStep.classList.add('visible');
-      } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : 'Registration failed. Please try again.';
-        this.showError(message);
-      } finally {
-        const registerBtn = this.shadow.querySelector('#register-btn') as HTMLButtonElement;
-        registerBtn.disabled = false;
-        registerBtn.textContent = 'Create Account';
-      }
-    });
+				keyValueEl.textContent = encryptionKey;
+				registerStep.style.display = "none";
+				keyStep.classList.add("visible");
+			} catch (err: unknown) {
+				const message =
+					err instanceof Error
+						? err.message
+						: "Registration failed. Please try again.";
+				this.showError(message);
+			} finally {
+				const registerBtn = this.shadow.querySelector(
+					"#register-btn",
+				) as HTMLButtonElement;
+				registerBtn.disabled = false;
+				registerBtn.textContent = "Create Account";
+			}
+		});
 
-    copyBtn.addEventListener('click', async () => {
-      const keyText = keyValueEl.textContent || '';
-      try {
-        await navigator.clipboard.writeText(keyText);
-        copyBtn.textContent = 'Copied!';
-        copyBtn.classList.add('copied');
-        setTimeout(() => {
-          copyBtn.textContent = 'Copy Key';
-          copyBtn.classList.remove('copied');
-        }, 2000);
-      } catch {
-        // Fallback: select the text
-        const range = document.createRange();
-        range.selectNodeContents(keyValueEl);
-        const selection = window.getSelection();
-        selection?.removeAllRanges();
-        selection?.addRange(range);
-      }
-    });
+		copyBtn.addEventListener("click", async () => {
+			const keyText = keyValueEl.textContent || "";
+			try {
+				await navigator.clipboard.writeText(keyText);
+				copyBtn.textContent = "Copied!";
+				copyBtn.classList.add("copied");
+				setTimeout(() => {
+					copyBtn.textContent = "Copy Key";
+					copyBtn.classList.remove("copied");
+				}, 2000);
+			} catch {
+				// Fallback: select the text
+				const range = document.createRange();
+				range.selectNodeContents(keyValueEl);
+				const selection = window.getSelection();
+				selection?.removeAllRanges();
+				selection?.addRange(range);
+			}
+		});
 
-    ackCheckbox.addEventListener('change', () => {
-      continueBtn.disabled = !ackCheckbox.checked;
-    });
+		ackCheckbox.addEventListener("change", () => {
+			continueBtn.disabled = !ackCheckbox.checked;
+		});
 
-    continueBtn.addEventListener('click', async () => {
-      const encryptionKey = keyValueEl.textContent || '';
-      try {
-        await importKey(encryptionKey);
-        window.dispatchEvent(new CustomEvent('auth-success'));
-      } catch {
-        this.showError('Failed to initialize encryption. Please try logging in with your key.');
-      }
-    });
-  }
+		continueBtn.addEventListener("click", async () => {
+			const encryptionKey = keyValueEl.textContent || "";
+			try {
+				await importKey(encryptionKey);
+				window.dispatchEvent(new CustomEvent("auth-success"));
+			} catch {
+				this.showError(
+					"Failed to initialize encryption. Please try logging in with your key.",
+				);
+			}
+		});
+	}
 
-  private showError(msg: string) {
-    const errorEl = this.shadow.querySelector('#error') as HTMLElement;
-    errorEl.textContent = msg;
-    errorEl.classList.add('visible');
-  }
+	private showError(msg: string) {
+		const errorEl = this.shadow.querySelector("#error") as HTMLElement;
+		errorEl.textContent = msg;
+		errorEl.classList.add("visible");
+	}
 
-  private clearError() {
-    const errorEl = this.shadow.querySelector('#error') as HTMLElement;
-    errorEl.textContent = '';
-    errorEl.classList.remove('visible');
-  }
+	private clearError() {
+		const errorEl = this.shadow.querySelector("#error") as HTMLElement;
+		errorEl.textContent = "";
+		errorEl.classList.remove("visible");
+	}
 }
 
-customElements.define('register-form', RegisterForm);
+customElements.define("register-form", RegisterForm);

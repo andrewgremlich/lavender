@@ -9,7 +9,7 @@ npm run dev              # Start Vite dev server (HMR + worker in workerd via @c
 npm run build            # Production build (client + worker)
 npm run deploy           # Build and deploy to Cloudflare Workers
 npm run preview          # Preview production build locally
-npm run typecheck        # Type-check both client and worker code
+npm run check            # Type-check and run biome both client and worker code
 npm run db:migrate:local # Initialize/migrate local D1 database
 npm run db:migrate:remote # Initialize/migrate remote D1 database
 ```

@@ -1,54 +1,54 @@
-import { isLoggedIn } from '../services/auth.js';
-import { currentRoute, startRouter, route, navigate } from '../router.js';
+import { navigate, route, startRouter } from "../router.js";
+import { isLoggedIn } from "@client/services/auth";
 
 class AppRoot extends HTMLElement {
-  private shadow: ShadowRoot;
+	private shadow: ShadowRoot;
 
-  constructor() {
-    super();
-    this.shadow = this.attachShadow({ mode: 'open' });
-  }
+	constructor() {
+		super();
+		this.shadow = this.attachShadow({ mode: "open" });
+	}
 
-  connectedCallback() {
-    this.render();
-    this.setupRouting();
-    this.setupEventListeners();
-  }
+	connectedCallback() {
+		this.render();
+		this.setupRouting();
+		this.setupEventListeners();
+	}
 
-  private setupEventListeners() {
-    window.addEventListener('auth-success', () => {
-      this.render();
-      this.setupRouting();
-      navigate('/');
-    });
+	private setupEventListeners() {
+		window.addEventListener("auth-success", () => {
+			this.render();
+			this.setupRouting();
+			navigate("/");
+		});
 
-    window.addEventListener('user-logout', () => {
-      this.render();
-    });
-  }
+		window.addEventListener("user-logout", () => {
+			this.render();
+		});
+	}
 
-  private setupRouting() {
-    if (!isLoggedIn()) return;
+	private setupRouting() {
+		if (!isLoggedIn()) return;
 
-    const content = this.shadow.querySelector('#content');
-    if (!content) return;
+		const content = this.shadow.querySelector("#content");
+		if (!content) return;
 
-    route('/', () => {
-      content.innerHTML = '<metric-chart></metric-chart>';
-    });
-    route('/entry', () => {
-      content.innerHTML = '<data-entry-form></data-entry-form>';
-    });
-    route('/settings', () => {
-      content.innerHTML = '<settings-panel></settings-panel>';
-    });
+		route("/", () => {
+			content.innerHTML = "<metric-chart></metric-chart>";
+		});
+		route("/entry", () => {
+			content.innerHTML = "<data-entry-form></data-entry-form>";
+		});
+		route("/settings", () => {
+			content.innerHTML = "<settings-panel></settings-panel>";
+		});
 
-    startRouter();
-  }
+		startRouter();
+	}
 
-  private render() {
-    if (isLoggedIn()) {
-      this.shadow.innerHTML = `
+	private render() {
+		if (isLoggedIn()) {
+			this.shadow.innerHTML = `
         <link rel="stylesheet" href="/styles/main.css">
         <style>
           :host { display: block; min-height: 100vh; background: var(--color-bg, #faf5ff); }
@@ -65,8 +65,8 @@ class AppRoot extends HTMLElement {
           <main class="content" id="content"></main>
         </div>
       `;
-    } else {
-      this.shadow.innerHTML = `
+		} else {
+			this.shadow.innerHTML = `
         <link rel="stylesheet" href="/styles/main.css">
         <style>
           :host { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--color-bg, #faf5ff); }
@@ -91,21 +91,29 @@ class AppRoot extends HTMLElement {
         </div>
       `;
 
-      const toggle = this.shadow.querySelector('#auth-toggle');
-      const loginView = this.shadow.querySelector('#login-view') as HTMLElement | null;
-      const registerView = this.shadow.querySelector('#register-view') as HTMLElement | null;
-      const toggleText = this.shadow.querySelector('#toggle-text');
+			const toggle = this.shadow.querySelector("#auth-toggle");
+			const loginView = this.shadow.querySelector(
+				"#login-view",
+			) as HTMLElement | null;
+			const registerView = this.shadow.querySelector(
+				"#register-view",
+			) as HTMLElement | null;
+			const toggleText = this.shadow.querySelector("#toggle-text");
 
-      let showingLogin = true;
-      toggle?.addEventListener('click', () => {
-        showingLogin = !showingLogin;
-        if (loginView) loginView.style.display = showingLogin ? '' : 'none';
-        if (registerView) registerView.style.display = showingLogin ? 'none' : '';
-        if (toggle) toggle.textContent = showingLogin ? 'Sign up' : 'Sign in';
-        if (toggleText) toggleText.textContent = showingLogin ? "Don't have an account? " : 'Already have an account? ';
-      });
-    }
-  }
+			let showingLogin = true;
+			toggle?.addEventListener("click", () => {
+				showingLogin = !showingLogin;
+				if (loginView) loginView.style.display = showingLogin ? "" : "none";
+				if (registerView)
+					registerView.style.display = showingLogin ? "none" : "";
+				if (toggle) toggle.textContent = showingLogin ? "Sign up" : "Sign in";
+				if (toggleText)
+					toggleText.textContent = showingLogin
+						? "Don't have an account? "
+						: "Already have an account? ";
+			});
+		}
+	}
 }
 
-customElements.define('app-root', AppRoot);
+customElements.define("app-root", AppRoot);
