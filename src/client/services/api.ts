@@ -32,15 +32,15 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 export const api = {
 	auth: {
-		register: (username: string, password: string) =>
+		register: (username: string, password: string, encryptionKey?: string) =>
 			request<{ token: string; username: string }>("/auth/register", {
 				method: "POST",
-				body: JSON.stringify({ username, password }),
+				body: JSON.stringify({ username, password, encryptionKey }),
 			}),
-		login: (username: string, password: string) =>
+		login: (username: string, password: string, encryptionKey?: string) =>
 			request<{ token: string; username: string }>("/auth/login", {
 				method: "POST",
-				body: JSON.stringify({ username, password }),
+				body: JSON.stringify({ username, password, encryptionKey }),
 			}),
 		deleteAccount: () =>
 			request<{ message: string }>("/auth/account", { method: "DELETE" }),
@@ -96,7 +96,7 @@ export const api = {
 		getAuthenticationOptions: () =>
 			request<any>("/passkeys/authenticate/options", { method: "POST" }),
 		verifyAuthentication: (response: any, challenge: string) =>
-			request<{ token: string; username: string }>(
+			request<{ token: string; username: string; encryptionKey: string | null }>(
 				"/passkeys/authenticate/verify",
 				{
 					method: "POST",

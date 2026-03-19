@@ -11,6 +11,7 @@ export interface UserRow {
 	username: string;
 	password_hash: string;
 	salt: string;
+	encryption_key: string | null;
 	created_at: string;
 }
 

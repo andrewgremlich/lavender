@@ -23,6 +23,7 @@ export interface UserSettings {
 export interface AuthResponse {
 	token: string;
 	username: string;
+	encryptionKey?: string | null;
 }
 
 export interface ApiError {

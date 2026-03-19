@@ -10,23 +10,20 @@ export async function register(
 	username: string,
 	password: string,
 ): Promise<void> {
-	const result = await api.auth.register(username, password);
-	setToken(result.token);
 	const encryptionKey = await deriveKeyFromPassword(password, username);
+	const result = await api.auth.register(username, password, encryptionKey);
+	setToken(result.token);
 	storeKey(encryptionKey);
 }
 
 export async function login(username: string, password: string): Promise<void> {
-	const result = await api.auth.login(username, password);
-	setToken(result.token);
 	const encryptionKey = await deriveKeyFromPassword(password, username);
+	const result = await api.auth.login(username, password, encryptionKey);
+	setToken(result.token);
 	storeKey(encryptionKey);
 }
 
-export async function loginWithPasskey(
-	username: string,
-	password: string,
-): Promise<void> {
+export async function loginWithPasskey(): Promise<void> {
 	const { startAuthentication } = await import("@simplewebauthn/browser");
 	const options = await api.passkeys.getAuthenticationOptions();
 	const authResponse = await startAuthentication({ optionsJSON: options });
@@ -35,8 +32,12 @@ export async function loginWithPasskey(
 		options.challenge,
 	);
 	setToken(result.token);
-	const encryptionKey = await deriveKeyFromPassword(password, username);
-	storeKey(encryptionKey);
+	if (!result.encryptionKey) {
+		throw new Error(
+			"No encryption key found. Please log in with your password once to enable passkey-only login.",
+		);
+	}
+	storeKey(result.encryptionKey);
 }
 
 export async function registerPasskey(): Promise<void> {

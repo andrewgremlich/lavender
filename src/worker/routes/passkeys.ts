@@ -153,7 +153,11 @@ passkeys.post("/authenticate/verify", async (c) => {
 		{ sub: user.id, username: user.username },
 		c.env.JWT_SECRET,
 	);
-	return c.json({ token, username: user.username });
+	return c.json({
+		token,
+		username: user.username,
+		encryptionKey: user.encryption_key ?? null,
+	});
 });
 
 // List user's passkeys (authenticated)

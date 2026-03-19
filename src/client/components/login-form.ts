@@ -172,25 +172,12 @@ export class LoginForm extends HTMLElement {
 		passkeyBtn.addEventListener("click", async () => {
 			this.clearError();
 
-			const username = (
-				this.shadow.querySelector("#username") as HTMLInputElement
-			).value.trim();
-			const password = (
-				this.shadow.querySelector("#password") as HTMLInputElement
-			).value;
-			if (!username || !password) {
-				this.showError(
-					"Username and password are required to derive your encryption key.",
-				);
-				return;
-			}
-
 			try {
 				passkeyBtn.disabled = true;
 				passkeyBtn.innerHTML =
 					'<span class="loading-spinner"></span>Authenticating...';
 
-				await loginWithPasskey(username, password);
+				await loginWithPasskey();
 
 				window.dispatchEvent(new CustomEvent("auth-success"));
 			} catch (err: unknown) {
