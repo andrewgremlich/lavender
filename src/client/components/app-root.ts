@@ -45,6 +45,9 @@ class AppRoot extends HTMLElement {
 		route("/settings", () => {
 			content.innerHTML = "<settings-panel></settings-panel>";
 		});
+		route("/info", () => {
+			content.innerHTML = "<info-panel></info-panel>";
+		});
 
 		startRouter();
 	}
@@ -59,7 +62,8 @@ class AppRoot extends HTMLElement {
           .content { flex: 1; padding: 1rem; padding-bottom: 5rem; max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; }
           @media (min-width: 768px) { .content { padding: 2rem; padding-bottom: 2rem; } }
           @media (min-width: 1024px) {
-            .content { padding: 2rem; margin-left: 240px; }
+            .app-layout { flex-direction: row; }
+            .content { padding: 2rem; }
           }
         </style>
         <div class="app-layout">

@@ -1,4 +1,4 @@
-import { CirclePlus, createElement, House, LogOut, Settings } from "lucide";
+import { CirclePlus, createElement, House, Info, LogOut, Settings } from "lucide";
 import { currentRoute, navigate } from "../router";
 import { logout } from "../services/auth";
 
@@ -69,12 +69,14 @@ class NavBar extends HTMLElement {
         /* Desktop: left sidebar */
         @media (min-width: 1024px) {
           nav {
-            position: fixed;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            box-sizing: border-box;
             flex-direction: column;
             justify-content: flex-start;
             align-items: stretch;
             width: 220px;
-            min-height: 100vh;
             border-top: none;
             border-right: 1px solid var(--color-border, #e5e7eb);
             padding: 1.5rem 0.75rem;
@@ -142,6 +144,11 @@ class NavBar extends HTMLElement {
 
         <div class="nav-spacer"></div>
 
+        <button class="nav-item ${route === "/info" ? "active" : ""}" data-route="/info">
+          <span class="icon" data-icon="info"></span>
+          <span class="nav-label">Info</span>
+        </button>
+
         <button class="nav-item logout" id="logout-btn">
           <span class="icon" data-icon="log-out"></span>
           <span class="nav-label">Log Out</span>
@@ -153,6 +160,7 @@ class NavBar extends HTMLElement {
 			house: House,
 			"circle-plus": CirclePlus,
 			settings: Settings,
+			info: Info,
 			"log-out": LogOut,
 		};
 

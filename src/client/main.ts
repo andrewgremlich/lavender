@@ -5,3 +5,5 @@ import "./components/data-entry-form";
 import "./components/metric-chart";
 import "./components/settings-panel";
 import "./components/nav-bar";
+import "./components/info-panel";
+import "./components/entry-card";
