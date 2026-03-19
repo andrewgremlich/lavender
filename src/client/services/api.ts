@@ -94,15 +94,26 @@ export const api = {
 				body: JSON.stringify({ response, challenge }),
 			}),
 		getAuthenticationOptions: () =>
-			request<any>("/passkeys/authenticate/options", { method: "POST" }),
-		verifyAuthentication: (response: any, challenge: string) =>
-			request<{ token: string; username: string }>(
-				"/passkeys/authenticate/verify",
-				{
-					method: "POST",
-					body: JSON.stringify({ response, challenge }),
-				},
+			request<PublicKeyCredentialRequestOptionsJSON>(
+				"/passkeys/authenticate/options",
+				{ method: "POST" },
 			),
+		verifyAuthentication: (response: any, challenge: string) =>
+			request<{
+				token: string;
+				username: string;
+				passkeyId: string;
+				prfWrappedKey: string | null;
+				prfIv: string | null;
+			}>("/passkeys/authenticate/verify", {
+				method: "POST",
+				body: JSON.stringify({ response, challenge }),
+			}),
+		storePRFKey: (passkeyId: string, prfWrappedKey: string, prfIv: string) =>
+			request<{ ok: boolean }>(`/passkeys/${passkeyId}/prf-key`, {
+				method: "PUT",
+				body: JSON.stringify({ prfWrappedKey, prfIv }),
+			}),
 		list: () =>
 			request<Array<{ id: string; credential_id: string; created_at: string }>>(
 				"/passkeys",

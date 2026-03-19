@@ -85,6 +85,68 @@ export async function decrypt(
 	return new TextDecoder().decode(decrypted);
 }
 
+// Convert a base64url string (from WebAuthn PRF output) to a Uint8Array
+export function base64urlToBytes(b64url: string): Uint8Array {
+	const b64 = b64url
+		.replace(/-/g, "+")
+		.replace(/_/g, "/")
+		.padEnd(b64url.length + ((4 - (b64url.length % 4)) % 4), "=");
+	return Uint8Array.from(atob(b64), (c) => c.charCodeAt(0));
+}
+
+// Wrap the user's encryption key using the PRF output as a key-encryption-key (KEK).
+// The server stores the wrapped key; only the passkey (via PRF) can unwrap it.
+export async function wrapKeyWithPRF(
+	encryptionKeyB64: string,
+	prfBytes: Uint8Array,
+): Promise<{ wrappedKey: string; iv: string }> {
+	const kek = await crypto.subtle.importKey(
+		"raw",
+		prfBytes,
+		{ name: ALGO, length: KEY_LENGTH },
+		false,
+		["encrypt"],
+	);
+	const iv = crypto.getRandomValues(new Uint8Array(12));
+	const keyBytes = Uint8Array.from(atob(encryptionKeyB64), (c) =>
+		c.charCodeAt(0),
+	);
+	const wrapped = await crypto.subtle.encrypt(
+		{ name: ALGO, iv },
+		kek,
+		keyBytes,
+	);
+	return {
+		wrappedKey: btoa(String.fromCharCode(...new Uint8Array(wrapped))),
+		iv: btoa(String.fromCharCode(...iv)),
+	};
+}
+
+// Unwrap a PRF-wrapped encryption key using the current PRF output.
+export async function unwrapKeyWithPRF(
+	prfBytes: Uint8Array,
+	wrappedKeyB64: string,
+	ivB64: string,
+): Promise<string> {
+	const kek = await crypto.subtle.importKey(
+		"raw",
+		prfBytes,
+		{ name: ALGO, length: KEY_LENGTH },
+		false,
+		["decrypt"],
+	);
+	const wrappedKey = Uint8Array.from(atob(wrappedKeyB64), (c) =>
+		c.charCodeAt(0),
+	);
+	const iv = Uint8Array.from(atob(ivB64), (c) => c.charCodeAt(0));
+	const unwrapped = await crypto.subtle.decrypt(
+		{ name: ALGO, iv },
+		kek,
+		wrappedKey,
+	);
+	return btoa(String.fromCharCode(...new Uint8Array(unwrapped)));
+}
+
 // Store/retrieve encryption key from sessionStorage (never localStorage for security)
 export function storeKey(base64Key: string): void {
 	sessionStorage.setItem("lavendar_ek", base64Key);
