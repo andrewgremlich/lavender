@@ -1,4 +1,5 @@
 import { currentRoute, navigate } from "../router.js";
+import { logout } from "../services/auth.js";
 
 class NavBar extends HTMLElement {
 	private shadow: ShadowRoot;
@@ -66,7 +67,7 @@ class NavBar extends HTMLElement {
         /* Desktop: left sidebar */
         @media (min-width: 1024px) {
           nav {
-            position: static;
+            position: fixed;
             flex-direction: column;
             justify-content: flex-start;
             align-items: stretch;
@@ -108,6 +109,14 @@ class NavBar extends HTMLElement {
         /* Hide brand on mobile */
         .nav-brand { display: none; }
         @media (min-width: 1024px) { .nav-brand { display: flex; } }
+
+        .nav-spacer { flex: 1; }
+
+        .nav-item.logout { color: #dc2626; }
+        .nav-item.logout:hover { color: #b91c1c; }
+        @media (min-width: 1024px) {
+          .nav-item.logout { margin-top: auto; }
+        }
       </style>
 
       <nav>
@@ -136,16 +145,30 @@ class NavBar extends HTMLElement {
           </svg>
           <span class="nav-label">Settings</span>
         </button>
+
+        <div class="nav-spacer"></div>
+
+        <button class="nav-item logout" id="logout-btn">
+          <svg viewBox="0 0 24 24">
+            <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span class="nav-label">Log Out</span>
+        </button>
       </nav>
     `;
 	}
 
 	private setupListeners() {
-		this.shadow.querySelectorAll(".nav-item").forEach((btn) => {
+		this.shadow.querySelectorAll(".nav-item[data-route]").forEach((btn) => {
 			btn.addEventListener("click", () => {
 				const route = (btn as HTMLElement).dataset.route;
 				if (route) navigate(route);
 			});
+		});
+
+		this.shadow.querySelector("#logout-btn")?.addEventListener("click", () => {
+			logout();
+			window.dispatchEvent(new CustomEvent("user-logout"));
 		});
 	}
 

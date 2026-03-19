@@ -1,5 +1,8 @@
-import { navigate, route, startRouter } from "../router.js";
+import { navigate, route, startRouter } from "@client/router.js";
 import { isLoggedIn } from "@client/services/auth";
+
+import type { LoginForm } from "./login-form";
+import type { RegisterForm } from "./register-form";
 
 class AppRoot extends HTMLElement {
 	private shadow: ShadowRoot;
@@ -56,8 +59,7 @@ class AppRoot extends HTMLElement {
           .content { flex: 1; padding: 1rem; padding-bottom: 5rem; max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; }
           @media (min-width: 768px) { .content { padding: 2rem; padding-bottom: 2rem; } }
           @media (min-width: 1024px) {
-            .app-layout { flex-direction: row; }
-            .content { padding: 2rem; }
+            .content { padding: 2rem; margin-left: 240px; }
           }
         </style>
         <div class="app-layout">
@@ -94,15 +96,13 @@ class AppRoot extends HTMLElement {
 			const toggle = this.shadow.querySelector("#auth-toggle");
 			const loginView = this.shadow.querySelector(
 				"#login-view",
-			) as HTMLElement | null;
+			) as LoginForm | null;
 			const registerView = this.shadow.querySelector(
 				"#register-view",
-			) as HTMLElement | null;
+			) as RegisterForm | null;
 			const toggleText = this.shadow.querySelector("#toggle-text");
 
-			let showingLogin = true;
-			toggle?.addEventListener("click", () => {
-				showingLogin = !showingLogin;
+			const applyAuthView = (showingLogin: boolean) => {
 				if (loginView) loginView.style.display = showingLogin ? "" : "none";
 				if (registerView)
 					registerView.style.display = showingLogin ? "none" : "";
@@ -111,6 +111,24 @@ class AppRoot extends HTMLElement {
 					toggleText.textContent = showingLogin
 						? "Don't have an account? "
 						: "Already have an account? ";
+			};
+
+			const isRegisterHash = () => window.location.hash === "#register";
+
+			applyAuthView(!isRegisterHash());
+
+			const onHashChange = () => {
+				if (!isLoggedIn()) applyAuthView(!isRegisterHash());
+			};
+			window.addEventListener("hashchange", onHashChange);
+
+			toggle?.addEventListener("click", () => {
+				if (isRegisterHash()) {
+					history.back();
+				} else {
+					history.pushState(null, "", "#register");
+					applyAuthView(false);
+				}
 			});
 		}
 	}
