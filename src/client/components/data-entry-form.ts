@@ -1,6 +1,7 @@
 import { encrypt, getStoredKey, importKey } from "../crypto/encryption";
 import { navigate } from "../router";
 import { api } from "../services/api";
+import { INDICATORS } from "../utils/indicators";
 import { getUnitSystem } from "../utils/units";
 
 interface HealthEntryData {
@@ -8,8 +9,15 @@ interface HealthEntryData {
 	basalBodyTemp?: number;
 	cervicalMucus?: "dry" | "sticky" | "creamy" | "watery" | "eggWhite";
 	lhSurge?: boolean;
-	ovulationDay?: boolean;
-	fertileWindow?: boolean;
+	appetiteChange?: boolean;
+	moodChange?: boolean;
+	increasedSexDrive?: boolean;
+	breastTenderness?: boolean;
+	mildSpotting?: boolean;
+	heightenedSmell?: boolean;
+	cervixChanges?: boolean;
+	fluidRetention?: boolean;
+	cramping?: boolean;
 	notes?: string;
 }
 
@@ -328,27 +336,15 @@ class DataEntryForm extends HTMLElement {
           <div class="form-group">
             <label>Indicators</label>
             <div class="toggle-group">
-              <label class="toggle-item" for="lh-surge">
+              ${INDICATORS.map(
+								(ind) => `<label class="toggle-item" for="ind-${ind.key}">
                 <div class="toggle-switch">
-                  <input type="checkbox" id="lh-surge" />
+                  <input type="checkbox" id="ind-${ind.key}" />
                   <span class="toggle-slider"></span>
                 </div>
-                <span class="toggle-label">LH Surge</span>
-              </label>
-              <label class="toggle-item" for="ovulation-day">
-                <div class="toggle-switch">
-                  <input type="checkbox" id="ovulation-day" />
-                  <span class="toggle-slider"></span>
-                </div>
-                <span class="toggle-label">Ovulation Day</span>
-              </label>
-              <label class="toggle-item" for="fertile-window">
-                <div class="toggle-switch">
-                  <input type="checkbox" id="fertile-window" />
-                  <span class="toggle-slider"></span>
-                </div>
-                <span class="toggle-label">Fertile Window</span>
-              </label>
+                <span class="toggle-label">${ind.label}</span>
+              </label>`,
+							).join("")}
             </div>
           </div>
 
@@ -438,15 +434,6 @@ class DataEntryForm extends HTMLElement {
 			const mucusEl = this.shadow.querySelector(
 				'input[name="cervical-mucus"]:checked',
 			) as HTMLInputElement | null;
-			const lhSurge = (
-				this.shadow.querySelector("#lh-surge") as HTMLInputElement
-			).checked;
-			const ovulationDay = (
-				this.shadow.querySelector("#ovulation-day") as HTMLInputElement
-			).checked;
-			const fertileWindow = (
-				this.shadow.querySelector("#fertile-window") as HTMLInputElement
-			).checked;
 			const notes = (
 				this.shadow.querySelector("#notes") as HTMLTextAreaElement
 			).value.trim();
@@ -471,9 +458,14 @@ class DataEntryForm extends HTMLElement {
 				entry.cervicalMucus = mucusEl.value as HealthEntryData["cervicalMucus"];
 			}
 
-			if (lhSurge) entry.lhSurge = true;
-			if (ovulationDay) entry.ovulationDay = true;
-			if (fertileWindow) entry.fertileWindow = true;
+			for (const ind of INDICATORS) {
+				const el = this.shadow.querySelector(
+					`#ind-${ind.key}`,
+				) as HTMLInputElement;
+				if (el?.checked) {
+					(entry as unknown as Record<string, unknown>)[ind.key] = true;
+				}
+			}
 			if (notes) entry.notes = notes;
 
 			try {

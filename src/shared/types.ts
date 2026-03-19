@@ -3,8 +3,15 @@ export interface HealthEntryData {
 	basalBodyTemp?: number;
 	cervicalMucus?: "dry" | "sticky" | "creamy" | "watery" | "eggWhite";
 	lhSurge?: boolean;
-	ovulationDay?: boolean;
-	fertileWindow?: boolean;
+	appetiteChange?: boolean;
+	moodChange?: boolean;
+	increasedSexDrive?: boolean;
+	breastTenderness?: boolean;
+	mildSpotting?: boolean;
+	heightenedSmell?: boolean;
+	cervixChanges?: boolean;
+	fluidRetention?: boolean;
+	cramping?: boolean;
 	notes?: string;
 }
 
