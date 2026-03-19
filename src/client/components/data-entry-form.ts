@@ -18,6 +18,9 @@ interface HealthEntryData {
 	cervixChanges?: boolean;
 	fluidRetention?: boolean;
 	cramping?: boolean;
+	bleedingStart?: boolean;
+	bleedingEnd?: boolean;
+	bleedingFlow?: "light" | "medium" | "heavy";
 	notes?: string;
 }
 
@@ -99,6 +102,48 @@ class DataEntryForm extends HTMLElement {
           box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
         }
         textarea { resize: vertical; min-height: 80px; font-family: inherit; }
+
+        /* Collapsible sections */
+        .collapsible {
+          border: 1px solid var(--color-border, #e5e7eb);
+          border-radius: 0.5rem;
+          margin-bottom: 1rem;
+          overflow: hidden;
+        }
+        .collapsible summary {
+          padding: 0.75rem 1rem;
+          font-size: 0.875rem;
+          font-weight: 600;
+          color: var(--color-text, #1f2937);
+          cursor: pointer;
+          list-style: none;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          user-select: none;
+          transition: background 0.15s;
+        }
+        .collapsible summary:hover {
+          background: rgba(124, 58, 237, 0.04);
+        }
+        .collapsible summary::-webkit-details-marker { display: none; }
+        .collapsible summary::after {
+          content: '';
+          width: 6px;
+          height: 6px;
+          border-right: 2px solid var(--color-text, #9ca3af);
+          border-bottom: 2px solid var(--color-text, #9ca3af);
+          transform: rotate(-45deg);
+          transition: transform 0.2s;
+          flex-shrink: 0;
+        }
+        .collapsible[open] summary::after {
+          transform: rotate(45deg);
+        }
+        .collapsible-content {
+          padding: 0.75rem 1rem 1rem;
+          border-top: 1px solid var(--color-border, #e5e7eb);
+        }
 
         .temp-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.375rem; }
         .temp-header label { margin-bottom: 0; }
@@ -201,6 +246,37 @@ class DataEntryForm extends HTMLElement {
           font-weight: 500;
         }
 
+        .bleeding-options {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 0.5rem;
+          margin-bottom: 0.75rem;
+        }
+        .bleeding-option {
+          position: relative;
+        }
+        .bleeding-option input { position: absolute; opacity: 0; width: 0; height: 0; }
+        .bleeding-option label {
+          display: inline-flex;
+          align-items: center;
+          padding: 0.5rem 1rem;
+          border: 2px solid var(--color-border, #d1d5db);
+          border-radius: 0.5rem;
+          cursor: pointer;
+          transition: all 0.2s;
+          font-weight: 500;
+          font-size: 0.8125rem;
+          color: var(--color-text, #374151);
+        }
+        .bleeding-option input:checked + label {
+          border-color: var(--color-primary, #7c3aed);
+          background: rgba(124, 58, 237, 0.05);
+          color: var(--color-primary, #7c3aed);
+        }
+
+        .flow-section { margin-top: 0.5rem; }
+        .flow-section label { font-size: 0.8125rem; }
+
         .btn-submit {
           width: 100%;
           padding: 0.875rem;
@@ -281,77 +357,132 @@ class DataEntryForm extends HTMLElement {
             <input type="date" id="entry-date" value="${today}" required />
           </div>
 
-          <div class="form-group">
-            <div class="temp-header">
-              <label for="bbt">${tempLabel}</label>
-              <div class="unit-toggle">
-                <button type="button" data-unit="C" class="${this.tempUnit === "C" ? "active" : ""}">°C</button>
-                <button type="button" data-unit="F" class="${this.tempUnit === "F" ? "active" : ""}">°F</button>
-              </div>
-            </div>
-            <input type="number" id="bbt" step="0.01" min="${tempMin}" max="${tempMax}" placeholder="${tempPlaceholder}" />
-          </div>
-
-          <div class="form-group">
-            <label>Cervical Mucus</label>
-            <div class="mucus-options">
-              <div class="mucus-option">
-                <input type="radio" name="cervical-mucus" id="cm-dry" value="dry" />
-                <label for="cm-dry">
-                  <span class="mucus-icon">&#9711;</span>
-                  <span class="mucus-name">Dry</span>
-                </label>
-              </div>
-              <div class="mucus-option">
-                <input type="radio" name="cervical-mucus" id="cm-sticky" value="sticky" />
-                <label for="cm-sticky">
-                  <span class="mucus-icon">&#9679;</span>
-                  <span class="mucus-name">Sticky</span>
-                </label>
-              </div>
-              <div class="mucus-option">
-                <input type="radio" name="cervical-mucus" id="cm-creamy" value="creamy" />
-                <label for="cm-creamy">
-                  <span class="mucus-icon">&#9684;</span>
-                  <span class="mucus-name">Creamy</span>
-                </label>
-              </div>
-              <div class="mucus-option">
-                <input type="radio" name="cervical-mucus" id="cm-watery" value="watery" />
-                <label for="cm-watery">
-                  <span class="mucus-icon">&#9676;</span>
-                  <span class="mucus-name">Watery</span>
-                </label>
-              </div>
-              <div class="mucus-option">
-                <input type="radio" name="cervical-mucus" id="cm-eggwhite" value="eggWhite" />
-                <label for="cm-eggwhite">
-                  <span class="mucus-icon">&#10741;</span>
-                  <span class="mucus-name">Egg White</span>
-                </label>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label>Indicators</label>
-            <div class="toggle-group">
-              ${INDICATORS.map(
-								(ind) => `<label class="toggle-item" for="ind-${ind.key}">
-                <div class="toggle-switch">
-                  <input type="checkbox" id="ind-${ind.key}" />
-                  <span class="toggle-slider"></span>
+          <details class="collapsible" open>
+            <summary>Temperature</summary>
+            <div class="collapsible-content">
+              <div class="temp-header">
+                <label for="bbt">${tempLabel}</label>
+                <div class="unit-toggle">
+                  <button type="button" data-unit="C" class="${this.tempUnit === "C" ? "active" : ""}">°C</button>
+                  <button type="button" data-unit="F" class="${this.tempUnit === "F" ? "active" : ""}">°F</button>
                 </div>
-                <span class="toggle-label">${ind.label}</span>
-              </label>`,
-							).join("")}
+              </div>
+              <input type="number" id="bbt" step="0.01" min="${tempMin}" max="${tempMax}" placeholder="${tempPlaceholder}" />
             </div>
-          </div>
+          </details>
 
-          <div class="form-group">
-            <label for="notes">Notes</label>
-            <textarea id="notes" placeholder="Any additional observations..."></textarea>
-          </div>
+          <details class="collapsible">
+            <summary>Cervical Mucus</summary>
+            <div class="collapsible-content">
+              <div class="mucus-options">
+                <div class="mucus-option">
+                  <input type="radio" name="cervical-mucus" id="cm-dry" value="dry" />
+                  <label for="cm-dry">
+                    <span class="mucus-icon">&#9711;</span>
+                    <span class="mucus-name">Dry</span>
+                  </label>
+                </div>
+                <div class="mucus-option">
+                  <input type="radio" name="cervical-mucus" id="cm-sticky" value="sticky" />
+                  <label for="cm-sticky">
+                    <span class="mucus-icon">&#9679;</span>
+                    <span class="mucus-name">Sticky</span>
+                  </label>
+                </div>
+                <div class="mucus-option">
+                  <input type="radio" name="cervical-mucus" id="cm-creamy" value="creamy" />
+                  <label for="cm-creamy">
+                    <span class="mucus-icon">&#9684;</span>
+                    <span class="mucus-name">Creamy</span>
+                  </label>
+                </div>
+                <div class="mucus-option">
+                  <input type="radio" name="cervical-mucus" id="cm-watery" value="watery" />
+                  <label for="cm-watery">
+                    <span class="mucus-icon">&#9676;</span>
+                    <span class="mucus-name">Watery</span>
+                  </label>
+                </div>
+                <div class="mucus-option">
+                  <input type="radio" name="cervical-mucus" id="cm-eggwhite" value="eggWhite" />
+                  <label for="cm-eggwhite">
+                    <span class="mucus-icon">&#10741;</span>
+                    <span class="mucus-name">Egg White</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <details class="collapsible">
+            <summary>Indicators</summary>
+            <div class="collapsible-content">
+              <div class="toggle-group">
+                ${INDICATORS.map(
+									(ind) => `<label class="toggle-item" for="ind-${ind.key}">
+                  <div class="toggle-switch">
+                    <input type="checkbox" id="ind-${ind.key}" />
+                    <span class="toggle-slider"></span>
+                  </div>
+                  <span class="toggle-label">${ind.label}</span>
+                </label>`,
+								).join("")}
+              </div>
+            </div>
+          </details>
+
+          <details class="collapsible">
+            <summary>Period / Bleeding</summary>
+            <div class="collapsible-content">
+              <div class="bleeding-options">
+                <div class="bleeding-option">
+                  <input type="radio" name="bleeding-status" id="bleeding-none" value="none" checked />
+                  <label for="bleeding-none">None</label>
+                </div>
+                <div class="bleeding-option">
+                  <input type="radio" name="bleeding-status" id="bleeding-started" value="started" />
+                  <label for="bleeding-started">Started</label>
+                </div>
+                <div class="bleeding-option">
+                  <input type="radio" name="bleeding-status" id="bleeding-ended" value="ended" />
+                  <label for="bleeding-ended">Ended</label>
+                </div>
+              </div>
+              <div class="flow-section">
+                <label>Flow Intensity</label>
+                <div class="mucus-options">
+                  <div class="mucus-option">
+                    <input type="radio" name="bleeding-flow" id="flow-light" value="light" />
+                    <label for="flow-light">
+                      <span class="mucus-icon">&#9675;</span>
+                      <span class="mucus-name">Light</span>
+                    </label>
+                  </div>
+                  <div class="mucus-option">
+                    <input type="radio" name="bleeding-flow" id="flow-medium" value="medium" />
+                    <label for="flow-medium">
+                      <span class="mucus-icon">&#9681;</span>
+                      <span class="mucus-name">Medium</span>
+                    </label>
+                  </div>
+                  <div class="mucus-option">
+                    <input type="radio" name="bleeding-flow" id="flow-heavy" value="heavy" />
+                    <label for="flow-heavy">
+                      <span class="mucus-icon">&#9679;</span>
+                      <span class="mucus-name">Heavy</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </details>
+
+          <details class="collapsible">
+            <summary>Notes</summary>
+            <div class="collapsible-content">
+              <textarea id="notes" placeholder="Any additional observations..."></textarea>
+            </div>
+          </details>
 
           <button type="submit" class="btn-submit" id="submit-btn">Save Entry</button>
         </form>
@@ -466,6 +597,23 @@ class DataEntryForm extends HTMLElement {
 					(entry as unknown as Record<string, unknown>)[ind.key] = true;
 				}
 			}
+
+			const bleedingStatusEl = this.shadow.querySelector(
+				'input[name="bleeding-status"]:checked',
+			) as HTMLInputElement | null;
+			const bleedingStatus = bleedingStatusEl?.value;
+
+			if (bleedingStatus === "started") entry.bleedingStart = true;
+			if (bleedingStatus === "ended") entry.bleedingEnd = true;
+
+			const bleedingFlowEl = this.shadow.querySelector(
+				'input[name="bleeding-flow"]:checked',
+			) as HTMLInputElement | null;
+			if (bleedingFlowEl) {
+				entry.bleedingFlow =
+					bleedingFlowEl.value as HealthEntryData["bleedingFlow"];
+			}
+
 			if (notes) entry.notes = notes;
 
 			try {
