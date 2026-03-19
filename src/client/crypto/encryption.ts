@@ -1,6 +1,31 @@
 const ALGO = "AES-GCM";
 const KEY_LENGTH = 256;
 
+export async function deriveKeyFromPassword(
+	password: string,
+	username: string,
+): Promise<string> {
+	const enc = new TextEncoder();
+	const baseKey = await crypto.subtle.importKey(
+		"raw",
+		enc.encode(password),
+		"PBKDF2",
+		false,
+		["deriveBits"],
+	);
+	const bits = await crypto.subtle.deriveBits(
+		{
+			name: "PBKDF2",
+			salt: enc.encode(`lavendar:${username}`),
+			iterations: 100000,
+			hash: "SHA-256",
+		},
+		baseKey,
+		256,
+	);
+	return btoa(String.fromCharCode(...new Uint8Array(bits)));
+}
+
 export async function generateEncryptionKey(): Promise<string> {
 	const key = await crypto.subtle.generateKey(
 		{ name: ALGO, length: KEY_LENGTH },

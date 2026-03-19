@@ -1,41 +1,32 @@
 import {
 	clearStoredKey,
-	generateEncryptionKey,
+	deriveKeyFromPassword,
 	getStoredKey,
 	storeKey,
 } from "@client/crypto/encryption";
 import { api, clearToken, setToken } from "@client/services/api";
 
-export interface RegisterResult {
-	username: string;
-	encryptionKey: string;
-}
-
 export async function register(
 	username: string,
 	password: string,
-): Promise<RegisterResult> {
+): Promise<void> {
 	const result = await api.auth.register(username, password);
 	setToken(result.token);
-
-	// Generate encryption key for user to save
-	const encryptionKey = await generateEncryptionKey();
+	const encryptionKey = await deriveKeyFromPassword(password, username);
 	storeKey(encryptionKey);
-
-	return { username: result.username, encryptionKey };
 }
 
 export async function login(
 	username: string,
 	password: string,
-	encryptionKey: string,
 ): Promise<void> {
 	const result = await api.auth.login(username, password);
 	setToken(result.token);
+	const encryptionKey = await deriveKeyFromPassword(password, username);
 	storeKey(encryptionKey);
 }
 
-export async function loginWithPasskey(encryptionKey: string): Promise<string> {
+export async function loginWithPasskey(username: string, password: string): Promise<void> {
 	const { startAuthentication } = await import("@simplewebauthn/browser");
 	const options = await api.passkeys.getAuthenticationOptions();
 	const authResponse = await startAuthentication({ optionsJSON: options });
@@ -44,8 +35,8 @@ export async function loginWithPasskey(encryptionKey: string): Promise<string> {
 		options.challenge,
 	);
 	setToken(result.token);
+	const encryptionKey = await deriveKeyFromPassword(password, username);
 	storeKey(encryptionKey);
-	return result.username;
 }
 
 export async function registerPasskey(): Promise<void> {
