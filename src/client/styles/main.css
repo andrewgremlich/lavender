@@ -16,7 +16,6 @@
 	--color-surface: #ffffff;
 	--color-surface-raised: #ffffff;
 	--color-text: #1e1b4b;
-	--color-text-secondary: #6b7280;
 	--color-text-inverse: #ffffff;
 	--color-border: #e5e7eb;
 	--color-border-focus: #a78bfa;
@@ -91,7 +90,6 @@
 		--color-surface: #1a1128;
 		--color-surface-raised: #231836;
 		--color-text: #ede9fe;
-		--color-text-secondary: #9ca3af;
 		--color-text-inverse: #0f0a1a;
 		--color-border: #312548;
 		--color-border-focus: #8b5cf6;
@@ -244,7 +242,7 @@ p {
 }
 
 .card-body {
-	color: var(--color-text-secondary);
+	color: var(--color-text);
 }
 
 .card-footer {
@@ -299,7 +297,7 @@ p {
 }
 
 .form-input::placeholder {
-	color: var(--color-text-secondary);
+	color: var(--color-text);
 	opacity: 0.7;
 }
 
@@ -317,7 +315,7 @@ p {
 
 .form-hint {
 	font-size: var(--text-xs);
-	color: var(--color-text-secondary);
+	color: var(--color-text);
 	margin-top: var(--space-xs);
 }
 
@@ -431,7 +429,7 @@ p {
 
 .btn-ghost {
 	background-color: transparent;
-	color: var(--color-text-secondary);
+	color: var(--color-text);
 }
 
 .btn-ghost:hover:not(:disabled) {
@@ -487,7 +485,7 @@ p {
 	justify-content: center;
 	gap: 2px;
 	padding: var(--space-xs) var(--space-sm);
-	color: var(--color-text-secondary);
+	color: var(--color-text);
 	font-size: var(--text-xs);
 	text-decoration: none;
 	border-radius: var(--radius-md);
@@ -556,7 +554,7 @@ p {
 	align-items: center;
 	gap: var(--space-xs);
 	font-size: var(--text-xs);
-	color: var(--color-text-secondary);
+	color: var(--color-text);
 }
 
 .chart-legend-dot {
@@ -627,7 +625,7 @@ p {
 	height: 32px;
 	border: none;
 	background: var(--color-primary-alpha);
-	color: var(--color-text-secondary);
+	color: var(--color-text);
 	border-radius: var(--radius-full);
 	cursor: pointer;
 	font-size: var(--text-lg);
@@ -856,7 +854,7 @@ p {
 	font-size: var(--text-xl);
 }
 .text-secondary {
-	color: var(--color-text-secondary);
+	color: var(--color-text);
 }
 .text-primary {
 	color: var(--color-primary);
@@ -1093,5 +1091,5 @@ p {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-	background: var(--color-text-secondary);
+	background: var(--color-text);
 }
