@@ -12,6 +12,9 @@ export interface HealthEntryData {
 	cervixChanges?: boolean;
 	fluidRetention?: boolean;
 	cramping?: boolean;
+	bleedingStart?: boolean;
+	bleedingEnd?: boolean;
+	bleedingFlow?: "light" | "medium" | "heavy";
 	notes?: string;
 }
 

@@ -12,6 +12,12 @@ const MUCUS_LABELS: Record<string, string> = {
 	eggWhite: "Egg White",
 };
 
+const FLOW_LABELS: Record<string, string> = {
+	light: "Light",
+	medium: "Medium",
+	heavy: "Heavy",
+};
+
 class EntryCard extends HTMLElement {
 	private shadow: ShadowRoot;
 	private expanded = false;
@@ -61,6 +67,21 @@ class EntryCard extends HTMLElement {
 				);
 			}
 		}
+		if (data.bleedingStart) {
+			rows.push(
+				`<div class="detail-row"><span class="detail-label">Bleeding Started</span><span class="detail-value">Yes</span></div>`,
+			);
+		}
+		if (data.bleedingEnd) {
+			rows.push(
+				`<div class="detail-row"><span class="detail-label">Bleeding Ended</span><span class="detail-value">Yes</span></div>`,
+			);
+		}
+		if (data.bleedingFlow) {
+			rows.push(
+				`<div class="detail-row"><span class="detail-label">Flow Intensity</span><span class="detail-value">${FLOW_LABELS[data.bleedingFlow as string] || data.bleedingFlow}</span></div>`,
+			);
+		}
 		if (data.notes) {
 			rows.push(
 				`<div class="detail-row notes-row"><span class="detail-label">Notes</span><span class="detail-value">${this.escapeHtml(data.notes as string)}</span></div>`,
@@ -96,6 +117,14 @@ class EntryCard extends HTMLElement {
 		if (data.cervicalMucus) {
 			tags.push(
 				`<span class="entry-tag">${MUCUS_LABELS[data.cervicalMucus as string] || data.cervicalMucus}</span>`,
+			);
+		}
+		if (data.bleedingStart || data.bleedingFlow) {
+			const flowText = data.bleedingFlow
+				? ` (${FLOW_LABELS[data.bleedingFlow as string] || data.bleedingFlow})`
+				: "";
+			tags.push(
+				`<span class="entry-tag bleeding">Period${flowText}</span>`,
 			);
 		}
 		const indCount = countIndicators(data);
@@ -160,6 +189,7 @@ class EntryCard extends HTMLElement {
           background: var(--color-border, #e5e7eb);
         }
         .entry-tag.indicators { background: #fce7f3; color: #9d174d; }
+        .entry-tag.bleeding { background: #fee2e2; color: #991b1b; }
         .delete-btn {
           display: flex;
           align-items: center;
