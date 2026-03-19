@@ -4,6 +4,15 @@ import Chart from "chart.js/auto";
 import { decrypt, getStoredKey, importKey } from "../crypto/encryption";
 import { navigate } from "../router";
 import { api } from "../services/api";
+import {
+	calculateFertilityIndicators,
+	type FertilityIndicators,
+} from "../utils/fertility";
+import {
+	countIndicators,
+	getActiveIndicatorLabels,
+	INDICATORS,
+} from "../utils/indicators";
 import { celsiusToFahrenheit, getUnitSystem } from "../utils/units";
 
 interface HealthEntryData {
@@ -12,8 +21,15 @@ interface HealthEntryData {
 	basalBodyTemp?: number;
 	cervicalMucus?: "dry" | "sticky" | "creamy" | "watery" | "eggWhite";
 	lhSurge?: boolean;
-	ovulationDay?: boolean;
-	fertileWindow?: boolean;
+	appetiteChange?: boolean;
+	moodChange?: boolean;
+	increasedSexDrive?: boolean;
+	breastTenderness?: boolean;
+	mildSpotting?: boolean;
+	heightenedSmell?: boolean;
+	cervixChanges?: boolean;
+	fluidRetention?: boolean;
+	cramping?: boolean;
 	notes?: string;
 }
 
@@ -27,11 +43,14 @@ const MUCUS_LABELS: Record<string, string> = {
 	eggWhite: "Egg White",
 };
 
-
 class MetricChart extends HTMLElement {
 	private shadow: ShadowRoot;
 	private chart: Chart | null = null;
 	private entries: HealthEntryData[] = [];
+	private fertility: FertilityIndicators = {
+		ovulationDays: new Set(),
+		fertileWindowDays: new Set(),
+	};
 	private selectedRange: DateRange = "30";
 
 	constructor() {
@@ -231,6 +250,7 @@ class MetricChart extends HTMLElement {
 
 			decryptedEntries.sort((a, b) => a.date.localeCompare(b.date));
 			this.entries = decryptedEntries;
+			this.fertility = calculateFertilityIndicators(decryptedEntries);
 
 			this.renderDashboard(content);
 		} catch (err: unknown) {
@@ -270,6 +290,7 @@ class MetricChart extends HTMLElement {
           <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> LH Surge</div>
           <div class="legend-item"><span class="legend-dot" style="background:#ec4899"></span> Ovulation</div>
           <div class="legend-item"><span class="legend-dot" style="background:#10b981;opacity:0.3"></span> Fertile Window</div>
+          <div class="legend-item"><span class="legend-dot" style="background:rgba(244,114,182,0.5);border-radius:2px"></span> Indicators</div>
         </div>
       </div>
       <div class="summary-section">
@@ -319,29 +340,46 @@ class MetricChart extends HTMLElement {
 			isUS ? celsiusToFahrenheit(e.basalBodyTemp ?? 0) : (e.basalBodyTemp ?? 0),
 		);
 
-		// Create point colors based on indicators
+		// Create point colors based on computed fertility indicators
+		const { ovulationDays, fertileWindowDays } = this.fertility;
 		const pointBorderColors = bbtEntries.map((e) => {
-			if (e.ovulationDay) return "#ec4899";
+			if (ovulationDays.has(e.date)) return "#ec4899";
 			if (e.lhSurge) return "#f59e0b";
 			return "#7c3aed";
 		});
 		const pointRadius = bbtEntries.map((e) => {
-			if (e.ovulationDay || e.lhSurge) return 6;
+			if (ovulationDays.has(e.date) || e.lhSurge) return 6;
 			return 3;
 		});
 		const pointBgColors = bbtEntries.map((e) => {
-			if (e.ovulationDay) return "#ec4899";
+			if (ovulationDays.has(e.date)) return "#ec4899";
 			if (e.lhSurge) return "#f59e0b";
-			if (e.fertileWindow) return "rgba(16, 185, 129, 0.4)";
+			if (fertileWindowDays.has(e.date)) return "rgba(16, 185, 129, 0.4)";
 			return "#7c3aed";
 		});
 
+		// Build indicator count data aligned to the same labels
+		const indicatorCounts = bbtEntries.map((e) =>
+			countIndicators(e as unknown as Record<string, unknown>),
+		);
+		const maxIndicators = INDICATORS.length;
+
 		this.chart = new Chart(canvas, {
-			type: "line",
 			data: {
 				labels,
 				datasets: [
 					{
+						type: "bar" as const,
+						label: "Indicators",
+						data: indicatorCounts,
+						backgroundColor: "rgba(244, 114, 182, 0.35)",
+						borderColor: "rgba(244, 114, 182, 0.6)",
+						borderWidth: 1,
+						yAxisID: "yIndicators",
+						order: 2,
+					},
+					{
+						type: "line" as const,
 						label: `Basal Body Temp (${tempUnit})`,
 						data: temps,
 						borderColor: "#7c3aed",
@@ -352,6 +390,8 @@ class MetricChart extends HTMLElement {
 						pointHoverRadius: 7,
 						tension: 0.3,
 						fill: true,
+						yAxisID: "y",
+						order: 1,
 					},
 				],
 			},
@@ -369,6 +409,7 @@ class MetricChart extends HTMLElement {
 						grid: { display: false },
 					},
 					y: {
+						position: "left",
 						title: {
 							display: true,
 							text: `Temperature (${tempUnit})`,
@@ -378,6 +419,23 @@ class MetricChart extends HTMLElement {
 						suggestedMin: 35.5,
 						suggestedMax: 37.5,
 						ticks: { font: { size: 14 }, color: "#fff" },
+					},
+					yIndicators: {
+						position: "right",
+						title: {
+							display: true,
+							text: "Indicators",
+							font: { size: 12 },
+							color: "#fff",
+						},
+						min: 0,
+						max: maxIndicators + 1,
+						ticks: {
+							stepSize: 1,
+							font: { size: 11 },
+							color: "#fff",
+						},
+						grid: { display: false },
 					},
 				},
 				plugins: {
@@ -390,9 +448,14 @@ class MetricChart extends HTMLElement {
 									lines.push(
 										`Mucus: ${MUCUS_LABELS[entry.cervicalMucus] || entry.cervicalMucus}`,
 									);
-								if (entry.lhSurge) lines.push("LH Surge detected");
-								if (entry.ovulationDay) lines.push("Ovulation Day");
-								if (entry.fertileWindow) lines.push("Fertile Window");
+								const activeIndicators = getActiveIndicatorLabels(
+									entry as unknown as Record<string, unknown>,
+								);
+								if (activeIndicators.length > 0)
+									lines.push(`Indicators: ${activeIndicators.join(", ")}`);
+								if (ovulationDays.has(entry.date)) lines.push("Ovulation Day");
+								if (fertileWindowDays.has(entry.date))
+									lines.push("Fertile Window");
 								if (entry.notes) lines.push(`Notes: ${entry.notes}`);
 								return lines;
 							},
@@ -421,7 +484,9 @@ class MetricChart extends HTMLElement {
 			card.setAttribute("entry-data", JSON.stringify(entry));
 			card.addEventListener("entry-deleted", () => {
 				this.entries = this.entries.filter((e) => e.id !== entry.id);
-				const content = this.shadow.querySelector("#main-content") as HTMLElement;
+				const content = this.shadow.querySelector(
+					"#main-content",
+				) as HTMLElement;
 				if (this.entries.length === 0) {
 					this.renderEmpty(content);
 				} else {
