@@ -9,3 +9,7 @@ export function getUnitSystem(): UnitSystem {
 export function setUnitSystem(system: UnitSystem): void {
 	localStorage.setItem(KEY, system);
 }
+
+export function celsiusToFahrenheit(c: number): number {
+	return (c * 9) / 5 + 32;
+}
