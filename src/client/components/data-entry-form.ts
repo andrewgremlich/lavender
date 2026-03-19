@@ -153,6 +153,7 @@ class DataEntryForm extends HTMLElement {
           display: flex;
           align-items: center;
           gap: 0.5rem;
+          cursor: pointer;
         }
         .toggle-switch {
           position: relative;
@@ -327,27 +328,27 @@ class DataEntryForm extends HTMLElement {
           <div class="form-group">
             <label>Indicators</label>
             <div class="toggle-group">
-              <div class="toggle-item">
+              <label class="toggle-item" for="lh-surge">
                 <div class="toggle-switch">
                   <input type="checkbox" id="lh-surge" />
                   <span class="toggle-slider"></span>
                 </div>
                 <span class="toggle-label">LH Surge</span>
-              </div>
-              <div class="toggle-item">
+              </label>
+              <label class="toggle-item" for="ovulation-day">
                 <div class="toggle-switch">
                   <input type="checkbox" id="ovulation-day" />
                   <span class="toggle-slider"></span>
                 </div>
                 <span class="toggle-label">Ovulation Day</span>
-              </div>
-              <div class="toggle-item">
+              </label>
+              <label class="toggle-item" for="fertile-window">
                 <div class="toggle-switch">
                   <input type="checkbox" id="fertile-window" />
                   <span class="toggle-slider"></span>
                 </div>
                 <span class="toggle-label">Fertile Window</span>
-              </div>
+              </label>
             </div>
           </div>
 
