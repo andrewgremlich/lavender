@@ -1,4 +1,4 @@
-import { login, loginWithPasskey } from "../services/auth.js";
+import { login, loginWithPasskey } from "../services/auth";
 
 export class LoginForm extends HTMLElement {
 	private shadow: ShadowRoot;
@@ -75,7 +75,7 @@ export class LoginForm extends HTMLElement {
           display: flex;
           align-items: center;
           margin: 1.25rem 0;
-          color: var(--color-text-secondary, #6b7280);
+          color: var(--color-text, #6b7280);
           font-size: 0.875rem;
         }
         .divider::before, .divider::after {

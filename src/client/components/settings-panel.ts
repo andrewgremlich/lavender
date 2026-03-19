@@ -1,6 +1,6 @@
-import { api } from "../services/api.js";
-import { logout, registerPasskey } from "../services/auth.js";
-import { getUnitSystem, setUnitSystem } from "../utils/units.js";
+import { api } from "../services/api";
+import { logout, registerPasskey } from "../services/auth";
+import { getUnitSystem, setUnitSystem } from "../utils/units";
 
 class SettingsPanel extends HTMLElement {
 	private shadow: ShadowRoot;
@@ -202,13 +202,13 @@ class SettingsPanel extends HTMLElement {
       <!-- Passkeys -->
       <div class="settings-card">
         <h3>Passkeys</h3>
-        <p style="font-size:0.8125rem;color:var(--color-text-secondary,#6b7280);margin:0 0 0.75rem;">
+        <p style="font-size:0.8125rem;color:var(--color-text,#6b7280);margin:0 0 0.75rem;">
           Use passkeys for passwordless sign-in on supported devices.
         </p>
         <button class="btn btn-outline" id="register-passkey-btn">Register New Passkey</button>
         <div class="message" id="passkey-msg"></div>
         <div class="passkey-list" id="passkey-list">
-          <p style="font-size:0.8125rem;color:var(--color-text-secondary,#6b7280);">Loading passkeys...</p>
+          <p style="font-size:0.8125rem;color:var(--color-text,#6b7280);">Loading passkeys...</p>
         </div>
       </div>
 
@@ -367,7 +367,7 @@ class SettingsPanel extends HTMLElement {
 
 			if (passkeys.length === 0) {
 				list.innerHTML =
-					'<p style="font-size:0.8125rem;color:var(--color-text-secondary,#6b7280);">No passkeys registered.</p>';
+					'<p style="font-size:0.8125rem;color:var(--color-text,#6b7280);">No passkeys registered.</p>';
 				return;
 			}
 
@@ -375,7 +375,7 @@ class SettingsPanel extends HTMLElement {
 				.map(
 					(pk) => `
         <div class="passkey-item" data-id="${pk.id}">
-          <span class="passkey-name">Passkey ${pk.credential_id.slice(0, 8)} <span style="color:var(--color-text-secondary,#6b7280);font-size:0.75rem;">(${new Date(pk.created_at).toLocaleDateString()})</span></span>
+          <span class="passkey-name">Passkey ${pk.credential_id.slice(0, 8)} <span style="color:var(--color-text,#6b7280);font-size:0.75rem;">(${new Date(pk.created_at).toLocaleDateString()})</span></span>
           <button class="passkey-delete" data-id="${pk.id}">Remove</button>
         </div>
       `,
@@ -398,7 +398,7 @@ class SettingsPanel extends HTMLElement {
 			});
 		} catch {
 			list.innerHTML =
-				'<p style="font-size:0.8125rem;color:var(--color-text-secondary,#6b7280);">Could not load passkeys.</p>';
+				'<p style="font-size:0.8125rem;color:var(--color-text,#6b7280);">Could not load passkeys.</p>';
 		}
 	}
 

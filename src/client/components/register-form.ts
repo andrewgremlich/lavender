@@ -1,4 +1,4 @@
-import { register } from "../services/auth.js";
+import { register } from "../services/auth";
 
 export class RegisterForm extends HTMLElement {
 	private shadow: ShadowRoot;

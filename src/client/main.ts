@@ -1,7 +1,7 @@
-import "./components/app-root.ts";
-import "./components/login-form.js";
-import "./components/register-form.js";
-import "./components/data-entry-form.js";
-import "./components/metric-chart.js";
-import "./components/settings-panel.js";
-import "./components/nav-bar.js";
+import "./components/app-root";
+import "./components/login-form";
+import "./components/register-form";
+import "./components/data-entry-form";
+import "./components/metric-chart";
+import "./components/settings-panel";
+import "./components/nav-bar";

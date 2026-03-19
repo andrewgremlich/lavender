@@ -1,4 +1,4 @@
-import { navigate, route, startRouter } from "@client/router.js";
+import { navigate, route, startRouter } from "@client/router";
 import { isLoggedIn } from "@client/services/auth";
 
 import type { LoginForm } from "./login-form";
@@ -73,11 +73,11 @@ class AppRoot extends HTMLElement {
         <style>
           :host { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--color-bg, #faf5ff); }
           .auth-container { width: 100%; max-width: 400px; padding: 1rem; }
-          .auth-toggle { text-align: center; margin-top: 1rem; color: var(--color-text-secondary, #6b7280); }
+          .auth-toggle { text-align: center; margin-top: 1rem; color: var(--color-text, #6b7280); }
           .auth-toggle a { color: var(--color-primary, #7c3aed); cursor: pointer; text-decoration: underline; }
           .app-title { text-align: center; margin-bottom: 2rem; }
           .app-title h1 { font-size: 2rem; color: var(--color-primary, #7c3aed); margin: 0; }
-          .app-title p { color: var(--color-text-secondary, #6b7280); margin: 0.5rem 0 0; }
+          .app-title p { color: var(--color-text, #6b7280); margin: 0.5rem 0 0; }
         </style>
         <div class="auth-container">
           <div class="app-title">

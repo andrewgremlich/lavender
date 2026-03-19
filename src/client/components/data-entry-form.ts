@@ -1,7 +1,7 @@
-import { encrypt, getStoredKey, importKey } from "../crypto/encryption.js";
-import { navigate } from "../router.js";
-import { api } from "../services/api.js";
-import { getUnitSystem } from "../utils/units.js";
+import { encrypt, getStoredKey, importKey } from "../crypto/encryption";
+import { navigate } from "../router";
+import { api } from "../services/api";
+import { getUnitSystem } from "../utils/units";
 
 interface HealthEntryData {
 	date: string;
@@ -209,15 +209,12 @@ class DataEntryForm extends HTMLElement {
         .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
 
         .message {
-          padding: 0.75rem;
-          border-radius: 0.5rem;
-          font-size: 0.875rem;
           margin-bottom: 1rem;
           display: none;
         }
         .message.visible { display: block; }
-        .message.error { background: #fef2f2; color: #dc2626; }
-        .message.success { background: #f0fdf4; color: #16a34a; }
+        .message.error { color: #dc2626; }
+        .message.success { color: #16a34a; }
 
         .success-actions {
           display: flex;

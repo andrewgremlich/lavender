@@ -1,9 +1,9 @@
 import type { TooltipItem } from "chart.js";
 import Chart from "chart.js/auto";
 
-import { decrypt, getStoredKey, importKey } from "../crypto/encryption.js";
-import { navigate } from "../router.js";
-import { api } from "../services/api.js";
+import { decrypt, getStoredKey, importKey } from "../crypto/encryption";
+import { navigate } from "../router";
+import { api } from "../services/api";
 
 interface HealthEntryData {
 	date: string;
@@ -66,7 +66,7 @@ class MetricChart extends HTMLElement {
           border: 1px solid var(--color-border, #d1d5db);
           border-radius: 999px;
           background: var(--color-surface, #fff);
-          color: var(--color-text-secondary, #6b7280);
+          color: var(--color-text, #6b7280);
           font-size: 0.8125rem;
           cursor: pointer;
           transition: all 0.2s;
@@ -105,7 +105,7 @@ class MetricChart extends HTMLElement {
           align-items: center;
           gap: 0.375rem;
           font-size: 0.75rem;
-          color: var(--color-text-secondary, #6b7280);
+          color: var(--color-text, #6b7280);
         }
         .legend-dot {
           width: 10px;
@@ -142,7 +142,7 @@ class MetricChart extends HTMLElement {
           flex-wrap: wrap;
           gap: 0.5rem;
           font-size: 0.8125rem;
-          color: var(--color-text-secondary, #6b7280);
+          color: var(--color-text, #6b7280);
         }
         .entry-tag {
           display: inline-flex;
@@ -160,7 +160,7 @@ class MetricChart extends HTMLElement {
         .empty-state {
           text-align: center;
           padding: 3rem 1rem;
-          color: var(--color-text-secondary, #6b7280);
+          color: var(--color-text, #6b7280);
         }
         .empty-state h3 { color: var(--color-text, #1f2937); margin: 0 0 0.5rem; }
         .empty-state p { margin: 0 0 1.5rem; }
@@ -179,7 +179,7 @@ class MetricChart extends HTMLElement {
         .loading {
           text-align: center;
           padding: 3rem;
-          color: var(--color-text-secondary, #6b7280);
+          color: var(--color-text, #6b7280);
         }
         .error-msg {
           background: #fef2f2;
@@ -401,7 +401,7 @@ class MetricChart extends HTMLElement {
 
 		if (recent.length === 0) {
 			list.innerHTML =
-				'<p style="color:var(--color-text-secondary,#6b7280);font-size:0.875rem;">No entries in this range.</p>';
+				'<p style="color:var(--color-text,#6b7280);font-size:0.875rem;">No entries in this range.</p>';
 			return;
 		}
 
