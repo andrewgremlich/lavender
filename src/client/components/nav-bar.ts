@@ -1,5 +1,6 @@
-import { currentRoute, navigate } from "../router.js";
-import { logout } from "../services/auth.js";
+import { createElement, House, CirclePlus, Settings, LogOut } from "lucide";
+import { currentRoute, navigate } from "../router";
+import { logout } from "../services/auth";
 
 class NavBar extends HTMLElement {
 	private shadow: ShadowRoot;
@@ -52,7 +53,7 @@ class NavBar extends HTMLElement {
           padding: 0.25rem 0.75rem;
           border: none;
           background: transparent;
-          color: var(--color-text-secondary, #9ca3af);
+          color: var(--color-text, #9ca3af);
           cursor: pointer;
           text-decoration: none;
           transition: color 0.2s;
@@ -61,7 +62,8 @@ class NavBar extends HTMLElement {
         }
         .nav-item:hover { color: var(--color-primary, #7c3aed); }
         .nav-item.active { color: var(--color-primary, #7c3aed); }
-        .nav-item svg { width: 24px; height: 24px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+        .nav-item svg { width: 24px; height: 24px; }
+        .icon { display: flex; align-items: center; justify-content: center; }
         .nav-label { font-size: 0.6875rem; font-weight: 500; }
 
         /* Desktop: left sidebar */
@@ -112,8 +114,7 @@ class NavBar extends HTMLElement {
 
         .nav-spacer { flex: 1; }
 
-        .nav-item.logout { color: #dc2626; }
-        .nav-item.logout:hover { color: #b91c1c; }
+        .nav-item.logout { color: var(--color-text); }
         @media (min-width: 1024px) {
           .nav-item.logout { margin-top: auto; }
         }
@@ -125,37 +126,40 @@ class NavBar extends HTMLElement {
         </div>
 
         <button class="nav-item ${route === "/" ? "active" : ""}" data-route="/">
-          <svg viewBox="0 0 24 24">
-            <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-4 0a1 1 0 01-1-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 01-1 1h-2z" />
-          </svg>
+          <span class="icon" data-icon="house"></span>
           <span class="nav-label">Dashboard</span>
         </button>
 
         <button class="nav-item ${route === "/entry" ? "active" : ""}" data-route="/entry">
-          <svg viewBox="0 0 24 24">
-            <path d="M12 4v16m8-8H4" />
-          </svg>
+          <span class="icon" data-icon="circle-plus"></span>
           <span class="nav-label">Add Entry</span>
         </button>
 
         <button class="nav-item ${route === "/settings" ? "active" : ""}" data-route="/settings">
-          <svg viewBox="0 0 24 24">
-            <path d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.066 2.573c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.573 1.066c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.066-2.573c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.573-1.066z" />
-            <circle cx="12" cy="12" r="3" />
-          </svg>
+          <span class="icon" data-icon="settings"></span>
           <span class="nav-label">Settings</span>
         </button>
 
         <div class="nav-spacer"></div>
 
         <button class="nav-item logout" id="logout-btn">
-          <svg viewBox="0 0 24 24">
-            <path d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
+          <span class="icon" data-icon="log-out"></span>
           <span class="nav-label">Log Out</span>
         </button>
       </nav>
     `;
+
+		const iconMap: Record<string, Parameters<typeof createElement>[0]> = {
+			"house": House,
+			"circle-plus": CirclePlus,
+			"settings": Settings,
+			"log-out": LogOut,
+		};
+
+		this.shadow.querySelectorAll<HTMLElement>(".icon[data-icon]").forEach((el) => {
+			const icon = iconMap[el.dataset.icon ?? ""];
+			if (icon) el.appendChild(createElement(icon));
+		});
 	}
 
 	private setupListeners() {
