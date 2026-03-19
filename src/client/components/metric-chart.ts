@@ -4,8 +4,10 @@ import Chart from "chart.js/auto";
 import { decrypt, getStoredKey, importKey } from "../crypto/encryption";
 import { navigate } from "../router";
 import { api } from "../services/api";
+import { celsiusToFahrenheit, getUnitSystem } from "../utils/units";
 
 interface HealthEntryData {
+	id: string;
 	date: string;
 	basalBodyTemp?: number;
 	cervicalMucus?: "dry" | "sticky" | "creamy" | "watery" | "eggWhite";
@@ -24,6 +26,7 @@ const MUCUS_LABELS: Record<string, string> = {
 	watery: "Watery",
 	eggWhite: "Egg White",
 };
+
 
 class MetricChart extends HTMLElement {
 	private shadow: ShadowRoot;
@@ -151,7 +154,6 @@ class MetricChart extends HTMLElement {
           padding: 0.125rem 0.5rem;
           border-radius: 999px;
           font-size: 0.75rem;
-          background: #f3f4f6;
         }
         .entry-tag.lh { background: #fef3c7; color: #92400e; }
         .entry-tag.ovulation { background: #ede9fe; color: #6d28d9; }
@@ -220,7 +222,8 @@ class MetricChart extends HTMLElement {
 			for (const raw of rawEntries) {
 				try {
 					const decrypted = await decrypt(raw.encryptedData, raw.iv, cryptoKey);
-					decryptedEntries.push(JSON.parse(decrypted) as HealthEntryData);
+					const parsed = JSON.parse(decrypted) as HealthEntryData;
+					decryptedEntries.push({ ...parsed, id: raw.id });
 				} catch {
 					// Skip entries that fail to decrypt
 				}
@@ -308,9 +311,13 @@ class MetricChart extends HTMLElement {
 			this.chart = null;
 		}
 
+		const isUS = getUnitSystem() === "us";
+		const tempUnit = isUS ? "\u00b0F" : "\u00b0C";
 		const bbtEntries = entries.filter((e) => e.basalBodyTemp != null);
 		const labels = bbtEntries.map((e) => e.date);
-		const temps = bbtEntries.map((e) => e.basalBodyTemp ?? 0);
+		const temps = bbtEntries.map((e) =>
+			isUS ? celsiusToFahrenheit(e.basalBodyTemp ?? 0) : (e.basalBodyTemp ?? 0),
+		);
 
 		// Create point colors based on indicators
 		const pointBorderColors = bbtEntries.map((e) => {
@@ -335,7 +342,7 @@ class MetricChart extends HTMLElement {
 				labels,
 				datasets: [
 					{
-						label: "Basal Body Temp (\u00b0C)",
+						label: `Basal Body Temp (${tempUnit})`,
 						data: temps,
 						borderColor: "#7c3aed",
 						backgroundColor: "rgba(124, 58, 237, 0.1)",
@@ -363,7 +370,7 @@ class MetricChart extends HTMLElement {
 					y: {
 						title: {
 							display: true,
-							text: "Temperature (\u00b0C)",
+							text: `Temperature (${tempUnit})`,
 							font: { size: 12 },
 						},
 						suggestedMin: 35.5,
@@ -405,34 +412,22 @@ class MetricChart extends HTMLElement {
 			return;
 		}
 
-		list.innerHTML = recent
-			.map((entry) => {
-				const tags: string[] = [];
-				if (entry.basalBodyTemp != null) {
-					tags.push(
-						`<span class="entry-tag">${entry.basalBodyTemp.toFixed(2)}\u00b0C</span>`,
-					);
+		list.innerHTML = "";
+		for (const entry of recent) {
+			const card = document.createElement("entry-card");
+			card.setAttribute("entry-id", entry.id);
+			card.setAttribute("entry-data", JSON.stringify(entry));
+			card.addEventListener("entry-deleted", () => {
+				this.entries = this.entries.filter((e) => e.id !== entry.id);
+				const content = this.shadow.querySelector("#main-content") as HTMLElement;
+				if (this.entries.length === 0) {
+					this.renderEmpty(content);
+				} else {
+					this.renderDashboard(content);
 				}
-				if (entry.cervicalMucus) {
-					tags.push(
-						`<span class="entry-tag">${MUCUS_LABELS[entry.cervicalMucus] || entry.cervicalMucus}</span>`,
-					);
-				}
-				if (entry.lhSurge)
-					tags.push('<span class="entry-tag lh">LH Surge</span>');
-				if (entry.ovulationDay)
-					tags.push('<span class="entry-tag ovulation">Ovulation</span>');
-				if (entry.fertileWindow)
-					tags.push('<span class="entry-tag fertile">Fertile</span>');
-
-				return `
-          <div class="entry-card">
-            <span class="entry-date">${entry.date}</span>
-            <div class="entry-details">${tags.join("")}</div>
-          </div>
-        `;
-			})
-			.join("");
+			});
+			list.appendChild(card);
+		}
 	}
 }
 
