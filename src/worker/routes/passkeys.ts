@@ -12,6 +12,17 @@ import type { Env, PasskeyRow, UserRow } from "../types.js";
 
 const passkeys = new Hono<{ Bindings: Env }>();
 
+// PRF evaluation input — fixed app-specific salt.
+// Must be consistent across all calls so the authenticator always returns
+// the same 32-byte output for a given credential.
+function prfEvalInput(): string {
+	const bytes = new TextEncoder().encode("lavendar-v1-encryption-key");
+	return btoa(String.fromCharCode(...bytes))
+		.replace(/\+/g, "-")
+		.replace(/\//g, "_")
+		.replace(/=/g, "");
+}
+
 // Registration options (requires auth - user adds passkey to existing account)
 passkeys.post("/register/options", authMiddleware(), async (c) => {
 	const userId = getUserId(c);
@@ -44,10 +55,13 @@ passkeys.post("/register/options", authMiddleware(), async (c) => {
 			residentKey: "preferred",
 			userVerification: "preferred",
 		},
+		// Request PRF extension at registration to check support
+		extensions: { prf: { eval: { first: prfEvalInput() } } } as Record<
+			string,
+			unknown
+		>,
 	});
 
-	// Store challenge temporarily (using a simple approach - store in DB or KV)
-	// For simplicity, we'll include it in response and verify on the next call
 	return c.json(options);
 });
 
@@ -90,6 +104,11 @@ passkeys.post("/authenticate/options", async (c) => {
 	const options = await generateAuthenticationOptions({
 		rpID: c.env.WEBAUTHN_RP_ID || "localhost",
 		userVerification: "preferred",
+		// Request PRF evaluation — browser will evaluate if the authenticator supports it
+		extensions: { prf: { eval: { first: prfEvalInput() } } } as Record<
+			string,
+			unknown
+		>,
 	});
 
 	return c.json(options);
@@ -153,11 +172,41 @@ passkeys.post("/authenticate/verify", async (c) => {
 		{ sub: user.id, username: user.username },
 		c.env.JWT_SECRET,
 	);
+
+	// Return the passkey's PRF-wrapped encryption key if one has been stored
 	return c.json({
 		token,
 		username: user.username,
-		encryptionKey: user.encryption_key ?? null,
+		passkeyId: credential.id,
+		prfWrappedKey: credential.prf_wrapped_key,
+		prfIv: credential.prf_iv,
 	});
+});
+
+// Store PRF-wrapped encryption key for a passkey (called once after first PRF login)
+passkeys.put("/:id/prf-key", authMiddleware(), async (c) => {
+	const userId = getUserId(c);
+	const passkeyId = c.req.param("id");
+	const { prfWrappedKey, prfIv } = await c.req.json<{
+		prfWrappedKey: string;
+		prfIv: string;
+	}>();
+
+	if (!prfWrappedKey || !prfIv) {
+		return c.json({ error: "prfWrappedKey and prfIv are required" }, 400);
+	}
+
+	const result = await c.env.DB.prepare(
+		"UPDATE passkey_credentials SET prf_wrapped_key = ?, prf_iv = ? WHERE id = ? AND user_id = ?",
+	)
+		.bind(prfWrappedKey, prfIv, passkeyId, userId)
+		.run();
+
+	if (result.meta.changes === 0) {
+		return c.json({ error: "Passkey not found" }, 404);
+	}
+
+	return c.json({ ok: true });
 });
 
 // List user's passkeys (authenticated)

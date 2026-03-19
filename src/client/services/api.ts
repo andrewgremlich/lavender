@@ -32,15 +32,15 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 export const api = {
 	auth: {
-		register: (username: string, password: string, encryptionKey?: string) =>
+		register: (username: string, password: string) =>
 			request<{ token: string; username: string }>("/auth/register", {
 				method: "POST",
-				body: JSON.stringify({ username, password, encryptionKey }),
+				body: JSON.stringify({ username, password }),
 			}),
-		login: (username: string, password: string, encryptionKey?: string) =>
+		login: (username: string, password: string) =>
 			request<{ token: string; username: string }>("/auth/login", {
 				method: "POST",
-				body: JSON.stringify({ username, password, encryptionKey }),
+				body: JSON.stringify({ username, password }),
 			}),
 		deleteAccount: () =>
 			request<{ message: string }>("/auth/account", { method: "DELETE" }),
@@ -94,15 +94,26 @@ export const api = {
 				body: JSON.stringify({ response, challenge }),
 			}),
 		getAuthenticationOptions: () =>
-			request<any>("/passkeys/authenticate/options", { method: "POST" }),
-		verifyAuthentication: (response: any, challenge: string) =>
-			request<{ token: string; username: string; encryptionKey: string | null }>(
-				"/passkeys/authenticate/verify",
-				{
-					method: "POST",
-					body: JSON.stringify({ response, challenge }),
-				},
+			request<PublicKeyCredentialRequestOptionsJSON>(
+				"/passkeys/authenticate/options",
+				{ method: "POST" },
 			),
+		verifyAuthentication: (response: any, challenge: string) =>
+			request<{
+				token: string;
+				username: string;
+				passkeyId: string;
+				prfWrappedKey: string | null;
+				prfIv: string | null;
+			}>("/passkeys/authenticate/verify", {
+				method: "POST",
+				body: JSON.stringify({ response, challenge }),
+			}),
+		storePRFKey: (passkeyId: string, prfWrappedKey: string, prfIv: string) =>
+			request<{ ok: boolean }>(`/passkeys/${passkeyId}/prf-key`, {
+				method: "PUT",
+				body: JSON.stringify({ prfWrappedKey, prfIv }),
+			}),
 		list: () =>
 			request<Array<{ id: string; credential_id: string; created_at: string }>>(
 				"/passkeys",

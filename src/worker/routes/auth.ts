@@ -7,10 +7,9 @@ import type { Env, UserRow } from "../types.js";
 const auth = new Hono<{ Bindings: Env }>();
 
 auth.post("/register", async (c) => {
-	const { username, password, encryptionKey } = await c.req.json<{
+	const { username, password } = await c.req.json<{
 		username: string;
 		password: string;
-		encryptionKey?: string;
 	}>();
 
 	if (!username || !password) {
@@ -37,9 +36,9 @@ auth.post("/register", async (c) => {
 	const passwordHash = await hashPassword(password, salt);
 
 	await c.env.DB.prepare(
-		"INSERT INTO users (id, username, password_hash, salt, encryption_key) VALUES (?, ?, ?, ?, ?)",
+		"INSERT INTO users (id, username, password_hash, salt) VALUES (?, ?, ?, ?)",
 	)
-		.bind(id, username, passwordHash, salt, encryptionKey ?? null)
+		.bind(id, username, passwordHash, salt)
 		.run();
 
 	// Create default settings
@@ -52,10 +51,9 @@ auth.post("/register", async (c) => {
 });
 
 auth.post("/login", async (c) => {
-	const { username, password, encryptionKey } = await c.req.json<{
+	const { username, password } = await c.req.json<{
 		username: string;
 		password: string;
-		encryptionKey?: string;
 	}>();
 
 	if (!username || !password) {
@@ -73,13 +71,6 @@ auth.post("/login", async (c) => {
 	const passwordHash = await hashPassword(password, user.salt);
 	if (passwordHash !== user.password_hash) {
 		return c.json({ error: "Invalid credentials" }, 401);
-	}
-
-	// Store encryption key if provided (enables future passkey-only login)
-	if (encryptionKey) {
-		await c.env.DB.prepare("UPDATE users SET encryption_key = ? WHERE id = ?")
-			.bind(encryptionKey, user.id)
-			.run();
 	}
 
 	const token = await sign({ sub: user.id, username }, c.env.JWT_SECRET);

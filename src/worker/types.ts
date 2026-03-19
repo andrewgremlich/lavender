@@ -11,7 +11,6 @@ export interface UserRow {
 	username: string;
 	password_hash: string;
 	salt: string;
-	encryption_key: string | null;
 	created_at: string;
 }
 
@@ -22,6 +21,8 @@ export interface PasskeyRow {
 	public_key: string;
 	counter: number;
 	transports: string | null;
+	prf_wrapped_key: string | null;
+	prf_iv: string | null;
 	created_at: string;
 }
 
