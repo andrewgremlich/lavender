@@ -1,6 +1,7 @@
 import { encrypt, getStoredKey, importKey } from "../crypto/encryption.js";
 import { navigate } from "../router.js";
 import { api } from "../services/api.js";
+import { getUnitSystem } from "../utils/units.js";
 
 interface HealthEntryData {
 	date: string;
@@ -16,7 +17,7 @@ type TempUnit = "C" | "F";
 
 class DataEntryForm extends HTMLElement {
 	private shadow: ShadowRoot;
-	private tempUnit: TempUnit = "C";
+	private tempUnit: TempUnit = getUnitSystem() === "us" ? "F" : "C";
 
 	constructor() {
 		super();

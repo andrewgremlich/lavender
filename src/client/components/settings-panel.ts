@@ -1,6 +1,6 @@
-import { getStoredKey, importKey, storeKey } from "../crypto/encryption.js";
 import { api } from "../services/api.js";
 import { logout, registerPasskey } from "../services/auth.js";
+import { getUnitSystem, setUnitSystem } from "../utils/units.js";
 
 class SettingsPanel extends HTMLElement {
 	private shadow: ShadowRoot;
@@ -17,8 +17,6 @@ class SettingsPanel extends HTMLElement {
 	}
 
 	private render() {
-		const hasKey = !!getStoredKey();
-
 		this.shadow.innerHTML = `
       <link rel="stylesheet" href="/styles/main.css">
       <style>
@@ -98,26 +96,7 @@ class SettingsPanel extends HTMLElement {
         .btn:disabled { opacity: 0.6; cursor: not-allowed; }
         .btn-full { width: 100%; justify-content: center; }
 
-        .status-badge {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.375rem;
-          padding: 0.25rem 0.75rem;
-          border-radius: 999px;
-          font-size: 0.8125rem;
-          font-weight: 500;
-        }
-        .status-badge.active { background: #ecfdf5; color: #065f46; }
-        .status-badge.inactive { background: #fef2f2; color: #dc2626; }
-        .status-dot {
-          width: 8px;
-          height: 8px;
-          border-radius: 50%;
-        }
-        .status-badge.active .status-dot { background: #10b981; }
-        .status-badge.inactive .status-dot { background: #dc2626; }
-
-        .passkey-list { margin-top: 0.75rem; }
+.passkey-list { margin-top: 0.75rem; }
         .passkey-item {
           display: flex;
           align-items: center;
@@ -189,26 +168,18 @@ class SettingsPanel extends HTMLElement {
 
       <h2>Settings</h2>
 
-      <!-- Encryption Key Status -->
+      <!-- Units -->
       <div class="settings-card">
-        <h3>Encryption Key</h3>
-        <div style="display:flex;align-items:center;gap:0.75rem;margin-bottom:0.75rem;">
-          <span>Status:</span>
-          ${
-						hasKey
-							? '<span class="status-badge active"><span class="status-dot"></span>Key Loaded</span>'
-							: '<span class="status-badge inactive"><span class="status-dot"></span>Not Loaded</span>'
-					}
+        <h3>Units</h3>
+        <div class="form-row">
+          <label for="unit-system">Measurement system</label>
+          <select id="unit-system">
+            <option value="metric" ${getUnitSystem() === "metric" ? "selected" : ""}>Metric (°C, kg, cm)</option>
+            <option value="us" ${getUnitSystem() === "us" ? "selected" : ""}>US (°F, lb, in)</option>
+          </select>
         </div>
-        <div id="key-entry-section" style="${hasKey ? "display:none" : ""}">
-          <div class="form-row">
-            <label for="re-enter-key">Re-enter Encryption Key</label>
-            <input type="password" id="re-enter-key" placeholder="Paste your encryption key" autocomplete="off" />
-          </div>
-          <button class="btn btn-primary" id="load-key-btn">Load Key</button>
-          <div class="message" id="key-msg"></div>
-        </div>
-        ${hasKey ? '<button class="btn btn-outline" id="show-key-entry" style="font-size:0.8125rem;">Re-enter Key</button>' : ""}
+        <button class="btn btn-primary" id="save-units-btn">Save</button>
+        <div class="message" id="units-msg"></div>
       </div>
 
       <!-- Data Retention -->
@@ -266,55 +237,20 @@ class SettingsPanel extends HTMLElement {
         </div>
       </div>
 
-      <!-- Logout -->
-      <button class="btn btn-outline btn-full" id="logout-btn" style="margin-top:0.5rem;">
-        Log Out
-      </button>
     `;
 	}
 
 	private setupListeners() {
-		// Show key entry if already loaded
-		const showKeyEntryBtn = this.shadow.querySelector("#show-key-entry");
-		if (showKeyEntryBtn) {
-			showKeyEntryBtn.addEventListener("click", () => {
-				const section = this.shadow.querySelector(
-					"#key-entry-section",
-				) as HTMLElement;
-				section.style.display = "";
-				showKeyEntryBtn.remove();
-			});
-		}
-
-		// Load key
+		// Save units
 		this.shadow
-			.querySelector("#load-key-btn")
-			?.addEventListener("click", async () => {
-				const input = this.shadow.querySelector(
-					"#re-enter-key",
-				) as HTMLInputElement;
-				const msgEl = this.shadow.querySelector("#key-msg") as HTMLElement;
-				const keyValue = input.value.trim();
-
-				if (!keyValue) {
-					this.showMessage(msgEl, "Please enter your encryption key.", "error");
-					return;
-				}
-
-				try {
-					await importKey(keyValue); // Validate the key by attempting import
-					storeKey(keyValue);
-					this.showMessage(
-						msgEl,
-						"Encryption key loaded successfully.",
-						"success",
-					);
-					input.value = "";
-				} catch (err: unknown) {
-					const message =
-						err instanceof Error ? err.message : "Invalid encryption key.";
-					this.showMessage(msgEl, message, "error");
-				}
+			.querySelector("#save-units-btn")
+			?.addEventListener("click", () => {
+				const select = this.shadow.querySelector(
+					"#unit-system",
+				) as unknown as HTMLSelectElement;
+				const msgEl = this.shadow.querySelector("#units-msg") as HTMLElement;
+				setUnitSystem(select.value as "metric" | "us");
+				this.showMessage(msgEl, "Unit preference saved.", "success");
 			});
 
 		// Save retention
@@ -323,7 +259,7 @@ class SettingsPanel extends HTMLElement {
 			?.addEventListener("click", async () => {
 				const select = this.shadow.querySelector(
 					"#retention-period",
-				) as HTMLSelectElement;
+				) as unknown as HTMLSelectElement;
 				const msgEl = this.shadow.querySelector(
 					"#retention-msg",
 				) as HTMLElement;
@@ -422,12 +358,6 @@ class SettingsPanel extends HTMLElement {
 					alert(`Failed to delete account: ${message}`);
 				}
 			});
-
-		// Logout
-		this.shadow.querySelector("#logout-btn")?.addEventListener("click", () => {
-			logout();
-			window.dispatchEvent(new CustomEvent("user-logout"));
-		});
 	}
 
 	private async loadPasskeys() {
