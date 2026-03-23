@@ -1,30 +1,55 @@
+import type { HealthEntryData } from "@shared/types";
 import { encrypt, getStoredKey, importKey } from "../crypto/encryption";
 import { navigate } from "../router";
 import { api } from "../services/api";
 import { INDICATORS } from "../utils/indicators";
-import { getUnitSystem } from "../utils/units";
-
-interface HealthEntryData {
-	date: string;
-	basalBodyTemp?: number;
-	cervicalMucus?: "dry" | "sticky" | "creamy" | "watery" | "eggWhite";
-	lhSurge?: boolean;
-	appetiteChange?: boolean;
-	moodChange?: boolean;
-	increasedSexDrive?: boolean;
-	breastTenderness?: boolean;
-	mildSpotting?: boolean;
-	heightenedSmell?: boolean;
-	cervixChanges?: boolean;
-	fluidRetention?: boolean;
-	cramping?: boolean;
-	bleedingStart?: boolean;
-	bleedingEnd?: boolean;
-	bleedingFlow?: "light" | "medium" | "heavy";
-	notes?: string;
-}
+import {
+	celsiusToFahrenheit,
+	fahrenheitToCelsius,
+	getUnitSystem,
+} from "../utils/units";
 
 type TempUnit = "C" | "F";
+
+interface RadioOption {
+	id: string;
+	value: string;
+	icon: string;
+	label: string;
+}
+
+const MUCUS_OPTIONS: RadioOption[] = [
+	{ id: "cm-dry", value: "dry", icon: "\u25CB", label: "Dry" },
+	{ id: "cm-sticky", value: "sticky", icon: "\u25CF", label: "Sticky" },
+	{ id: "cm-creamy", value: "creamy", icon: "\u25D4", label: "Creamy" },
+	{ id: "cm-watery", value: "watery", icon: "\u25CC", label: "Watery" },
+	{ id: "cm-eggwhite", value: "eggWhite", icon: "\u29F5", label: "Egg White" },
+];
+
+const FLOW_OPTIONS: RadioOption[] = [
+	{ id: "flow-light", value: "light", icon: "\u25CB", label: "Light" },
+	{ id: "flow-medium", value: "medium", icon: "\u25D1", label: "Medium" },
+	{ id: "flow-heavy", value: "heavy", icon: "\u25CF", label: "Heavy" },
+];
+
+function radioGroup(
+	name: string,
+	options: RadioOption[],
+	cssClass: string,
+): string {
+	return `<div class="${cssClass}">${options
+		.map(
+			(o) => `
+        <div class="mucus-option">
+          <input type="radio" name="${name}" id="${o.id}" value="${o.value}" />
+          <label for="${o.id}">
+            <span class="mucus-icon">${o.icon}</span>
+            <span class="mucus-name">${o.label}</span>
+          </label>
+        </div>`,
+		)
+		.join("")}</div>`;
+}
 
 class DataEntryForm extends HTMLElement {
 	private shadow: ShadowRoot;
@@ -41,306 +66,20 @@ class DataEntryForm extends HTMLElement {
 	}
 
 	private getTodayDate(): string {
-		const now = new Date();
-		return now.toISOString().split("T")[0];
-	}
-
-	private celsiusToFahrenheit(c: number): number {
-		return Math.round(((c * 9) / 5 + 32) * 100) / 100;
-	}
-
-	private fahrenheitToCelsius(f: number): number {
-		return Math.round((((f - 32) * 5) / 9) * 100) / 100;
+		return new Date().toISOString().split("T")[0];
 	}
 
 	private render() {
 		const today = this.getTodayDate();
-		const tempMin = this.tempUnit === "C" ? "35" : "95";
-		const tempMax = this.tempUnit === "C" ? "42" : "107.6";
-		const tempPlaceholder = this.tempUnit === "C" ? "36.50" : "97.70";
-		const tempLabel =
-			this.tempUnit === "C"
-				? "Basal Body Temperature (\u00b0C)"
-				: "Basal Body Temperature (\u00b0F)";
+		const isC = this.tempUnit === "C";
+		const tempMin = isC ? "35" : "95";
+		const tempMax = isC ? "42" : "107.6";
+		const tempPlaceholder = isC ? "36.50" : "97.70";
+		const tempLabel = `Basal Body Temperature (\u00b0${this.tempUnit})`;
 
 		this.shadow.innerHTML = `
       <link rel="stylesheet" href="/styles/main.css">
-      <style>
-        :host { display: block; }
-        h2 { color: var(--color-text, #1f2937); margin: 0 0 1.5rem; font-size: 1.5rem; }
-        .form-card {
-          background: var(--color-surface, #fff);
-          border-radius: 0.75rem;
-          padding: 1.5rem;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-        }
-        .form-group { margin-bottom: 1.25rem; }
-        label {
-          display: block;
-          font-size: 0.875rem;
-          font-weight: 600;
-          color: var(--color-text, #1f2937);
-          margin-bottom: 0.375rem;
-        }
-        input[type="date"],
-        input[type="number"],
-        select,
-        textarea {
-          width: 100%;
-          padding: 0.75rem;
-          border: 1px solid var(--color-border, #d1d5db);
-          border-radius: 0.5rem;
-          font-size: 1rem;
-          background: var(--color-surface, #fff);
-          color: var(--color-text, #1f2937);
-          box-sizing: border-box;
-          transition: border-color 0.2s;
-        }
-        input:focus, select:focus, textarea:focus {
-          outline: none;
-          border-color: var(--color-primary, #7c3aed);
-          box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-        }
-        textarea { resize: vertical; min-height: 80px; font-family: inherit; }
-
-        /* Collapsible sections */
-        .collapsible {
-          border: 1px solid var(--color-border, #e5e7eb);
-          border-radius: 0.5rem;
-          margin-bottom: 1rem;
-          overflow: hidden;
-        }
-        .collapsible summary {
-          padding: 0.75rem 1rem;
-          font-size: 0.875rem;
-          font-weight: 600;
-          color: var(--color-text, #1f2937);
-          cursor: pointer;
-          list-style: none;
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          user-select: none;
-          transition: background 0.15s;
-        }
-        .collapsible summary:hover {
-          background: rgba(124, 58, 237, 0.04);
-        }
-        .collapsible summary::-webkit-details-marker { display: none; }
-        .collapsible summary::after {
-          content: '';
-          width: 6px;
-          height: 6px;
-          border-right: 2px solid var(--color-text, #9ca3af);
-          border-bottom: 2px solid var(--color-text, #9ca3af);
-          transform: rotate(-45deg);
-          transition: transform 0.2s;
-          flex-shrink: 0;
-        }
-        .collapsible[open] summary::after {
-          transform: rotate(45deg);
-        }
-        .collapsible-content {
-          padding: 0.75rem 1rem 1rem;
-          border-top: 1px solid var(--color-border, #e5e7eb);
-        }
-
-        .temp-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.375rem; }
-        .temp-header label { margin-bottom: 0; }
-        .unit-toggle {
-          display: flex;
-          border: 1px solid var(--color-primary, #7c3aed);
-          border-radius: 0.375rem;
-          overflow: hidden;
-        }
-        .unit-toggle button {
-          padding: 0.25rem 0.625rem;
-          border: none;
-          background: transparent;
-          color: var(--color-primary, #7c3aed);
-          font-size: 0.75rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-        .unit-toggle button.active {
-          background: var(--color-primary, #7c3aed);
-          color: #fff;
-        }
-
-        .mucus-options {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
-          gap: 0.5rem;
-        }
-        .mucus-option {
-          position: relative;
-        }
-        .mucus-option input { position: absolute; opacity: 0; width: 0; height: 0; }
-        .mucus-option label {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          padding: 0.625rem 0.5rem;
-          border: 2px solid var(--color-border, #d1d5db);
-          border-radius: 0.5rem;
-          cursor: pointer;
-          transition: all 0.2s;
-          text-align: center;
-          font-weight: normal;
-          font-size: 0.8125rem;
-        }
-        .mucus-option input:checked + label {
-          border-color: var(--color-primary, #7c3aed);
-          background: rgba(124, 58, 237, 0.05);
-        }
-        .mucus-option .mucus-icon { font-size: 1.25rem; margin-bottom: 0.25rem; }
-        .mucus-option .mucus-name { font-weight: 600; font-size: 0.75rem; }
-
-        .toggle-group {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.75rem;
-        }
-        .toggle-item {
-          display: flex;
-          align-items: center;
-          gap: 0.5rem;
-          cursor: pointer;
-        }
-        .toggle-switch {
-          position: relative;
-          width: 44px;
-          height: 24px;
-          flex-shrink: 0;
-        }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; position: absolute; }
-        .toggle-slider {
-          position: absolute;
-          inset: 0;
-          background: var(--color-border, #d1d5db);
-          border-radius: 999px;
-          cursor: pointer;
-          transition: background 0.2s;
-        }
-        .toggle-slider::before {
-          content: '';
-          position: absolute;
-          width: 18px;
-          height: 18px;
-          border-radius: 50%;
-          background: #fff;
-          top: 3px;
-          left: 3px;
-          transition: transform 0.2s;
-        }
-        .toggle-switch input:checked + .toggle-slider {
-          background: var(--color-primary, #7c3aed);
-        }
-        .toggle-switch input:checked + .toggle-slider::before {
-          transform: translateX(20px);
-        }
-        .toggle-label {
-          font-size: 0.875rem;
-          color: var(--color-text, #1f2937);
-          font-weight: 500;
-        }
-
-        .bleeding-options {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.5rem;
-          margin-bottom: 0.75rem;
-        }
-        .bleeding-option {
-          position: relative;
-        }
-        .bleeding-option input { position: absolute; opacity: 0; width: 0; height: 0; }
-        .bleeding-option label {
-          display: inline-flex;
-          align-items: center;
-          padding: 0.5rem 1rem;
-          border: 2px solid var(--color-border, #d1d5db);
-          border-radius: 0.5rem;
-          cursor: pointer;
-          transition: all 0.2s;
-          font-weight: 500;
-          font-size: 0.8125rem;
-          color: var(--color-text, #374151);
-        }
-        .bleeding-option input:checked + label {
-          border-color: var(--color-primary, #7c3aed);
-          background: rgba(124, 58, 237, 0.05);
-          color: var(--color-primary, #7c3aed);
-        }
-
-        .flow-section { margin-top: 0.5rem; }
-        .flow-section label { font-size: 0.8125rem; }
-
-        .btn-submit {
-          width: 100%;
-          padding: 0.875rem;
-          background: var(--color-primary, #7c3aed);
-          color: #fff;
-          border: none;
-          border-radius: 0.5rem;
-          font-size: 1rem;
-          font-weight: 600;
-          cursor: pointer;
-          margin-top: 0.5rem;
-          transition: background 0.2s;
-        }
-        .btn-submit:hover { background: var(--color-primary-dark, #6d28d9); }
-        .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
-
-        .message {
-          margin-bottom: 1rem;
-          display: none;
-        }
-        .message.visible { display: block; }
-        .message.error { color: #dc2626; }
-        .message.success { color: #16a34a; }
-
-        .success-actions {
-          display: flex;
-          gap: 0.75rem;
-          margin-top: 1rem;
-        }
-        .success-actions button {
-          flex: 1;
-          padding: 0.625rem;
-          border-radius: 0.5rem;
-          font-size: 0.875rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-        .btn-add-another {
-          background: var(--color-primary, #7c3aed);
-          color: #fff;
-          border: none;
-        }
-        .btn-add-another:hover { background: var(--color-primary-dark, #6d28d9); }
-        .btn-view-chart {
-          background: transparent;
-          color: var(--color-primary, #7c3aed);
-          border: 2px solid var(--color-primary, #7c3aed);
-        }
-        .btn-view-chart:hover { background: rgba(124, 58, 237, 0.05); }
-
-        .loading-spinner {
-          display: inline-block;
-          width: 1rem;
-          height: 1rem;
-          border: 2px solid rgba(255,255,255,0.3);
-          border-top-color: #fff;
-          border-radius: 50%;
-          animation: spin 0.6s linear infinite;
-          margin-right: 0.5rem;
-          vertical-align: middle;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-      </style>
+      <link rel="stylesheet" href="/styles/data-entry-form.css">
       <h2>Log Health Data</h2>
       <div class="form-card">
         <div class="message error" id="error-msg"></div>
@@ -363,8 +102,8 @@ class DataEntryForm extends HTMLElement {
               <div class="temp-header">
                 <label for="bbt">${tempLabel}</label>
                 <div class="unit-toggle">
-                  <button type="button" data-unit="C" class="${this.tempUnit === "C" ? "active" : ""}">°C</button>
-                  <button type="button" data-unit="F" class="${this.tempUnit === "F" ? "active" : ""}">°F</button>
+                  <button type="button" data-unit="C" class="${isC ? "active" : ""}">°C</button>
+                  <button type="button" data-unit="F" class="${isC ? "" : "active"}">°F</button>
                 </div>
               </div>
               <input type="number" id="bbt" step="0.01" min="${tempMin}" max="${tempMax}" placeholder="${tempPlaceholder}" />
@@ -374,43 +113,7 @@ class DataEntryForm extends HTMLElement {
           <details class="collapsible">
             <summary>Cervical Mucus</summary>
             <div class="collapsible-content">
-              <div class="mucus-options">
-                <div class="mucus-option">
-                  <input type="radio" name="cervical-mucus" id="cm-dry" value="dry" />
-                  <label for="cm-dry">
-                    <span class="mucus-icon">&#9711;</span>
-                    <span class="mucus-name">Dry</span>
-                  </label>
-                </div>
-                <div class="mucus-option">
-                  <input type="radio" name="cervical-mucus" id="cm-sticky" value="sticky" />
-                  <label for="cm-sticky">
-                    <span class="mucus-icon">&#9679;</span>
-                    <span class="mucus-name">Sticky</span>
-                  </label>
-                </div>
-                <div class="mucus-option">
-                  <input type="radio" name="cervical-mucus" id="cm-creamy" value="creamy" />
-                  <label for="cm-creamy">
-                    <span class="mucus-icon">&#9684;</span>
-                    <span class="mucus-name">Creamy</span>
-                  </label>
-                </div>
-                <div class="mucus-option">
-                  <input type="radio" name="cervical-mucus" id="cm-watery" value="watery" />
-                  <label for="cm-watery">
-                    <span class="mucus-icon">&#9676;</span>
-                    <span class="mucus-name">Watery</span>
-                  </label>
-                </div>
-                <div class="mucus-option">
-                  <input type="radio" name="cervical-mucus" id="cm-eggwhite" value="eggWhite" />
-                  <label for="cm-eggwhite">
-                    <span class="mucus-icon">&#10741;</span>
-                    <span class="mucus-name">Egg White</span>
-                  </label>
-                </div>
-              </div>
+              ${radioGroup("cervical-mucus", MUCUS_OPTIONS, "mucus-options")}
             </div>
           </details>
 
@@ -450,29 +153,7 @@ class DataEntryForm extends HTMLElement {
               </div>
               <div class="flow-section">
                 <label>Flow Intensity</label>
-                <div class="mucus-options">
-                  <div class="mucus-option">
-                    <input type="radio" name="bleeding-flow" id="flow-light" value="light" />
-                    <label for="flow-light">
-                      <span class="mucus-icon">&#9675;</span>
-                      <span class="mucus-name">Light</span>
-                    </label>
-                  </div>
-                  <div class="mucus-option">
-                    <input type="radio" name="bleeding-flow" id="flow-medium" value="medium" />
-                    <label for="flow-medium">
-                      <span class="mucus-icon">&#9681;</span>
-                      <span class="mucus-name">Medium</span>
-                    </label>
-                  </div>
-                  <div class="mucus-option">
-                    <input type="radio" name="bleeding-flow" id="flow-heavy" value="heavy" />
-                    <label for="flow-heavy">
-                      <span class="mucus-icon">&#9679;</span>
-                      <span class="mucus-name">Heavy</span>
-                    </label>
-                  </div>
-                </div>
+                ${radioGroup("bleeding-flow", FLOW_OPTIONS, "mucus-options")}
               </div>
             </div>
           </details>
@@ -512,16 +193,14 @@ class DataEntryForm extends HTMLElement {
 
 				this.tempUnit = newUnit;
 
-				// Convert existing value
 				if (!Number.isNaN(currentVal)) {
-					if (newUnit === "F") {
-						bbtInput.value = this.celsiusToFahrenheit(currentVal).toString();
-					} else {
-						bbtInput.value = this.fahrenheitToCelsius(currentVal).toString();
-					}
+					const converted =
+						newUnit === "F"
+							? celsiusToFahrenheit(currentVal)
+							: fahrenheitToCelsius(currentVal);
+					bbtInput.value = (Math.round(converted * 100) / 100).toString();
 				}
 
-				// Update constraints
 				if (newUnit === "C") {
 					bbtInput.min = "35";
 					bbtInput.max = "42";
@@ -532,20 +211,15 @@ class DataEntryForm extends HTMLElement {
 					bbtInput.placeholder = "97.70";
 				}
 
-				// Update active state
 				unitBtns.forEach((b) => {
 					b.classList.remove("active");
 				});
 				btn.classList.add("active");
 
-				// Update label
 				const label = this.shadow.querySelector(
 					".temp-header label",
 				) as HTMLElement;
-				label.textContent =
-					newUnit === "C"
-						? "Basal Body Temperature (\u00b0C)"
-						: "Basal Body Temperature (\u00b0F)";
+				label.textContent = `Basal Body Temperature (\u00b0${newUnit})`;
 			});
 		});
 
@@ -574,13 +248,12 @@ class DataEntryForm extends HTMLElement {
 				return;
 			}
 
-			// Build entry data (always store temp in Celsius)
 			const entry: HealthEntryData = { date };
 
 			if (bbtRaw) {
 				let tempC = Number.parseFloat(bbtRaw);
 				if (this.tempUnit === "F") {
-					tempC = this.fahrenheitToCelsius(tempC);
+					tempC = Math.round(fahrenheitToCelsius(tempC) * 100) / 100;
 				}
 				entry.basalBodyTemp = tempC;
 			}
