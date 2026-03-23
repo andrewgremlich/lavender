@@ -63,7 +63,8 @@ export class CycleCalendar extends HTMLElement {
 			const classes = this.getDayClasses(dateStr, todayStr);
 			const dots = this.getDayDots(dateStr);
 
-			calendarCells += `<div class="day-cell ${classes.join(" ")}">
+			const tooltip = this.getDayTooltip(dateStr);
+			calendarCells += `<div class="day-cell ${classes.join(" ")}"${tooltip ? ` data-tooltip="${tooltip}"` : ""}>
 				<span class="day-number">${day}</span>
 				${dots ? `<div class="day-dots">${dots}</div>` : ""}
 			</div>`;
@@ -203,10 +204,34 @@ export class CycleCalendar extends HTMLElement {
 				.dot.fertile-dot { background: #10b981; }
 				.dot.ovulation-dot { background: #7c3aed; }
 
+				/* Tooltip (desktop hover only) */
+				@media (hover: hover) {
+					.day-cell[data-tooltip] {
+						cursor: default;
+					}
+					.day-cell[data-tooltip]:hover::after {
+						content: attr(data-tooltip);
+						position: absolute;
+						bottom: calc(100% + 6px);
+						left: 50%;
+						transform: translateX(-50%);
+						background: #1f2937;
+						color: #f9fafb;
+						font-size: 0.6875rem;
+						line-height: 1.4;
+						padding: 0.375rem 0.625rem;
+						border-radius: 0.375rem;
+						white-space: pre;
+						z-index: 10;
+						pointer-events: none;
+						box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+					}
+				}
+
 				.calendar-legend {
 					display: flex;
 					flex-wrap: wrap;
-					gap: 0.625rem;
+					gap: 0.75rem;
 					margin-top: 0.75rem;
 					padding-top: 0.75rem;
 					border-top: 1px solid var(--color-border, #e5e7eb);
@@ -214,14 +239,14 @@ export class CycleCalendar extends HTMLElement {
 				.legend-item {
 					display: flex;
 					align-items: center;
-					gap: 0.25rem;
-					font-size: 0.6875rem;
+					gap: 0.375rem;
+					font-size: 0.8125rem;
 					color: var(--color-text, #6b7280);
 				}
 				.legend-swatch {
-					width: 12px;
-					height: 12px;
-					border-radius: 2px;
+					width: 14px;
+					height: 14px;
+					border-radius: 3px;
 					flex-shrink: 0;
 				}
 				.legend-swatch.striped {
@@ -293,6 +318,23 @@ export class CycleCalendar extends HTMLElement {
 		}
 
 		return classes;
+	}
+
+	private getDayTooltip(dateStr: string): string {
+		const labels: string[] = [];
+		const f = this.fertility;
+
+		if (f.periodDays.has(dateStr)) labels.push("Period");
+		else if (f.predictedPeriodDays.has(dateStr)) labels.push("Predicted Period");
+
+		if (f.ovulationDays.has(dateStr)) labels.push("Ovulation");
+		else if (f.predictedOvulationDays.has(dateStr)) labels.push("Predicted Ovulation");
+
+		if (f.fertileWindowDays.has(dateStr)) labels.push("Fertile Window");
+		else if (f.predictedFertileDays.has(dateStr)) labels.push("Predicted Fertile");
+
+		if (labels.length === 0) return "";
+		return labels.join("\n");
 	}
 
 	private getDayDots(dateStr: string): string {
