@@ -12,6 +12,7 @@
 		"db:migrate:remote": "wrangler d1 execute lavendar-db --remote --file=src/worker/db/schema.sql",
 		"check": "tsc --noEmit && pnpx @biomejs/biome check --write",
 		"seed": "npx tsx scripts/seed.ts",
+		"db:user-count": "npx tsx scripts/user-count.ts",
 		"test": "vitest"
 	},
 	"dependencies": {
