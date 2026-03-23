@@ -94,7 +94,7 @@ class DataEntryForm extends HTMLElement {
         <form id="entry-form">
           <div class="form-group">
             <label for="entry-date">Date</label>
-            <input type="date" id="entry-date" value="${today}" required />
+            <input type="date" id="entry-date" name="entry-date" value="${today}" required />
           </div>
 
           <details class="collapsible" open>
@@ -107,7 +107,7 @@ class DataEntryForm extends HTMLElement {
                   <button type="button" data-unit="F" class="${isC ? "" : "active"}">°F</button>
                 </div>
               </div>
-              <input type="number" id="bbt" step="0.01" min="${tempMin}" max="${tempMax}" placeholder="${tempPlaceholder}" />
+              <input type="number" id="bbt" name="bbt" step="0.01" min="${tempMin}" max="${tempMax}" placeholder="${tempPlaceholder}" />
             </div>
           </details>
 
@@ -125,7 +125,7 @@ class DataEntryForm extends HTMLElement {
                 ${INDICATORS.map(
 									(ind) => `<label class="toggle-item" for="ind-${ind.key}">
                   <div class="toggle-switch">
-                    <input type="checkbox" id="ind-${ind.key}" />
+                    <input type="checkbox" id="ind-${ind.key}" name="${ind.key}" />
                     <span class="toggle-slider"></span>
                   </div>
                   <span class="toggle-label">${ind.label}</span>
@@ -162,7 +162,7 @@ class DataEntryForm extends HTMLElement {
           <details class="collapsible">
             <summary>Notes</summary>
             <div class="collapsible-content">
-              <textarea id="notes" placeholder="Any additional observations..."></textarea>
+              <textarea id="notes" name="notes" placeholder="Any additional observations..."></textarea>
             </div>
           </details>
 
@@ -234,17 +234,13 @@ class DataEntryForm extends HTMLElement {
 				"#submit-btn",
 			) as HTMLButtonElement;
 
-			const date = (
-				this.shadow.querySelector("#entry-date") as HTMLInputElement
-			).value;
-			const bbtRaw = (this.shadow.querySelector("#bbt") as HTMLInputElement)
-				.value;
-			const mucusEl = this.shadow.querySelector(
-				'input[name="cervical-mucus"]:checked',
-			) as HTMLInputElement | null;
-			const notes = (
-				this.shadow.querySelector("#notes") as HTMLTextAreaElement
-			).value.trim();
+			const formData = new FormData(form);
+			const date = formData.get("entry-date") as string;
+			const bbtRaw = formData.get("bbt") as string;
+			const mucus = formData.get("cervical-mucus") as string | null;
+			const notes = (formData.get("notes") as string)?.trim();
+			const bleedingStatus = formData.get("bleeding-status") as string | null;
+			const bleedingFlow = formData.get("bleeding-flow") as string | null;
 
 			if (!date) {
 				this.showError("Please select a date.");
@@ -261,33 +257,22 @@ class DataEntryForm extends HTMLElement {
 				entry.basalBodyTemp = tempC;
 			}
 
-			if (mucusEl) {
-				entry.cervicalMucus = mucusEl.value as HealthEntryData["cervicalMucus"];
+			if (mucus) {
+				entry.cervicalMucus = mucus as HealthEntryData["cervicalMucus"];
 			}
 
 			for (const ind of INDICATORS) {
-				const el = this.shadow.querySelector(
-					`#ind-${ind.key}`,
-				) as HTMLInputElement;
-				if (el?.checked) {
+				if (formData.get(ind.key)) {
 					(entry as unknown as Record<string, unknown>)[ind.key] = true;
 				}
 			}
 
-			const bleedingStatusEl = this.shadow.querySelector(
-				'input[name="bleeding-status"]:checked',
-			) as HTMLInputElement | null;
-			const bleedingStatus = bleedingStatusEl?.value;
-
 			if (bleedingStatus === "started") entry.bleedingStart = true;
 			if (bleedingStatus === "ended") entry.bleedingEnd = true;
 
-			const bleedingFlowEl = this.shadow.querySelector(
-				'input[name="bleeding-flow"]:checked',
-			) as HTMLInputElement | null;
-			if (bleedingFlowEl) {
+			if (bleedingFlow) {
 				entry.bleedingFlow =
-					bleedingFlowEl.value as HealthEntryData["bleedingFlow"];
+					bleedingFlow as HealthEntryData["bleedingFlow"];
 			}
 
 			if (notes) entry.notes = notes;
