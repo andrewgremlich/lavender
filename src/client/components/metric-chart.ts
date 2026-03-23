@@ -1,3 +1,4 @@
+import type { HealthEntryData } from "@shared/types";
 import type { TooltipItem } from "chart.js";
 import Chart from "chart.js/auto";
 
@@ -16,27 +17,7 @@ import {
 import { celsiusToFahrenheit, getUnitSystem } from "../utils/units";
 import type { CycleCalendar } from "./cycle-calendar";
 
-interface HealthEntryData {
-	id: string;
-	date: string;
-	basalBodyTemp?: number;
-	cervicalMucus?: "dry" | "sticky" | "creamy" | "watery" | "eggWhite";
-	lhSurge?: boolean;
-	appetiteChange?: boolean;
-	moodChange?: boolean;
-	increasedSexDrive?: boolean;
-	breastTenderness?: boolean;
-	mildSpotting?: boolean;
-	heightenedSmell?: boolean;
-	cervixChanges?: boolean;
-	fluidRetention?: boolean;
-	cramping?: boolean;
-	bleedingStart?: boolean;
-	bleedingEnd?: boolean;
-	bleedingFlow?: "light" | "medium" | "heavy";
-	notes?: string;
-}
-
+type HealthEntry = HealthEntryData & { id: string };
 type DateRange = "30" | "90" | "180" | "365" | "all";
 
 const MUCUS_LABELS: Record<string, string> = {
@@ -50,7 +31,7 @@ const MUCUS_LABELS: Record<string, string> = {
 class MetricChart extends HTMLElement {
 	private shadow: ShadowRoot;
 	private chart: Chart | null = null;
-	private entries: HealthEntryData[] = [];
+	private entries: HealthEntry[] = [];
 	private fertility: FertilityIndicators = {
 		ovulationDays: new Set(),
 		fertileWindowDays: new Set(),
@@ -82,145 +63,7 @@ class MetricChart extends HTMLElement {
 	private render() {
 		this.shadow.innerHTML = `
       <link rel="stylesheet" href="/styles/main.css">
-      <style>
-        :host { display: block; }
-        h2 { color: var(--color-text, #1f2937); margin: 0 0 1rem; font-size: 1.5rem; }
-
-        .range-selector {
-          display: flex;
-          gap: 0.5rem;
-          margin-bottom: 1rem;
-          flex-wrap: wrap;
-        }
-        .range-btn {
-          padding: 0.375rem 0.75rem;
-          border: 1px solid var(--color-border, #d1d5db);
-          border-radius: 999px;
-          background: var(--color-surface, #fff);
-          color: var(--color-text, #6b7280);
-          font-size: 0.8125rem;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-        .range-btn:hover { border-color: var(--color-primary, #7c3aed); }
-        .range-btn.active {
-          background: var(--color-primary, #7c3aed);
-          color: #fff;
-          border-color: var(--color-primary, #7c3aed);
-        }
-
-        .chart-card {
-          background: var(--color-surface, #fff);
-          border-radius: 0.75rem;
-          padding: 1rem;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-          margin-bottom: 1.5rem;
-        }
-        .chart-container {
-          position: relative;
-          width: 100%;
-          max-height: 350px;
-        }
-        canvas { width: 100% !important; }
-
-        .legend-section {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.75rem;
-          margin-top: 0.75rem;
-          padding-top: 0.75rem;
-          border-top: 1px solid var(--color-border, #e5e7eb);
-        }
-        .legend-item {
-          display: flex;
-          align-items: center;
-          gap: 0.375rem;
-          font-size: 0.75rem;
-          color: var(--color-text, #6b7280);
-        }
-        .legend-dot {
-          width: 10px;
-          height: 10px;
-          border-radius: 50%;
-          flex-shrink: 0;
-        }
-
-        .calendar-section { margin-bottom: 1.5rem; }
-        .summary-section { margin-top: 1.5rem; }
-        .summary-section h3 {
-          font-size: 1.125rem;
-          color: var(--color-text, #1f2937);
-          margin: 0 0 0.75rem;
-        }
-        .entry-list { display: flex; flex-direction: column; gap: 0.5rem; }
-        .entry-card {
-          background: var(--color-surface, #fff);
-          border-radius: 0.5rem;
-          padding: 0.75rem 1rem;
-          box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-          display: flex;
-          flex-wrap: wrap;
-          align-items: center;
-          gap: 0.75rem;
-        }
-        .entry-date {
-          font-weight: 600;
-          color: var(--color-primary, #7c3aed);
-          font-size: 0.875rem;
-          min-width: 90px;
-        }
-        .entry-details {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 0.5rem;
-          font-size: 0.8125rem;
-          color: var(--color-text, #6b7280);
-        }
-        .entry-tag {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.25rem;
-          padding: 0.125rem 0.5rem;
-          border-radius: 999px;
-          font-size: 0.75rem;
-        }
-        .entry-tag.lh { background: #fef3c7; color: #92400e; }
-        .entry-tag.ovulation { background: #ede9fe; color: #6d28d9; }
-        .entry-tag.fertile { background: #ecfdf5; color: #065f46; }
-
-        .empty-state {
-          text-align: center;
-          padding: 3rem 1rem;
-          color: var(--color-text, #6b7280);
-        }
-        .empty-state h3 { color: var(--color-text, #1f2937); margin: 0 0 0.5rem; }
-        .empty-state p { margin: 0 0 1.5rem; }
-        .empty-state a {
-          display: inline-block;
-          padding: 0.75rem 1.5rem;
-          background: var(--color-primary, #7c3aed);
-          color: #fff;
-          border-radius: 0.5rem;
-          text-decoration: none;
-          font-weight: 600;
-          cursor: pointer;
-        }
-        .empty-state a:hover { background: var(--color-primary-dark, #6d28d9); }
-
-        .loading {
-          text-align: center;
-          padding: 3rem;
-          color: var(--color-text, #6b7280);
-        }
-        .error-msg {
-          background: #fef2f2;
-          color: #dc2626;
-          padding: 0.75rem;
-          border-radius: 0.5rem;
-          font-size: 0.875rem;
-          margin-bottom: 1rem;
-        }
-      </style>
+      <link rel="stylesheet" href="/styles/metric-chart.css">
       <h2>Dashboard</h2>
       <div id="main-content">
         <div class="loading" id="loading">Loading your data...</div>
@@ -247,7 +90,7 @@ class MetricChart extends HTMLElement {
 				return;
 			}
 
-			const decryptedEntries: HealthEntryData[] = [];
+			const decryptedEntries: HealthEntry[] = [];
 			for (const raw of rawEntries) {
 				try {
 					const decrypted = await decrypt(raw.encryptedData, raw.iv, cryptoKey);
@@ -335,7 +178,7 @@ class MetricChart extends HTMLElement {
 		}
 	}
 
-	private getFilteredEntries(): HealthEntryData[] {
+	private getFilteredEntries(): HealthEntry[] {
 		if (this.selectedRange === "all") return this.entries;
 
 		const days = Number.parseInt(this.selectedRange, 10);
@@ -346,7 +189,7 @@ class MetricChart extends HTMLElement {
 		return this.entries.filter((e) => e.date >= cutoffStr);
 	}
 
-	private renderChart(entries: HealthEntryData[]) {
+	private renderChart(entries: HealthEntry[]) {
 		const canvas = this.shadow.querySelector("#bbt-chart") as HTMLCanvasElement;
 		if (!canvas) return;
 
@@ -490,7 +333,7 @@ class MetricChart extends HTMLElement {
 		});
 	}
 
-	private renderRecentEntries(entries: HealthEntryData[]) {
+	private renderRecentEntries(entries: HealthEntry[]) {
 		const list = this.shadow.querySelector("#entry-list") as HTMLElement;
 		const recent = entries.slice(-10).reverse();
 
