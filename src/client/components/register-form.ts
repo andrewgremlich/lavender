@@ -17,27 +17,30 @@ export class RegisterForm extends HTMLElement {
 		this.shadow.innerHTML = `
       <link rel="stylesheet" href="/styles/main.css">
       <link rel="stylesheet" href="/styles/register-form.css">
-      <form id="register-form">
-        <div class="error" id="error"></div>
-        <div class="form-group">
-          <label for="reg-username">Username</label>
-          <input type="text" id="reg-username" name="username" required autocomplete="username" />
-        </div>
-        <div class="form-group">
-          <label for="reg-password">Password</label>
-          <input type="password" id="reg-password" name="password" required autocomplete="new-password" minlength="12" />
-          <ul class="pw-requirements" id="pw-requirements">
-            <li id="req-length">At least 12 characters</li>
-            <li id="req-number">At least one number</li>
-            <li id="req-special">At least one special character (!@#$%^&* etc.)</li>
-          </ul>
-        </div>
-        <div class="form-group">
-          <label for="reg-confirm">Confirm Password</label>
-          <input type="password" id="reg-confirm" name="confirm-password" required autocomplete="new-password" />
-        </div>
-        <button type="submit" class="btn-primary" id="register-btn">Create Account</button>
-      </form>
+	  <div id="register-area">
+      	<info-panel></info-panel>
+		<form id="register-form">
+			<div class="error" id="error"></div>
+			<div class="form-group">
+			<label for="reg-username">Username</label>
+			<input type="text" id="reg-username" name="username" required autocomplete="username" />
+			</div>
+			<div class="form-group">
+			<label for="reg-password">Password</label>
+			<input type="password" id="reg-password" name="password" required autocomplete="new-password" minlength="12" />
+			<ul class="pw-requirements" id="pw-requirements">
+				<li id="req-length">At least 12 characters</li>
+				<li id="req-number">At least one number</li>
+				<li id="req-special">At least one special character (!@#$%^&* etc.)</li>
+			</ul>
+			</div>
+			<div class="form-group">
+			<label for="reg-confirm">Confirm Password</label>
+			<input type="password" id="reg-confirm" name="confirm-password" required autocomplete="new-password" />
+			</div>
+			<button type="submit" class="btn-primary" id="register-btn">Create Account</button>
+		</form>
+	  </div>
     `;
 	}
 

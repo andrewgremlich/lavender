@@ -1,4 +1,15 @@
 :host { display: block; }
+
+#register-area {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+
+  & info-panel {
+    max-width: 400px;
+  }
+}
+
 .form-group { margin-bottom: 1rem; }
 label {
   display: block;

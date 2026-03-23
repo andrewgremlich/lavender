@@ -16,7 +16,15 @@ export class LoginForm extends HTMLElement {
 		this.shadow.innerHTML = `
       <link rel="stylesheet" href="/styles/main.css">
       <style>
-        :host { display: block; }
+        :host { 
+          display: block;
+        }
+          
+        #login-form {
+          margin: auto;
+          max-width: 400px;
+        }
+
         .form-group { margin-bottom: 1rem; }
         label {
           display: block;

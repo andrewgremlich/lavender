@@ -73,29 +73,29 @@ class AppRoot extends HTMLElement {
       `;
 		} else {
 			this.shadow.innerHTML = `
-        <link rel="stylesheet" href="/styles/main.css">
-        <style>
-          :host { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--color-bg, #faf5ff); }
-          .auth-container { width: 100%; max-width: 400px; padding: 1rem; }
-          .auth-toggle { text-align: center; margin-top: 1rem; color: var(--color-text, #6b7280); }
-          .auth-toggle a { color: var(--color-primary, #7c3aed); cursor: pointer; text-decoration: underline; }
-          .app-title { text-align: center; margin-bottom: 2rem; }
-          .app-title h1 { font-size: 2rem; color: var(--color-primary, #7c3aed); margin: 0; }
-          .app-title p { color: var(--color-text, #6b7280); margin: 0.5rem 0 0; }
-        </style>
-        <div class="auth-container">
-          <div class="app-title">
-            <h1>Lavendar</h1>
-            <p>Private Health Tracking</p>
-          </div>
-          <login-form id="login-view"></login-form>
-          <register-form id="register-view" style="display:none"></register-form>
-          <div class="auth-toggle">
-            <span id="toggle-text">Don't have an account? </span>
-            <a id="auth-toggle">Sign up</a>
-          </div>
-        </div>
-      `;
+				<link rel="stylesheet" href="/styles/main.css">
+				<style>
+				:host { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--color-bg, #faf5ff); }
+				.auth-container { width: 100%; padding: 1rem; }
+				.auth-toggle { text-align: center; margin-top: 1rem; color: var(--color-text, #6b7280); font-size: 12px; }
+				.auth-toggle a { color: var(--color-primary, #7c3aed); cursor: pointer; text-decoration: underline; }
+				.app-title { text-align: center; margin-bottom: 2rem; }
+				.app-title h1 { font-size: 2rem; color: var(--color-primary, #7c3aed); margin: 0; }
+				.app-title p { color: var(--color-text, #6b7280); margin: 0.5rem 0 0; }
+				</style>
+				<div class="auth-container">
+				<div class="app-title">
+					<h1>Lavendar</h1>
+					<p>Private Health Tracking</p>
+					<div class="auth-toggle">
+						<span id="toggle-text">Don't have an account? </span>
+						<a id="auth-toggle">Sign up</a>
+					</div>
+				</div>
+				<login-form id="login-view"></login-form>
+				<register-form id="register-view" style="display:none"></register-form>
+				</div>
+			`;
 
 			const toggle = this.shadow.querySelector("#auth-toggle");
 			const loginView = this.shadow.querySelector(
