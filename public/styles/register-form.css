@@ -3,10 +3,15 @@
 #register-area {
   display: flex;
   justify-content: center;
+  flex-direction: column;
   gap: 2rem;
 
-  & info-panel {
-    max-width: 400px;
+  @media (min-width: 768px) {
+    flex-direction: row;
+
+    & info-panel, & #register-form {
+      max-width: 400px;
+    }
   }
 }
 
