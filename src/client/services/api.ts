@@ -82,45 +82,6 @@ export const api = {
 				body: JSON.stringify({ dataRetentionDays }),
 			}),
 	},
-	passkeys: {
-		getRegistrationOptions: () =>
-			request<PublicKeyCredentialCreationOptionsJSON>(
-				"/passkeys/register/options",
-				{ method: "POST" },
-			),
-		verifyRegistration: (response: any, challenge: string) =>
-			request<{ verified: boolean }>("/passkeys/register/verify", {
-				method: "POST",
-				body: JSON.stringify({ response, challenge }),
-			}),
-		getAuthenticationOptions: () =>
-			request<PublicKeyCredentialRequestOptionsJSON>(
-				"/passkeys/authenticate/options",
-				{ method: "POST" },
-			),
-		verifyAuthentication: (response: any, challenge: string) =>
-			request<{
-				token: string;
-				username: string;
-				passkeyId: string;
-				prfWrappedKey: string | null;
-				prfIv: string | null;
-			}>("/passkeys/authenticate/verify", {
-				method: "POST",
-				body: JSON.stringify({ response, challenge }),
-			}),
-		storePRFKey: (passkeyId: string, prfWrappedKey: string, prfIv: string) =>
-			request<{ ok: boolean }>(`/passkeys/${passkeyId}/prf-key`, {
-				method: "PUT",
-				body: JSON.stringify({ prfWrappedKey, prfIv }),
-			}),
-		list: () =>
-			request<Array<{ id: string; credential_id: string; created_at: string }>>(
-				"/passkeys",
-			),
-		delete: (id: string) =>
-			request<{ message: string }>(`/passkeys/${id}`, { method: "DELETE" }),
-	},
 };
 
 export function setToken(token: string): void {

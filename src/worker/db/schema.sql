@@ -6,18 +6,6 @@ CREATE TABLE IF NOT EXISTS users (
   created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
 
-CREATE TABLE IF NOT EXISTS passkey_credentials (
-  id TEXT PRIMARY KEY,
-  user_id TEXT NOT NULL,
-  credential_id TEXT NOT NULL UNIQUE,
-  public_key TEXT NOT NULL,
-  counter INTEGER NOT NULL DEFAULT 0,
-  transports TEXT,
-  prf_wrapped_key TEXT,
-  prf_iv TEXT,
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
-);
 
 CREATE TABLE IF NOT EXISTS user_settings (
   user_id TEXT PRIMARY KEY,
@@ -38,5 +26,3 @@ CREATE TABLE IF NOT EXISTS health_entries (
 
 CREATE INDEX IF NOT EXISTS idx_health_entries_expires_at ON health_entries(expires_at);
 CREATE INDEX IF NOT EXISTS idx_health_entries_user_id ON health_entries(user_id);
-CREATE INDEX IF NOT EXISTS idx_passkey_credentials_user_id ON passkey_credentials(user_id);
-CREATE INDEX IF NOT EXISTS idx_passkey_credentials_credential_id ON passkey_credentials(credential_id);

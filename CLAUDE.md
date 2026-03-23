@@ -14,7 +14,7 @@ npm run db:migrate:local # Initialize/migrate local D1 database
 npm run db:migrate:remote # Initialize/migrate remote D1 database
 ```
 
-**Environment setup:** Copy `.dev.vars.example` to `.dev.vars` and set `JWT_SECRET` (32+ chars), `WEBAUTHN_RP_ID`, `WEBAUTHN_RP_NAME`, `WEBAUTHN_ORIGIN`.
+**Environment setup:** Copy `.dev.vars.example` to `.dev.vars` and set `JWT_SECRET` (32+ chars).
 
 ## Architecture
 
@@ -38,8 +38,7 @@ The core privacy design: **the server never sees plaintext health data**.
   - `/api/auth` — register, login, account deletion
   - `/api/metrics` — CRUD for encrypted health entries (auto-expires stale data on read)
   - `/api/settings` — data retention period config (changing retention recalculates all expiry dates)
-  - `/api/passkeys` — WebAuthn registration and authentication flows
-- **Env bindings** defined in `src/worker/types.ts`: `DB` (D1), `JWT_SECRET`, `WEBAUTHN_*`
+- **Env bindings** defined in `src/worker/types.ts`: `DB` (D1), `JWT_SECRET`
 
 ### Frontend (`src/client/`)
 
@@ -47,7 +46,7 @@ The core privacy design: **the server never sees plaintext health data**.
 - **Routing:** Hash-based router (`src/client/router.ts`). Routes: `/` (chart dashboard), `/entry` (data form), `/settings`
 - **Styling:** Mobile-first CSS with custom properties. Lavender/purple theme. Dark mode via `prefers-color-scheme`. Breakpoints at 768px and 1024px.
 - **Charts:** Chart.js for BBT line charts with fertility markers
-- **Auth:** Dual support for password + WebAuthn passkeys (`@simplewebauthn/browser`)
+- **Auth:** Password-based authentication
 
 ### Shared Types (`src/shared/types.ts`)
 

@@ -8,10 +8,6 @@ enabled = true
 [assets]
 not_found_handling = "single-page-application"
 
-[vars]
-WEBAUTHN_ORIGIN = "https://lavendar.andrew-4ae.workers.dev"
-WEBAUTHN_RP_ID = "lavendar.andrew-4ae.workers.dev"
-WEBAUTHN_RP_NAME = "Lavendar"
 
 [[d1_databases]]
 binding = "DB"

@@ -3,7 +3,6 @@ import { cors } from "hono/cors";
 import { logger } from "hono/logger";
 import { auth } from "./routes/auth.js";
 import { metrics } from "./routes/metrics.js";
-import { passkeys } from "./routes/passkeys.js";
 import { settings } from "./routes/settings.js";
 import type { Env } from "./types.js";
 
@@ -16,7 +15,6 @@ app.use("/api/*", cors());
 app.route("/api/auth", auth);
 app.route("/api/metrics", metrics);
 app.route("/api/settings", settings);
-app.route("/api/passkeys", passkeys);
 
 // Health check
 app.get("/api/health", (c) => c.json({ status: "ok" }));

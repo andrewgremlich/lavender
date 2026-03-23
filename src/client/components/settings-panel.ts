@@ -1,6 +1,23 @@
 import { api } from "../services/api";
-import { logout, registerPasskey } from "../services/auth";
+import { logout } from "../services/auth";
 import { getUnitSystem, setUnitSystem } from "../utils/units";
+
+function confirmDialog(
+	id: string,
+	message: string,
+	confirmLabel: string,
+): string {
+	return `
+    <div class="confirm-dialog" id="${id}-confirm">
+      <p>${message}</p>
+      <div class="confirm-actions">
+        <button class="btn btn-danger" id="confirm-${id}">
+          ${confirmLabel}
+        </button>
+        <button class="btn btn-outline" id="cancel-${id}">Cancel</button>
+      </div>
+    </div>`;
+}
 
 class SettingsPanel extends HTMLElement {
 	private shadow: ShadowRoot;
@@ -13,158 +30,13 @@ class SettingsPanel extends HTMLElement {
 	connectedCallback() {
 		this.render();
 		this.setupListeners();
-		this.loadPasskeys();
 	}
 
 	private render() {
+		const unitSystem = getUnitSystem();
 		this.shadow.innerHTML = `
       <link rel="stylesheet" href="/styles/main.css">
-      <style>
-        :host { display: block; }
-        h2 { color: var(--color-text, #1f2937); margin: 0 0 1.5rem; font-size: 1.5rem; }
-
-        .settings-card {
-          background: var(--color-surface, #fff);
-          border-radius: 0.75rem;
-          padding: 1.25rem;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-          margin-bottom: 1rem;
-        }
-        .settings-card h3 {
-          font-size: 1rem;
-          color: var(--color-text, #1f2937);
-          margin: 0 0 0.75rem;
-        }
-
-        label {
-          display: block;
-          font-size: 0.875rem;
-          font-weight: 600;
-          color: var(--color-text, #1f2937);
-          margin-bottom: 0.25rem;
-        }
-        select, input[type="password"] {
-          width: 100%;
-          padding: 0.75rem;
-          border: 1px solid var(--color-border, #d1d5db);
-          border-radius: 0.5rem;
-          font-size: 1rem;
-          background: var(--color-surface, #fff);
-          color: var(--color-text, #1f2937);
-          box-sizing: border-box;
-        }
-        select:focus, input:focus {
-          outline: none;
-          border-color: var(--color-primary, #7c3aed);
-          box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-        }
-
-        .btn {
-          display: inline-flex;
-          align-items: center;
-          gap: 0.5rem;
-          padding: 0.625rem 1rem;
-          border-radius: 0.5rem;
-          font-size: 0.875rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.2s;
-          border: none;
-        }
-        .btn-primary {
-          background: var(--color-primary, #7c3aed);
-          color: #fff;
-        }
-        .btn-primary:hover { background: var(--color-primary-dark, #6d28d9); }
-        .btn-outline {
-          background: transparent;
-          color: var(--color-primary, #7c3aed);
-          border: 2px solid var(--color-primary, #7c3aed);
-        }
-        .btn-outline:hover { background: rgba(124, 58, 237, 0.05); }
-        .btn-danger {
-          background: #dc2626;
-          color: #fff;
-        }
-        .btn-danger:hover { background: #b91c1c; }
-        .btn-danger-outline {
-          background: transparent;
-          color: #dc2626;
-          border: 2px solid #dc2626;
-        }
-        .btn-danger-outline:hover { background: rgba(220, 38, 38, 0.05); }
-        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .btn-full { width: 100%; justify-content: center; }
-
-.passkey-list { margin-top: 0.75rem; }
-        .passkey-item {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          padding: 0.5rem 0;
-          border-bottom: 1px solid var(--color-border, #e5e7eb);
-          font-size: 0.875rem;
-        }
-        .passkey-item:last-child { border-bottom: none; }
-        .passkey-name { color: var(--color-text, #1f2937); }
-        .passkey-delete {
-          background: none;
-          border: none;
-          color: #dc2626;
-          cursor: pointer;
-          font-size: 0.8125rem;
-          padding: 0.25rem 0.5rem;
-          border-radius: 0.25rem;
-        }
-        .passkey-delete:hover { background: rgba(220, 38, 38, 0.1); }
-
-        .form-row { margin-bottom: 0.75rem; }
-
-        .confirm-dialog {
-          display: none;
-          background: #fef2f2;
-          border: 1px solid #fca5a5;
-          border-radius: 0.5rem;
-          padding: 1rem;
-          margin-top: 0.75rem;
-        }
-        .confirm-dialog.visible { display: block; }
-        .confirm-dialog p {
-          margin: 0 0 0.75rem;
-          font-size: 0.875rem;
-          color: #991b1b;
-        }
-        .confirm-actions { display: flex; gap: 0.5rem; }
-
-        .message {
-          padding: 0.5rem 0.75rem;
-          border-radius: 0.375rem;
-          font-size: 0.8125rem;
-          margin-top: 0.5rem;
-          display: none;
-        }
-        .message.visible { display: block; }
-        .message.success { background: #f0fdf4; color: #16a34a; }
-        .message.error { background: #fef2f2; color: #dc2626; }
-
-        .section-divider {
-          height: 1px;
-          background: var(--color-border, #e5e7eb);
-          margin: 0.75rem 0;
-        }
-
-        .loading-spinner {
-          display: inline-block;
-          width: 1rem;
-          height: 1rem;
-          border: 2px solid rgba(255,255,255,0.3);
-          border-top-color: #fff;
-          border-radius: 50%;
-          animation: spin 0.6s linear infinite;
-          vertical-align: middle;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-      </style>
+      <link rel="stylesheet" href="/styles/settings-panel.css">
 
       <h2>Settings</h2>
 
@@ -174,8 +46,8 @@ class SettingsPanel extends HTMLElement {
         <div class="form-row">
           <label for="unit-system">Measurement system</label>
           <select id="unit-system">
-            <option value="metric" ${getUnitSystem() === "metric" ? "selected" : ""}>Metric (°C, kg, cm)</option>
-            <option value="us" ${getUnitSystem() === "us" ? "selected" : ""}>US (°F, lb, in)</option>
+            <option value="metric" ${unitSystem === "metric" ? "selected" : ""}>Metric (°C, kg, cm)</option>
+            <option value="us" ${unitSystem === "us" ? "selected" : ""}>US (°F, lb, in)</option>
           </select>
         </div>
         <button class="btn btn-primary" id="save-units-btn">Save</button>
@@ -199,44 +71,15 @@ class SettingsPanel extends HTMLElement {
         <div class="message" id="retention-msg"></div>
       </div>
 
-      <!-- Passkeys -->
-      <div class="settings-card">
-        <h3>Passkeys</h3>
-        <p style="font-size:0.8125rem;color:var(--color-text,#6b7280);margin:0 0 0.75rem;">
-          Use passkeys for passwordless sign-in on supported devices.
-        </p>
-        <button class="btn btn-outline" id="register-passkey-btn">Register New Passkey</button>
-        <div class="message" id="passkey-msg"></div>
-        <div class="passkey-list" id="passkey-list">
-          <p style="font-size:0.8125rem;color:var(--color-text,#6b7280);">Loading passkeys...</p>
-        </div>
-      </div>
-
       <!-- Danger Zone -->
       <div class="settings-card" style="border:1px solid #fca5a5;">
         <h3 style="color:#dc2626;">Danger Zone</h3>
-
         <button class="btn btn-danger-outline btn-full" id="delete-data-btn">Delete All Data</button>
-        <div class="confirm-dialog" id="delete-data-confirm">
-          <p>This will permanently delete all your health entries. This action cannot be undone.</p>
-          <div class="confirm-actions">
-            <button class="btn btn-danger" id="confirm-delete-data">Yes, Delete All Data</button>
-            <button class="btn btn-outline" id="cancel-delete-data">Cancel</button>
-          </div>
-        </div>
-
-        <div style="height:0.75rem;"></div>
-
+        ${confirmDialog("delete-data", "This will permanently delete all your health entries. This action cannot be undone.", "Yes, Delete All Data")}
+        <div class="danger-spacer"></div>
         <button class="btn btn-danger btn-full" id="delete-account-btn">Delete Account</button>
-        <div class="confirm-dialog" id="delete-account-confirm">
-          <p>This will permanently delete your account and all associated data. This cannot be undone.</p>
-          <div class="confirm-actions">
-            <button class="btn btn-danger" id="confirm-delete-account">Yes, Delete My Account</button>
-            <button class="btn btn-outline" id="cancel-delete-account">Cancel</button>
-          </div>
-        </div>
+        ${confirmDialog("delete-account", "This will permanently delete your account and all associated data. This cannot be undone.", "Yes, Delete My Account")}
       </div>
-
     `;
 	}
 
@@ -273,133 +116,47 @@ class SettingsPanel extends HTMLElement {
 				}
 			});
 
-		// Register passkey
-		this.shadow
-			.querySelector("#register-passkey-btn")
-			?.addEventListener("click", async () => {
-				const btn = this.shadow.querySelector(
-					"#register-passkey-btn",
-				) as HTMLButtonElement;
-				const msgEl = this.shadow.querySelector("#passkey-msg") as HTMLElement;
-				try {
-					btn.disabled = true;
-					btn.innerHTML =
-						'<span class="loading-spinner"></span> Registering...';
-					await registerPasskey();
-					this.showMessage(
-						msgEl,
-						"Passkey registered successfully.",
-						"success",
-					);
-					this.loadPasskeys();
-				} catch (err: unknown) {
-					const message =
-						err instanceof Error ? err.message : "Failed to register passkey.";
-					this.showMessage(msgEl, message, "error");
-				} finally {
-					btn.disabled = false;
-					btn.textContent = "Register New Passkey";
-				}
-			});
-
 		// Delete all data
-		const deleteDataBtn = this.shadow.querySelector(
-			"#delete-data-btn",
-		) as HTMLElement;
-		const deleteDataConfirm = this.shadow.querySelector(
-			"#delete-data-confirm",
-		) as HTMLElement;
-		deleteDataBtn.addEventListener("click", () =>
-			deleteDataConfirm.classList.add("visible"),
-		);
-		this.shadow
-			.querySelector("#cancel-delete-data")
-			?.addEventListener("click", () =>
-				deleteDataConfirm.classList.remove("visible"),
-			);
-		this.shadow
-			.querySelector("#confirm-delete-data")
-			?.addEventListener("click", async () => {
-				try {
-					await api.metrics.deleteAll();
-					deleteDataConfirm.classList.remove("visible");
-					deleteDataBtn.textContent = "All data deleted";
-					(deleteDataBtn as HTMLButtonElement).disabled = true;
-				} catch (err: unknown) {
-					const message = err instanceof Error ? err.message : "Unknown error";
-					alert(`Failed to delete data: ${message}`);
-				}
-			});
+		this.setupConfirmAction("delete-data", async () => {
+			await api.metrics.deleteAll();
+			const btn = this.shadow.querySelector(
+				"#delete-data-btn",
+			) as HTMLButtonElement;
+			btn.textContent = "All data deleted";
+			btn.disabled = true;
+		});
 
 		// Delete account
-		const deleteAccountBtn = this.shadow.querySelector(
-			"#delete-account-btn",
-		) as HTMLElement;
-		const deleteAccountConfirm = this.shadow.querySelector(
-			"#delete-account-confirm",
-		) as HTMLElement;
-		deleteAccountBtn.addEventListener("click", () =>
-			deleteAccountConfirm.classList.add("visible"),
-		);
-		this.shadow
-			.querySelector("#cancel-delete-account")
-			?.addEventListener("click", () =>
-				deleteAccountConfirm.classList.remove("visible"),
-			);
-		this.shadow
-			.querySelector("#confirm-delete-account")
-			?.addEventListener("click", async () => {
-				try {
-					await api.auth.deleteAccount();
-					logout();
-					window.dispatchEvent(new CustomEvent("user-logout"));
-				} catch (err: unknown) {
-					const message = err instanceof Error ? err.message : "Unknown error";
-					alert(`Failed to delete account: ${message}`);
-				}
-			});
+		this.setupConfirmAction("delete-account", async () => {
+			await api.auth.deleteAccount();
+			logout();
+			window.dispatchEvent(new CustomEvent("user-logout"));
+		});
 	}
 
-	private async loadPasskeys() {
-		const list = this.shadow.querySelector("#passkey-list") as HTMLElement;
-		try {
-			const passkeys = await api.passkeys.list();
+	private setupConfirmAction(id: string, onConfirm: () => Promise<void>) {
+		const triggerBtn = this.shadow.querySelector(
+			`#${id}-btn`,
+		) as HTMLElement;
+		const dialog = this.shadow.querySelector(
+			`#${id}-confirm`,
+		) as HTMLElement;
 
-			if (passkeys.length === 0) {
-				list.innerHTML =
-					'<p style="font-size:0.8125rem;color:var(--color-text,#6b7280);">No passkeys registered.</p>';
-				return;
+		triggerBtn.addEventListener("click", () => {
+			dialog.classList.add("visible");
+		});
+		this.shadow.querySelector(`#cancel-${id}`)?.addEventListener("click", () => {
+			dialog.classList.remove("visible");
+		});
+		this.shadow.querySelector(`#confirm-${id}`)?.addEventListener("click", async () => {
+			try {
+				await onConfirm();
+				dialog.classList.remove("visible");
+			} catch (err: unknown) {
+				const message = err instanceof Error ? err.message : "Unknown error";
+				alert(`Operation failed: ${message}`);
 			}
-
-			list.innerHTML = passkeys
-				.map(
-					(pk) => `
-        <div class="passkey-item" data-id="${pk.id}">
-          <span class="passkey-name">Passkey ${pk.credential_id.slice(0, 8)} <span style="color:var(--color-text,#6b7280);font-size:0.75rem;">(${new Date(pk.created_at).toLocaleDateString()})</span></span>
-          <button class="passkey-delete" data-id="${pk.id}">Remove</button>
-        </div>
-      `,
-				)
-				.join("");
-
-			list.querySelectorAll(".passkey-delete").forEach((btn) => {
-				btn.addEventListener("click", async () => {
-					const id = (btn as HTMLElement).dataset.id;
-					if (!confirm("Remove this passkey?")) return;
-					try {
-						if (id) await api.passkeys.delete(id);
-						this.loadPasskeys();
-					} catch (err: unknown) {
-						const message =
-							err instanceof Error ? err.message : "Unknown error";
-						alert(`Failed to remove passkey: ${message}`);
-					}
-				});
-			});
-		} catch {
-			list.innerHTML =
-				'<p style="font-size:0.8125rem;color:var(--color-text,#6b7280);">Could not load passkeys.</p>';
-		}
+		});
 	}
 
 	private showMessage(el: HTMLElement, msg: string, type: "success" | "error") {

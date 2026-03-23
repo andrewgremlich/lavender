@@ -1,9 +1,7 @@
 export interface Env {
 	DB: D1Database;
 	JWT_SECRET: string;
-	WEBAUTHN_RP_ID: string;
-	WEBAUTHN_RP_NAME: string;
-	WEBAUTHN_ORIGIN: string;
+
 }
 
 export interface UserRow {
@@ -14,17 +12,6 @@ export interface UserRow {
 	created_at: string;
 }
 
-export interface PasskeyRow {
-	id: string;
-	user_id: string;
-	credential_id: string;
-	public_key: string;
-	counter: number;
-	transports: string | null;
-	prf_wrapped_key: string | null;
-	prf_iv: string | null;
-	created_at: string;
-}
 
 export interface HealthEntryRow {
 	id: string;
