@@ -43,36 +43,20 @@ function daysBetween(a: string, b: string): number {
 	return Math.round((db.getTime() - da.getTime()) / (1000 * 60 * 60 * 24));
 }
 
-/**
- * Detects ovulation days, fertile windows, period days, and predictions
- * from a sorted array of entries.
- *
- * Period tracking: identifies bleeding ranges from bleedingStart/bleedingEnd markers.
- * Cycle prediction: uses average cycle length from period start dates to predict
- * next period, ovulation (~14 days before next period), and fertile window.
- */
-export function calculateFertilityIndicators(
-	entries: EntryWithTemp[],
-): FertilityIndicators {
+function detectOvulationDays(entries: EntryWithTemp[]): Set<string> {
 	const ovulationDays = new Set<string>();
-	const fertileWindowDays = new Set<string>();
-	const periodDays = new Set<string>();
-	const predictedPeriodDays = new Set<string>();
-	const predictedOvulationDays = new Set<string>();
-	const predictedFertileDays = new Set<string>();
 
-	// Detect ovulation from LH surge (ovulation typically occurs ~1 day after surge)
+	// Detect from LH surge (ovulation typically occurs ~1 day after surge)
 	for (const entry of entries) {
 		if (entry.lhSurge) {
 			ovulationDays.add(addDays(entry.date, 1));
 		}
 	}
 
-	// Detect ovulation from BBT thermal shift
+	// Detect from BBT thermal shift
 	const withTemp = entries.filter((e) => e.basalBodyTemp != null);
 
 	for (let i = BASELINE_DAYS; i < withTemp.length; i++) {
-		// Need enough days ahead to verify sustained rise
 		if (i + SUSTAINED_RISE_DAYS - 1 >= withTemp.length) break;
 
 		const baselineTemps = withTemp
@@ -94,35 +78,40 @@ export function calculateFertilityIndicators(
 		}
 
 		if (sustained) {
-			const ovulationDate = withTemp[i - 1].date;
-			ovulationDays.add(ovulationDate);
+			ovulationDays.add(withTemp[i - 1].date);
 		}
 	}
 
-	// Reconcile overlapping ovulation detections (LH + BBT within 2 days = same event)
+	// Reconcile overlapping detections (LH + BBT within 2 days = same event)
 	const ovDates = [...ovulationDays].sort();
-	const reconciledOvulation = new Set<string>();
+	const reconciled = new Set<string>();
 	for (let i = 0; i < ovDates.length; i++) {
-		if (
-			i > 0 &&
-			daysBetween(ovDates[i - 1], ovDates[i]) <= 2
-		) {
-			// Skip duplicate — keep the earlier detection already added
+		if (i > 0 && daysBetween(ovDates[i - 1], ovDates[i]) <= 2) {
 			continue;
 		}
-		reconciledOvulation.add(ovDates[i]);
+		reconciled.add(ovDates[i]);
 	}
-	ovulationDays.clear();
-	for (const d of reconciledOvulation) ovulationDays.add(d);
 
-	// Calculate fertile windows around each ovulation day
+	return reconciled;
+}
+
+function calculateFertileWindow(ovulationDays: Set<string>): Set<string> {
+	const fertileWindowDays = new Set<string>();
 	for (const ovDate of ovulationDays) {
 		for (let d = -FERTILE_WINDOW_BEFORE_OVULATION; d <= 1; d++) {
 			fertileWindowDays.add(addDays(ovDate, d));
 		}
 	}
+	return fertileWindowDays;
+}
 
-	// Identify period (bleeding) ranges
+interface PeriodResult {
+	periodDays: Set<string>;
+	periodStartDates: string[];
+}
+
+function identifyPeriodDays(entries: EntryWithTemp[]): PeriodResult {
+	const periodDays = new Set<string>();
 	const periodStartDates: string[] = [];
 	let currentBleedingStart: string | null = null;
 
@@ -132,7 +121,6 @@ export function calculateFertilityIndicators(
 			periodStartDates.push(entry.date);
 			periodDays.add(entry.date);
 		} else if (entry.bleedingEnd) {
-			// Mark the end day and fill in between
 			if (currentBleedingStart) {
 				const gap = daysBetween(currentBleedingStart, entry.date);
 				for (let d = 0; d <= gap; d++) {
@@ -142,7 +130,6 @@ export function calculateFertilityIndicators(
 			periodDays.add(entry.date);
 			currentBleedingStart = null;
 		} else if (currentBleedingStart && entry.bleedingFlow != null) {
-			// Cap unclosed bleeding ranges to prevent runaway period marking
 			const elapsed = daysBetween(currentBleedingStart, entry.date);
 			if (elapsed <= MAX_PERIOD_DAYS) {
 				periodDays.add(entry.date);
@@ -152,50 +139,65 @@ export function calculateFertilityIndicators(
 		}
 	}
 
-	// Close any unclosed bleeding range (no bleedingEnd marker logged)
-	if (currentBleedingStart) {
+	// Close any unclosed bleeding range
+	if (currentBleedingStart && entries.length > 0) {
 		const lastEntry = entries[entries.length - 1];
 		const elapsed = daysBetween(currentBleedingStart, lastEntry.date);
 		const cap = Math.min(elapsed, MAX_PERIOD_DAYS);
 		for (let d = 1; d <= cap; d++) {
 			periodDays.add(addDays(currentBleedingStart, d));
 		}
-		currentBleedingStart = null;
 	}
 
-	// Calculate average cycle length and variability from period start dates
-	let averageCycleLength: number | null = null;
+	return { periodDays, periodStartDates };
+}
+
+function getCycleLengths(periodStartDates: string[]): number[] {
+	const lengths: number[] = [];
+	for (let i = 1; i < periodStartDates.length; i++) {
+		const len = daysBetween(periodStartDates[i - 1], periodStartDates[i]);
+		if (len > 18 && len < 45) {
+			lengths.push(len);
+		}
+	}
+	return lengths;
+}
+
+interface CycleStats {
+	averageCycleLength: number | null;
+	cycleVariability: number | null;
+	lutealPhase: number;
+}
+
+function analyzeCycleStats(
+	periodStartDates: string[],
+	ovulationDays: Set<string>,
+): CycleStats {
+	const cycleLengths = getCycleLengths(periodStartDates);
+
+	const averageCycleLength =
+		cycleLengths.length > 0
+			? Math.round(
+					cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length,
+				)
+			: null;
+
 	let cycleVariability: number | null = null;
-
-	if (periodStartDates.length >= 2) {
-		const cycleLengths: number[] = [];
-		for (let i = 1; i < periodStartDates.length; i++) {
-			const len = daysBetween(periodStartDates[i - 1], periodStartDates[i]);
-			if (len > 18 && len < 45) {
-				cycleLengths.push(len);
-			}
-		}
-		if (cycleLengths.length > 0) {
-			const mean =
-				cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length;
-			averageCycleLength = Math.round(mean);
-
-			if (cycleLengths.length >= 2) {
-				const variance =
-					cycleLengths.reduce((sum, l) => sum + (l - mean) ** 2, 0) /
-					cycleLengths.length;
-				cycleVariability = Math.round(Math.sqrt(variance) * 10) / 10;
-			}
-		}
+	if (cycleLengths.length >= 2) {
+		const mean =
+			cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length;
+		const variance =
+			cycleLengths.reduce((sum, l) => sum + (l - mean) ** 2, 0) /
+			cycleLengths.length;
+		cycleVariability = Math.round(Math.sqrt(variance) * 10) / 10;
 	}
 
-	// Derive luteal phase from observed ovulation-to-next-period gaps when possible
+	// Derive luteal phase from observed ovulation-to-next-period gaps
 	let lutealPhase = DEFAULT_LUTEAL_PHASE;
 	const sortedOvDates = [...ovulationDays].sort();
 	if (sortedOvDates.length > 0 && periodStartDates.length >= 2) {
 		const lutealLengths: number[] = [];
 		for (const ovDate of sortedOvDates) {
-			// Find the next period start after this ovulation
 			const nextPeriod = periodStartDates.find(
 				(ps) => daysBetween(ovDate, ps) > 0,
 			);
@@ -213,40 +215,73 @@ export function calculateFertilityIndicators(
 		}
 	}
 
-	// Predict future cycles based on last period start
-	const cycleLen = averageCycleLength ?? DEFAULT_CYCLE_LENGTH;
-	if (periodStartDates.length > 0) {
-		const lastPeriodStart = periodStartDates[periodStartDates.length - 1];
+	return { averageCycleLength, cycleVariability, lutealPhase };
+}
 
-		// Widen predicted fertile window when cycles are irregular
-		const extraDays =
-			cycleVariability != null && cycleVariability > 2
-				? Math.ceil(cycleVariability)
-				: 0;
+interface PredictionResult {
+	predictedPeriodDays: Set<string>;
+	predictedOvulationDays: Set<string>;
+	predictedFertileDays: Set<string>;
+}
 
-		for (let cycle = 1; cycle <= PREDICTION_CYCLES; cycle++) {
-			const offset = cycleLen * cycle;
+function predictFutureCycles(
+	periodStartDates: string[],
+	cycleLength: number,
+	lutealPhase: number,
+	cycleVariability: number | null,
+): PredictionResult {
+	const predictedPeriodDays = new Set<string>();
+	const predictedOvulationDays = new Set<string>();
+	const predictedFertileDays = new Set<string>();
 
-			// Predict period start
-			const nextPeriodStart = addDays(lastPeriodStart, offset);
-			for (let d = 0; d < 5; d++) {
-				predictedPeriodDays.add(addDays(nextPeriodStart, d));
-			}
+	if (periodStartDates.length === 0) {
+		return { predictedPeriodDays, predictedOvulationDays, predictedFertileDays };
+	}
 
-			// Predict ovulation (cycle length minus luteal phase before next period)
-			const predictedOvDay = addDays(lastPeriodStart, offset - lutealPhase);
-			predictedOvulationDays.add(predictedOvDay);
+	const lastPeriodStart = periodStartDates[periodStartDates.length - 1];
+	const extraDays =
+		cycleVariability != null && cycleVariability > 2
+			? Math.ceil(cycleVariability)
+			: 0;
 
-			// Predict fertile window
-			for (
-				let d = -(FERTILE_WINDOW_BEFORE_OVULATION + extraDays);
-				d <= 1 + extraDays;
-				d++
-			) {
-				predictedFertileDays.add(addDays(predictedOvDay, d));
-			}
+	for (let cycle = 1; cycle <= PREDICTION_CYCLES; cycle++) {
+		const offset = cycleLength * cycle;
+
+		const nextPeriodStart = addDays(lastPeriodStart, offset);
+		for (let d = 0; d < 5; d++) {
+			predictedPeriodDays.add(addDays(nextPeriodStart, d));
+		}
+
+		const predictedOvDay = addDays(lastPeriodStart, offset - lutealPhase);
+		predictedOvulationDays.add(predictedOvDay);
+
+		for (
+			let d = -(FERTILE_WINDOW_BEFORE_OVULATION + extraDays);
+			d <= 1 + extraDays;
+			d++
+		) {
+			predictedFertileDays.add(addDays(predictedOvDay, d));
 		}
 	}
+
+	return { predictedPeriodDays, predictedOvulationDays, predictedFertileDays };
+}
+
+export function calculateFertilityIndicators(
+	entries: EntryWithTemp[],
+): FertilityIndicators {
+	const ovulationDays = detectOvulationDays(entries);
+	const fertileWindowDays = calculateFertileWindow(ovulationDays);
+	const { periodDays, periodStartDates } = identifyPeriodDays(entries);
+	const { averageCycleLength, cycleVariability, lutealPhase } =
+		analyzeCycleStats(periodStartDates, ovulationDays);
+	const { predictedPeriodDays, predictedOvulationDays, predictedFertileDays } =
+		predictFutureCycles(
+			periodStartDates,
+			averageCycleLength ?? DEFAULT_CYCLE_LENGTH,
+			lutealPhase,
+			cycleVariability,
+		);
 
 	return {
 		ovulationDays,
