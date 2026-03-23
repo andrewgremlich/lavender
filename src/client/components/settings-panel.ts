@@ -1,3 +1,4 @@
+import { decrypt, getStoredKey, importKey } from "../crypto/encryption";
 import { api } from "../services/api";
 import { logout } from "../services/auth";
 import { getUnitSystem, setUnitSystem } from "../utils/units";
@@ -69,6 +70,14 @@ class SettingsPanel extends HTMLElement {
         <div class="message" id="retention-msg"></div>
       </div>
 
+      <!-- Export Data -->
+      <div class="settings-card">
+        <h3>Export Data</h3>
+        <p>Download all your health entries as a decrypted JSON file for backup.</p>
+        <button class="btn btn-primary btn-full" id="export-data-btn">Export All Data</button>
+        <div class="message" id="export-msg"></div>
+      </div>
+
       <!-- Danger Zone -->
       <div class="settings-card" style="border:1px solid #fca5a5;">
         <h3 style="color:#dc2626;">Danger Zone</h3>
@@ -114,6 +123,11 @@ class SettingsPanel extends HTMLElement {
 				}
 			});
 
+		// Export data
+		this.shadow
+			.querySelector("#export-data-btn")
+			?.addEventListener("click", () => this.exportData());
+
 		// Delete all data
 		this.setupConfirmAction("delete-data", async () => {
 			await api.metrics.deleteAll();
@@ -155,6 +169,59 @@ class SettingsPanel extends HTMLElement {
 				alert(`Operation failed: ${message}`);
 			}
 		});
+	}
+
+	private async exportData() {
+		const msgEl = this.shadow.querySelector("#export-msg") as HTMLElement;
+		const btn = this.shadow.querySelector("#export-data-btn") as HTMLButtonElement;
+
+		const storedKey = getStoredKey();
+		if (!storedKey) {
+			this.showMessage(msgEl, "Encryption key not found. Please log in again.", "error");
+			return;
+		}
+
+		btn.disabled = true;
+		btn.textContent = "Exporting…";
+
+		try {
+			const entries = await api.metrics.getAll();
+			const key = await importKey(storedKey);
+
+			const decryptedEntries = await Promise.all(
+				entries.map(async (entry) => {
+					const plaintext = await decrypt(entry.encryptedData, entry.iv, key);
+					return {
+						id: entry.id,
+						createdAt: entry.createdAt,
+						expiresAt: entry.expiresAt,
+						data: JSON.parse(plaintext),
+					};
+				}),
+			);
+
+			const exportPayload = {
+				exportedAt: new Date().toISOString(),
+				entryCount: decryptedEntries.length,
+				entries: decryptedEntries,
+			};
+
+			const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: "application/json" });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = `lavendar-backup-${new Date().toISOString().slice(0, 10)}.json`;
+			a.click();
+			URL.revokeObjectURL(url);
+
+			this.showMessage(msgEl, `Exported ${decryptedEntries.length} entries.`, "success");
+		} catch (err: unknown) {
+			const message = err instanceof Error ? err.message : "Export failed.";
+			this.showMessage(msgEl, message, "error");
+		} finally {
+			btn.disabled = false;
+			btn.textContent = "Export All Data";
+		}
 	}
 
 	private showMessage(el: HTMLElement, msg: string, type: "success" | "error") {
