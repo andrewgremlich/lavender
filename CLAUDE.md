@@ -10,6 +10,7 @@ npm run build            # Production build (client + worker)
 npm run deploy           # Build and deploy to Cloudflare Workers
 npm run preview          # Preview production build locally
 npm run check            # Type-check and run biome both client and worker code
+npm run seed             # Seed local database with sample cycle data
 npm run db:migrate:local # Initialize/migrate local D1 database
 npm run db:migrate:remote # Initialize/migrate remote D1 database
 ```
@@ -43,7 +44,7 @@ The core privacy design: **the server never sees plaintext health data**.
 ### Frontend (`src/client/`)
 
 - **No framework** — plain TypeScript Web Components with Shadow DOM
-- **Routing:** Hash-based router (`src/client/router.ts`). Routes: `/` (chart dashboard), `/entry` (data form), `/settings`
+- **Routing:** Hash-based router (`src/client/router.ts`). Routes: `/` (chart dashboard), `/entry` (data form), `/settings`, `/info`
 - **Styling:** Mobile-first CSS with custom properties. Lavender/purple theme. Dark mode via `prefers-color-scheme`. Breakpoints at 768px and 1024px.
 - **Charts:** Chart.js for BBT line charts with fertility markers
 - **Auth:** Password-based authentication
@@ -64,12 +65,8 @@ Each entry has an `expires_at` timestamp derived from the user's configurable re
 
 ## TypeScript Configuration
 
-Two tsconfig files:
-- `tsconfig.json` — worker code (no DOM libs, uses `@cloudflare/workers-types`)
-- `tsconfig.client.json` — client code (includes DOM and DOM.Iterable libs)
-
-Both use `@shared/*` path alias pointing to `src/shared/`.
+Single `tsconfig.json` covers both client and worker code with DOM and DOM.Iterable libs. Uses `@shared/*`, `@client/*`, and `@worker/*` path aliases.
 
 ## Health Metrics Tracked
 
-Basal body temperature, cervical mucus (dry/sticky/creamy/watery/eggWhite), LH surge, ovulation day, fertile window, freeform notes.
+Basal body temperature, cervical mucus (dry/sticky/creamy/watery/eggWhite), bleeding tracking (start/end/flow intensity), and boolean indicators: LH surge, appetite change, mood change, increased sex drive, breast tenderness, mild spotting, heightened smell, cervix changes, fluid retention, cramping. Plus freeform notes.
