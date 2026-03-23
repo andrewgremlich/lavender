@@ -29,8 +29,8 @@ settings.put("/", async (c) => {
 	const userId = getUserId(c);
 	const { dataRetentionDays } = await c.req.json<UserSettings>();
 
-	if (!dataRetentionDays || dataRetentionDays < 90) {
-		return c.json({ error: "Invalid retention period. Minimum is 90 days." }, 400);
+	if (!dataRetentionDays || dataRetentionDays < 180) {
+		return c.json({ error: "Invalid retention period. Minimum is 6 months (180 days)." }, 400);
 	}
 
 	await c.env.DB.prepare(
