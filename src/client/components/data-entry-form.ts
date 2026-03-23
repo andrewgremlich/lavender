@@ -2,6 +2,7 @@ import type { HealthEntryData } from "@shared/types";
 import { encrypt, getStoredKey, importKey } from "../crypto/encryption";
 import { navigate } from "../router";
 import { api } from "../services/api";
+import { renderIcons } from "../utils/icons";
 import { INDICATORS } from "../utils/indicators";
 import {
 	celsiusToFahrenheit,
@@ -19,17 +20,17 @@ interface RadioOption {
 }
 
 const MUCUS_OPTIONS: RadioOption[] = [
-	{ id: "cm-dry", value: "dry", icon: "\u25CB", label: "Dry" },
-	{ id: "cm-sticky", value: "sticky", icon: "\u25CF", label: "Sticky" },
-	{ id: "cm-creamy", value: "creamy", icon: "\u25D4", label: "Creamy" },
-	{ id: "cm-watery", value: "watery", icon: "\u25CC", label: "Watery" },
-	{ id: "cm-eggwhite", value: "eggWhite", icon: "\u29F5", label: "Egg White" },
+	{ id: "cm-dry", value: "dry", icon: "circle", label: "Dry" },
+	{ id: "cm-sticky", value: "sticky", icon: "circle-dot", label: "Sticky" },
+	{ id: "cm-creamy", value: "creamy", icon: "droplet", label: "Creamy" },
+	{ id: "cm-watery", value: "watery", icon: "droplets", label: "Watery" },
+	{ id: "cm-eggwhite", value: "eggWhite", icon: "egg", label: "Egg White" },
 ];
 
 const FLOW_OPTIONS: RadioOption[] = [
-	{ id: "flow-light", value: "light", icon: "\u25CB", label: "Light" },
-	{ id: "flow-medium", value: "medium", icon: "\u25D1", label: "Medium" },
-	{ id: "flow-heavy", value: "heavy", icon: "\u25CF", label: "Heavy" },
+	{ id: "flow-light", value: "light", icon: "minus", label: "Light" },
+	{ id: "flow-medium", value: "medium", icon: "droplet", label: "Medium" },
+	{ id: "flow-heavy", value: "heavy", icon: "droplets", label: "Heavy" },
 ];
 
 function radioGroup(
@@ -43,7 +44,7 @@ function radioGroup(
         <div class="mucus-option">
           <input type="radio" name="${name}" id="${o.id}" value="${o.value}" />
           <label for="${o.id}">
-            <span class="mucus-icon">${o.icon}</span>
+            <i data-icon="${o.icon}" class="mucus-icon"></i>
             <span class="mucus-name">${o.label}</span>
           </label>
         </div>`,
@@ -165,10 +166,12 @@ class DataEntryForm extends HTMLElement {
             </div>
           </details>
 
-          <button type="submit" class="btn-submit" id="submit-btn">Save Entry</button>
+          <button type="submit" class="btn-submit" id="submit-btn"><i data-icon="save"></i> <span>Save Entry</span></button>
         </form>
       </div>
     `;
+
+		renderIcons(this.shadow);
 	}
 
 	private setupListeners() {

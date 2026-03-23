@@ -221,6 +221,14 @@ textarea { resize: vertical; min-height: 80px; font-family: inherit; }
   cursor: pointer;
   margin-top: 0.5rem;
   transition: background 0.2s;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  & svg {
+    margin-right: 0.5rem;
+  }
 }
 .btn-submit:hover { background: var(--color-primary-dark, #6d28d9); }
 .btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
