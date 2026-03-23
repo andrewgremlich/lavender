@@ -82,8 +82,8 @@ class InfoPanel extends HTMLElement {
           retention window are automatically deleted from the server.
         </p>
         <ul>
-          <li>Default retention period: 365 days</li>
-          <li>Configurable to 30, 90, 180, or 365 days, or kept forever</li>
+          <li>Default retention period: 180 days (6 months)</li>
+          <li>Configurable to 3, 6, 9, or 12 months</li>
           <li>Changing the retention period recalculates expiry dates on all existing entries</li>
           <li>Deleting your account permanently removes all data immediately</li>
         </ul>

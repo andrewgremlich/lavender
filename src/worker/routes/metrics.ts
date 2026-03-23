@@ -55,7 +55,7 @@ metrics.post("/", async (c) => {
 		.bind(userId)
 		.first<{ data_retention_days: number }>();
 
-	const retentionDays = settings?.data_retention_days ?? 365;
+	const retentionDays = settings?.data_retention_days ?? 180;
 	const id = generateId();
 	const expiresAt = new Date(
 		Date.now() + retentionDays * 24 * 60 * 60 * 1000,

@@ -60,11 +60,10 @@ class SettingsPanel extends HTMLElement {
         <div class="form-row">
           <label for="retention-period">Auto-delete entries older than</label>
           <select id="retention-period">
-            <option value="30">30 days</option>
-            <option value="90" selected>90 days</option>
-            <option value="180">180 days</option>
+            <option value="90">3 months</option>
+            <option value="180" selected>6 months</option>
+            <option value="270">9 months</option>
             <option value="365">1 year</option>
-            <option value="0">Keep forever</option>
           </select>
         </div>
         <button class="btn btn-primary" id="save-retention-btn">Save</button>
