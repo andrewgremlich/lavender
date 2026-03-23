@@ -16,69 +16,7 @@ export class RegisterForm extends HTMLElement {
 	private render() {
 		this.shadow.innerHTML = `
       <link rel="stylesheet" href="/styles/main.css">
-      <style>
-        :host { display: block; }
-        .form-group { margin-bottom: 1rem; }
-        label {
-          display: block;
-          font-size: 0.875rem;
-          font-weight: 600;
-          color: var(--color-text, #1f2937);
-          margin-bottom: 0.25rem;
-        }
-        input {
-          width: 100%;
-          padding: 0.75rem;
-          border: 1px solid var(--color-border, #d1d5db);
-          border-radius: 0.5rem;
-          font-size: 1rem;
-          background: var(--color-surface, #fff);
-          color: var(--color-text, #1f2937);
-          box-sizing: border-box;
-          transition: border-color 0.2s;
-        }
-        input:focus {
-          outline: none;
-          border-color: var(--color-primary, #7c3aed);
-          box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
-        }
-        .btn-primary {
-          width: 100%;
-          padding: 0.75rem;
-          background: var(--color-primary, #7c3aed);
-          color: #fff;
-          border: none;
-          border-radius: 0.5rem;
-          font-size: 1rem;
-          font-weight: 600;
-          cursor: pointer;
-          transition: background 0.2s;
-        }
-        .btn-primary:hover { background: var(--color-primary-dark, #6d28d9); }
-        .btn-primary:disabled { opacity: 0.6; cursor: not-allowed; }
-        .error {
-          background: #fef2f2;
-          color: #dc2626;
-          padding: 0.75rem;
-          border-radius: 0.5rem;
-          font-size: 0.875rem;
-          margin-bottom: 1rem;
-          display: none;
-        }
-        .error.visible { display: block; }
-        .loading-spinner {
-          display: inline-block;
-          width: 1rem;
-          height: 1rem;
-          border: 2px solid rgba(255,255,255,0.3);
-          border-top-color: #fff;
-          border-radius: 50%;
-          animation: spin 0.6s linear infinite;
-          margin-right: 0.5rem;
-          vertical-align: middle;
-        }
-        @keyframes spin { to { transform: rotate(360deg); } }
-      </style>
+      <link rel="stylesheet" href="/styles/register-form.css">
       <form id="register-form">
         <div class="error" id="error"></div>
         <div class="form-group">
@@ -87,7 +25,12 @@ export class RegisterForm extends HTMLElement {
         </div>
         <div class="form-group">
           <label for="reg-password">Password</label>
-          <input type="password" id="reg-password" name="password" required autocomplete="new-password" minlength="8" />
+          <input type="password" id="reg-password" name="password" required autocomplete="new-password" minlength="12" />
+          <ul class="pw-requirements" id="pw-requirements">
+            <li id="req-length">At least 12 characters</li>
+            <li id="req-number">At least one number</li>
+            <li id="req-special">At least one special character (!@#$%^&* etc.)</li>
+          </ul>
         </div>
         <div class="form-group">
           <label for="reg-confirm">Confirm Password</label>
@@ -100,6 +43,11 @@ export class RegisterForm extends HTMLElement {
 
 	private setupListeners() {
 		const form = this.shadow.querySelector("#register-form") as HTMLFormElement;
+
+		const passwordInput = this.shadow.querySelector("#reg-password") as HTMLInputElement;
+		passwordInput.addEventListener("input", () => {
+			this.updateRequirements(passwordInput.value);
+		});
 
 		form.addEventListener("submit", async (e: Event) => {
 			e.preventDefault();
@@ -123,8 +71,8 @@ export class RegisterForm extends HTMLElement {
 				return;
 			}
 
-			if (password.length < 8) {
-				this.showError("Password must be at least 8 characters.");
+			if (!this.isPasswordValid(password)) {
+				this.showError("Password does not meet all requirements.");
 				return;
 			}
 
@@ -164,6 +112,26 @@ export class RegisterForm extends HTMLElement {
 		const errorEl = this.shadow.querySelector("#error") as HTMLElement;
 		errorEl.textContent = "";
 		errorEl.classList.remove("visible");
+	}
+
+	private isPasswordValid(password: string): boolean {
+		return (
+			password.length >= 12 &&
+			/\d/.test(password) &&
+			/[^a-zA-Z0-9]/.test(password)
+		);
+	}
+
+	private updateRequirements(password: string) {
+		const reqs: Array<{ id: string; met: boolean }> = [
+			{ id: "req-length", met: password.length >= 12 },
+			{ id: "req-number", met: /\d/.test(password) },
+			{ id: "req-special", met: /[^a-zA-Z0-9]/.test(password) },
+		];
+		for (const { id, met } of reqs) {
+			const el = this.shadow.querySelector(`#${id}`);
+			el?.classList.toggle("met", met);
+		}
 	}
 }
 

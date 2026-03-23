@@ -18,8 +18,14 @@ auth.post("/register", async (c) => {
 	if (username.length < 3 || username.length > 50) {
 		return c.json({ error: "Username must be 3-50 characters" }, 400);
 	}
-	if (password.length < 8) {
-		return c.json({ error: "Password must be at least 8 characters" }, 400);
+	if (password.length < 12) {
+		return c.json({ error: "Password must be at least 12 characters" }, 400);
+	}
+	if (!/\d/.test(password)) {
+		return c.json({ error: "Password must contain at least one number" }, 400);
+	}
+	if (!/[^a-zA-Z0-9]/.test(password)) {
+		return c.json({ error: "Password must contain at least one special character" }, 400);
 	}
 
 	const existing = await c.env.DB.prepare(
