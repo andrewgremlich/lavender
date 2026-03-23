@@ -15,6 +15,7 @@ export interface FertilityIndicators {
 	predictedOvulationDays: Set<string>;
 	predictedFertileDays: Set<string>;
 	averageCycleLength: number | null;
+	cycleVariability: number | null;
 }
 
 const THERMAL_SHIFT_THRESHOLD = 0.2; // °C above baseline
@@ -162,8 +163,9 @@ export function calculateFertilityIndicators(
 		currentBleedingStart = null;
 	}
 
-	// Calculate average cycle length from period start dates
+	// Calculate average cycle length and variability from period start dates
 	let averageCycleLength: number | null = null;
+	let cycleVariability: number | null = null;
 
 	if (periodStartDates.length >= 2) {
 		const cycleLengths: number[] = [];
@@ -174,9 +176,16 @@ export function calculateFertilityIndicators(
 			}
 		}
 		if (cycleLengths.length > 0) {
-			averageCycleLength = Math.round(
-				cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length,
-			);
+			const mean =
+				cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length;
+			averageCycleLength = Math.round(mean);
+
+			if (cycleLengths.length >= 2) {
+				const variance =
+					cycleLengths.reduce((sum, l) => sum + (l - mean) ** 2, 0) /
+					cycleLengths.length;
+				cycleVariability = Math.round(Math.sqrt(variance) * 10) / 10;
+			}
 		}
 	}
 
@@ -209,6 +218,12 @@ export function calculateFertilityIndicators(
 	if (periodStartDates.length > 0) {
 		const lastPeriodStart = periodStartDates[periodStartDates.length - 1];
 
+		// Widen predicted fertile window when cycles are irregular
+		const extraDays =
+			cycleVariability != null && cycleVariability > 2
+				? Math.ceil(cycleVariability)
+				: 0;
+
 		for (let cycle = 1; cycle <= PREDICTION_CYCLES; cycle++) {
 			const offset = cycleLen * cycle;
 
@@ -223,7 +238,11 @@ export function calculateFertilityIndicators(
 			predictedOvulationDays.add(predictedOvDay);
 
 			// Predict fertile window
-			for (let d = -FERTILE_WINDOW_BEFORE_OVULATION; d <= 1; d++) {
+			for (
+				let d = -(FERTILE_WINDOW_BEFORE_OVULATION + extraDays);
+				d <= 1 + extraDays;
+				d++
+			) {
 				predictedFertileDays.add(addDays(predictedOvDay, d));
 			}
 		}
@@ -237,5 +256,6 @@ export function calculateFertilityIndicators(
 		predictedOvulationDays,
 		predictedFertileDays,
 		averageCycleLength,
+		cycleVariability,
 	};
 }

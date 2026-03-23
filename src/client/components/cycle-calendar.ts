@@ -16,6 +16,7 @@ export class CycleCalendar extends HTMLElement {
 		predictedOvulationDays: new Set(),
 		predictedFertileDays: new Set(),
 		averageCycleLength: null,
+		cycleVariability: null,
 	};
 
 	constructor() {
@@ -70,8 +71,12 @@ export class CycleCalendar extends HTMLElement {
 			</div>`;
 		}
 
+		const variabilityNote =
+			this.fertility.cycleVariability != null && this.fertility.cycleVariability > 2
+				? ` (±${this.fertility.cycleVariability} days)`
+				: "";
 		const cycleInfo = this.fertility.averageCycleLength
-			? `<div class="cycle-info">Average cycle: ${this.fertility.averageCycleLength} days</div>`
+			? `<div class="cycle-info">Average cycle: ${this.fertility.averageCycleLength} days${variabilityNote}</div>`
 			: "";
 
 		this.shadow.innerHTML = `

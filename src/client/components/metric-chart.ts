@@ -40,6 +40,7 @@ class MetricChart extends HTMLElement {
 		predictedOvulationDays: new Set(),
 		predictedFertileDays: new Set(),
 		averageCycleLength: null,
+		cycleVariability: null,
 	};
 	private selectedRange: DateRange = "30";
 
