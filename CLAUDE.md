@@ -25,10 +25,10 @@ This is a **single Cloudflare Worker** serving both a Hono API backend and a Vit
 
 The core privacy design: **the server never sees plaintext health data**.
 
-- On registration, the client generates an AES-256-GCM key (Web Crypto API) and shows it to the user to save externally
+- On login/registration, the client derives an AES-256-GCM encryption key from the user's password using PBKDF2 (100k iterations, SHA-256, salted with username)
 - All health entries are encrypted client-side before transmission; the server stores opaque blobs + IVs
-- The encryption key lives only in `sessionStorage` (cleared on tab close, never `localStorage`)
-- If the user loses their key, their data is unrecoverable by design
+- The derived encryption key lives only in `sessionStorage` (cleared on tab close, never `localStorage`)
+- If the user forgets their password, their data is unrecoverable by design
 
 ### Backend (`src/worker/`)
 
@@ -61,7 +61,7 @@ Interfaces shared between client and worker: `HealthEntryData`, `EncryptedEntry`
 
 ### Data Retention
 
-Each entry has an `expires_at` timestamp derived from the user's configurable retention period (default 365 days). Expired entries are cleaned up on every GET to `/api/metrics`. CASCADE deletes on the `users` table prevent orphaned data.
+Each entry has an `expires_at` timestamp derived from the user's configurable retention period (default 180 days). Expired entries are cleaned up on every GET to `/api/metrics`. CASCADE deletes on the `users` table prevent orphaned data.
 
 ## TypeScript Configuration
 

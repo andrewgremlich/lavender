@@ -83,7 +83,7 @@ class InfoPanel extends HTMLElement {
         </p>
         <ul>
           <li>Default retention period: 180 days (6 months)</li>
-          <li>Configurable to 3, 6, 9, or 12 months</li>
+          <li>Configurable to 6, 9, or 12 months</li>
           <li>Changing the retention period recalculates expiry dates on all existing entries</li>
           <li>Deleting your account permanently removes all data immediately</li>
         </ul>
