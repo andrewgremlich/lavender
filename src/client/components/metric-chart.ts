@@ -12,6 +12,7 @@ import {
 import {
 	countIndicators,
 	getActiveIndicatorLabels,
+	getLhSurgeLabel,
 	INDICATORS,
 } from "../utils/indicators";
 import { celsiusToFahrenheit, getUnitSystem } from "../utils/units";
@@ -141,7 +142,7 @@ class MetricChart extends HTMLElement {
         </div>
         <div class="legend-section">
           <div class="legend-item"><span class="legend-dot" style="background:#7c3aed"></span> BBT</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> LH Surge</div>
+          <div class="legend-item"><span class="legend-line" style="background:#f59e0b"></span> LH Level</div>
           <div class="legend-item"><span class="legend-dot" style="background:#ec4899"></span> Ovulation</div>
           <div class="legend-item"><span class="legend-dot" style="background:#10b981;opacity:0.3"></span> Fertile Window</div>
           <div class="legend-item"><span class="legend-dot" style="background:rgba(244,114,182,0.5);border-radius:2px"></span> Indicators</div>
@@ -211,19 +212,21 @@ class MetricChart extends HTMLElement {
 		const { ovulationDays, fertileWindowDays } = this.fertility;
 		const pointBorderColors = bbtEntries.map((e) => {
 			if (ovulationDays.has(e.date)) return "#ec4899";
-			if (e.lhSurge) return "#f59e0b";
+			if (fertileWindowDays.has(e.date)) return "rgba(16, 185, 129, 0.6)";
 			return "#7c3aed";
 		});
 		const pointRadius = bbtEntries.map((e) => {
-			if (ovulationDays.has(e.date) || e.lhSurge) return 6;
+			if (ovulationDays.has(e.date)) return 6;
 			return 3;
 		});
 		const pointBgColors = bbtEntries.map((e) => {
 			if (ovulationDays.has(e.date)) return "#ec4899";
-			if (e.lhSurge) return "#f59e0b";
 			if (fertileWindowDays.has(e.date)) return "rgba(16, 185, 129, 0.4)";
 			return "#7c3aed";
 		});
+
+		// LH surge line data
+		const lhValues = bbtEntries.map((e) => e.lhSurge ?? null);
 
 		// Build indicator count data aligned to the same labels
 		const indicatorCounts = bbtEntries.map((e) =>
@@ -243,6 +246,22 @@ class MetricChart extends HTMLElement {
 						borderColor: "rgba(244, 114, 182, 0.6)",
 						borderWidth: 1,
 						yAxisID: "yIndicators",
+						order: 3,
+					},
+					{
+						type: "line" as const,
+						label: "LH Level",
+						data: lhValues,
+						borderColor: "#f59e0b",
+						backgroundColor: "rgba(245, 158, 11, 0.1)",
+						pointBackgroundColor: "#f59e0b",
+						pointBorderColor: "#f59e0b",
+						pointRadius: lhValues.map((v) => (v != null && v > 0 ? 4 : 0)),
+						pointHoverRadius: 6,
+						tension: 0.3,
+						fill: true,
+						spanGaps: false,
+						yAxisID: "yLh",
 						order: 2,
 					},
 					{
@@ -287,6 +306,23 @@ class MetricChart extends HTMLElement {
 						suggestedMax: 37.5,
 						ticks: { font: { size: 14 }, color: "#fff" },
 					},
+					yLh: {
+						position: "right",
+						title: {
+							display: true,
+							text: "LH Level",
+							font: { size: 12 },
+							color: "#f59e0b",
+						},
+						min: 0,
+						max: 2.5,
+						ticks: {
+							stepSize: 0.5,
+							font: { size: 11 },
+							color: "#f59e0b",
+						},
+						grid: { display: false },
+					},
 					yIndicators: {
 						position: "right",
 						title: {
@@ -303,6 +339,7 @@ class MetricChart extends HTMLElement {
 							color: "#fff",
 						},
 						grid: { display: false },
+						display: false,
 					},
 				},
 				plugins: {
@@ -315,6 +352,8 @@ class MetricChart extends HTMLElement {
 									lines.push(
 										`Mucus: ${MUCUS_LABELS[entry.cervicalMucus] || entry.cervicalMucus}`,
 									);
+								if (entry.lhSurge != null && entry.lhSurge > 0)
+									lines.push(`LH: ${entry.lhSurge} (${getLhSurgeLabel(entry.lhSurge)})`);
 								const activeIndicators = getActiveIndicatorLabels(
 									entry as unknown as Record<string, unknown>,
 								);

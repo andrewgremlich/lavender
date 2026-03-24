@@ -1,7 +1,7 @@
 interface EntryWithTemp {
 	date: string;
 	basalBodyTemp?: number;
-	lhSurge?: boolean;
+	lhSurge?: number;
 	bleedingStart?: boolean;
 	bleedingEnd?: boolean;
 	bleedingFlow?: "light" | "medium" | "heavy";
@@ -46,9 +46,9 @@ function daysBetween(a: string, b: string): number {
 function detectOvulationDays(entries: EntryWithTemp[]): Set<string> {
 	const ovulationDays = new Set<string>();
 
-	// Detect from LH surge (ovulation typically occurs ~1 day after surge)
+	// Detect from LH surge (ovulation typically occurs ~1 day after peak)
 	for (const entry of entries) {
-		if (entry.lhSurge) {
+		if (entry.lhSurge === 2) {
 			ovulationDays.add(addDays(entry.date, 1));
 		}
 	}

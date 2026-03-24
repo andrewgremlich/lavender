@@ -112,7 +112,7 @@ interface HealthEntry {
 	date: string;
 	basalBodyTemp?: number;
 	cervicalMucus?: MucusType;
-	lhSurge?: boolean;
+	lhSurge?: number;
 	appetiteChange?: boolean;
 	moodChange?: boolean;
 	increasedSexDrive?: boolean;
@@ -211,9 +211,13 @@ function generateCycle(startDate: string, cycleLength: number): HealthEntry[] {
 		if (cycleDay >= ovulationDay - 2 && cycleDay <= ovulationDay) {
 			entry.heightenedSmell = true;
 		}
+		if (cycleDay === ovulationDay - 1) {
+			entry.lhSurge = 1;
+			entry.notes = "LH rising.";
+		}
 		if (cycleDay === ovulationDay) {
-			entry.lhSurge = true;
-			entry.notes = "Positive OPK - LH surge detected.";
+			entry.lhSurge = 2;
+			entry.notes = "Positive OPK - LH peak detected.";
 		}
 		if (cycleDay === ovulationDay + 1) {
 			entry.mildSpotting = true;

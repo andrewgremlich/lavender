@@ -59,6 +59,12 @@ canvas { width: 100% !important; }
   border-radius: 50%;
   flex-shrink: 0;
 }
+.legend-line {
+  width: 18px;
+  height: 3px;
+  border-radius: 2px;
+  flex-shrink: 0;
+}
 
 .calendar-section { margin-bottom: 1.5rem; }
 .summary-section { margin-top: 1.5rem; }

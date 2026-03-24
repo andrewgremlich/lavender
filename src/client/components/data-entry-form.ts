@@ -119,6 +119,21 @@ class DataEntryForm extends HTMLElement {
           </details>
 
           <details class="collapsible">
+            <summary>LH Strip Test</summary>
+            <div class="collapsible-content">
+              <div class="lh-slider-group">
+                <input type="range" id="lh-surge" name="lhSurge" min="0" max="2" step="0.1" value="0" />
+                <div class="lh-slider-labels">
+                  <span>0</span>
+                  <span>1</span>
+                  <span>2</span>
+                </div>
+                <div class="lh-slider-value">Value: <strong id="lh-value-display">0</strong></div>
+              </div>
+            </div>
+          </details>
+
+          <details class="collapsible">
             <summary>Indicators</summary>
             <div class="collapsible-content">
               <div class="toggle-group">
@@ -226,6 +241,13 @@ class DataEntryForm extends HTMLElement {
 			});
 		});
 
+		// LH surge slider live display
+		const lhSlider = this.shadow.querySelector("#lh-surge") as HTMLInputElement;
+		const lhDisplay = this.shadow.querySelector("#lh-value-display") as HTMLElement;
+		lhSlider?.addEventListener("input", () => {
+			lhDisplay.textContent = lhSlider.value;
+		});
+
 		form.addEventListener("submit", async (e: Event) => {
 			e.preventDefault();
 			this.clearMessages();
@@ -259,6 +281,11 @@ class DataEntryForm extends HTMLElement {
 
 			if (mucus) {
 				entry.cervicalMucus = mucus as HealthEntryData["cervicalMucus"];
+			}
+
+			const lhValue = Number.parseFloat(formData.get("lhSurge") as string);
+			if (lhValue > 0) {
+				entry.lhSurge = lhValue;
 			}
 
 			for (const ind of INDICATORS) {
