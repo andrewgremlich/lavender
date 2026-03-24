@@ -54,35 +54,20 @@ class AppRoot extends HTMLElement {
 
 	private render() {
 		if (isLoggedIn()) {
+			this.classList.remove("auth");
 			this.shadow.innerHTML = `
         <link rel="stylesheet" href="/styles/main.css">
-        <style>
-          :host { display: block; min-height: 100vh; background: var(--color-bg, #faf5ff); }
-          .app-layout { display: flex; flex-direction: column; min-height: 100vh; }
-          .content { flex: 1; padding: 1rem; padding-bottom: 5rem; max-width: 800px; margin: 0 auto; width: 100%; box-sizing: border-box; }
-          @media (min-width: 768px) { .content { padding: 2rem; padding-bottom: 2rem; } }
-          @media (min-width: 1024px) {
-            .app-layout { flex-direction: row; }
-            .content { padding: 2rem; }
-          }
-        </style>
+        <link rel="stylesheet" href="/styles/app-root.css">
         <div class="app-layout">
           <nav-bar></nav-bar>
           <main class="content" id="content"></main>
         </div>
       `;
 		} else {
+			this.classList.add("auth");
 			this.shadow.innerHTML = `
 				<link rel="stylesheet" href="/styles/main.css">
-				<style>
-				:host { display: flex; align-items: center; justify-content: center; min-height: 100vh; background: var(--color-bg, #faf5ff); }
-				.auth-container { width: 100%; padding: 1rem; }
-				.auth-toggle { text-align: center; margin-top: 1rem; color: var(--color-text, #6b7280); font-size: 12px; }
-				.auth-toggle a { color: var(--color-primary, #7c3aed); cursor: pointer; text-decoration: underline; }
-				.app-title { text-align: center; margin-bottom: 2rem; }
-				.app-title h1 { font-size: 2rem; color: var(--color-primary, #7c3aed); margin: 0; }
-				.app-title p { color: var(--color-text, #6b7280); margin: 0.5rem 0 0; }
-				</style>
+				<link rel="stylesheet" href="/styles/app-root.css">
 				<div class="auth-container">
 				<div class="app-title">
 					<h1>Lavendar</h1>

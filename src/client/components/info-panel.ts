@@ -13,45 +13,7 @@ class InfoPanel extends HTMLElement {
 	private render() {
 		this.shadow.innerHTML = `
       <link rel="stylesheet" href="/styles/main.css">
-      <style>
-        *, *::before, *::after { box-sizing: border-box; }
-        :host { display: block; }
-        h2 { color: var(--color-text, #1f2937); margin: 0 0 1.5rem; font-size: 1.5rem; }
-        h3 { color: var(--color-primary, #7c3aed); margin: 0 0 0.5rem; font-size: 1rem; }
-        .card {
-          background: var(--color-surface, #fff);
-          border-radius: 0.75rem;
-          padding: 1.25rem;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-          margin-bottom: 1rem;
-        }
-        p {
-          margin: 0 0 0.75rem;
-          font-size: 0.9375rem;
-          line-height: 1.6;
-          color: var(--color-text, #1f2937);
-        }
-        p:last-child { margin-bottom: 0; }
-        ul {
-          margin: 0.5rem 0 0.75rem 1.25rem;
-          padding: 0;
-          font-size: 0.9375rem;
-          line-height: 1.6;
-          color: var(--color-text, #1f2937);
-        }
-        ul:last-child { margin-bottom: 0; }
-        .highlight {
-          background: rgba(124, 58, 237, 0.07);
-          border-left: 3px solid var(--color-primary, #7c3aed);
-          border-radius: 0 0.5rem 0.5rem 0;
-          padding: 0.75rem 1rem;
-          margin: 0.75rem 0 0;
-          font-size: 0.875rem;
-          color: var(--color-text, #1f2937);
-          line-height: 1.6;
-        }
-        .highlight:last-child { margin-bottom: 0; }
-      </style>
+      <link rel="stylesheet" href="/styles/info-panel.css">
 
       <h2>About Lavendar</h2>
 
