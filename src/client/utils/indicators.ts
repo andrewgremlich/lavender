@@ -1,11 +1,5 @@
-export function getLhSurgeLabel(value: number): string {
-	if (value <= 0) return "Low";
-	if (value < 1) return "Rising";
-	if (value < 2) return "High";
-	return "Peak";
-}
-
 export const INDICATORS = [
+	{ key: "lhSurge", label: "LH Surge" },
 	{ key: "appetiteChange", label: "Appetite Change" },
 	{ key: "moodChange", label: "Mood Change" },
 	{ key: "increasedSexDrive", label: "Increased Sex Drive" },
