@@ -11,6 +11,7 @@ export class CycleCalendar extends HTMLElement {
 	private fertility: FertilityIndicators = {
 		ovulationDays: new Set(),
 		fertileWindowDays: new Set(),
+		cmFertileDays: new Set(),
 		periodDays: new Set(),
 		predictedPeriodDays: new Set(),
 		predictedOvulationDays: new Set(),

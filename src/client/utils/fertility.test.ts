@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
-	type FertilityIndicators,
+	type CervicalMucusScore,
 	calculateFertilityIndicators,
 } from "./fertility";
 
@@ -15,10 +15,13 @@ function makeEntry(
 	day: number,
 	overrides: {
 		basalBodyTemp?: number;
+		basalBodyTempTime?: number;
+		basalBodyTempDiscarded?: boolean;
 		lhSurge?: boolean;
 		bleedingStart?: boolean;
 		bleedingEnd?: boolean;
 		bleedingFlow?: "light" | "medium" | "heavy";
+		cervicalMucus?: CervicalMucusScore;
 	} = {},
 ) {
 	return { date: date(day), ...overrides };
@@ -114,15 +117,17 @@ describe("calculateFertilityIndicators", () => {
 	});
 
 	describe("fertile window", () => {
-		it("marks 5 days before and 1 day after ovulation", () => {
+		it("marks 5 days before through ovulation day (6-day window)", () => {
 			const entries = [makeEntry(14, { lhSurge: true })];
 			const result = calculateFertilityIndicators(entries);
-			// Ovulation on day 15, fertile window: day 10-16
-			for (let d = 10; d <= 16; d++) {
+			// LH surge day 14 → ovulation candidates day 15 and 16
+			// Reconciliation collapses to day 15 (first in cluster)
+			// Fertile window: O-5 to O = days 10-15
+			for (let d = 10; d <= 15; d++) {
 				expect(result.fertileWindowDays.has(date(d))).toBe(true);
 			}
 			expect(result.fertileWindowDays.has(date(9))).toBe(false);
-			expect(result.fertileWindowDays.has(date(17))).toBe(false);
+			expect(result.fertileWindowDays.has(date(16))).toBe(false);
 		});
 	});
 
@@ -229,8 +234,8 @@ describe("calculateFertilityIndicators", () => {
 				makeEntry(60, { bleedingEnd: true }),
 			];
 			const result = calculateFertilityIndicators(entries);
-			// Cycles: 26 and 30 days → mean 28, variance 4, stddev 2
-			expect(result.cycleVariability).toBe(2);
+			// Cycles: 26 and 30 days → mean 28, sample variance 8, stddev √8 ≈ 2.8
+			expect(result.cycleVariability).toBe(2.8);
 		});
 
 		it("returns null variability for single cycle", () => {
@@ -286,10 +291,10 @@ describe("calculateFertilityIndicators", () => {
 				makeEntry(32, { bleedingEnd: true }),
 			];
 			const result = calculateFertilityIndicators(entries);
-			// Default luteal phase = 14, cycle = 28
+			// Default luteal phase = 13, cycle = 28 (single cycle via EMA)
 			// First predicted cycle: last start (28) + 28 = 56
-			// Predicted ovulation: 56 - 14 = day 42
-			expect(result.predictedOvulationDays.has(date(42))).toBe(true);
+			// Predicted ovulation: 56 - 13 = day 43
+			expect(result.predictedOvulationDays.has(date(43))).toBe(true);
 		});
 
 		it("widens predicted fertile window when variability > 2", () => {
@@ -302,28 +307,26 @@ describe("calculateFertilityIndicators", () => {
 				makeEntry(60, { bleedingEnd: true }),
 			];
 			const result = calculateFertilityIndicators(entries);
-			// Cycles: 25 and 31 → mean 28, stddev ~3
-			// extraDays = ceil(~3) = 3
-			// Standard fertile: -5 to +1 around ovulation
-			// Widened: -(5+3) to (1+3) = -8 to +4
+			// Cycles: 25 and 31 → stddev ~4.2
+			// extraDays = ceil(~4.2) = 5
+			// Predicted fertile window: -(5+extra) to 0 = -(10) to 0 = 11 days per cycle
+			expect(result.cycleVariability).not.toBeNull();
 			if (result.cycleVariability !== null && result.cycleVariability > 2) {
 				const extraDays = Math.ceil(result.cycleVariability);
-				const standardWindow = 5 + 1 + 1; // -5 to +1
-				const widenedWindow =
-					5 + extraDays + 1 + extraDays + 1; // -(5+extra) to (1+extra)
+				const widenedWindow = 5 + extraDays + 1; // -(5+extra) to 0 inclusive
 				expect(result.predictedFertileDays.size).toBe(widenedWindow * 3); // 3 cycles
 			}
 		});
 
-		it("uses default 28-day cycle when no cycle data", () => {
-			// Single period, no average available → uses DEFAULT_CYCLE_LENGTH (28)
+		it("uses default 29-day cycle when no cycle data", () => {
+			// Single period, no average available → uses DEFAULT_CYCLE_LENGTH (29)
 			const entries = [
 				makeEntry(0, { bleedingStart: true }),
 				makeEntry(4, { bleedingEnd: true }),
 			];
 			const result = calculateFertilityIndicators(entries);
-			// Predicted period at day 28
-			expect(result.predictedPeriodDays.has(date(28))).toBe(true);
+			// Predicted period at day 29
+			expect(result.predictedPeriodDays.has(date(29))).toBe(true);
 		});
 
 		it("derives luteal phase from ovulation-to-next-period gap", () => {

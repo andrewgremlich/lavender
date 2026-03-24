@@ -8,6 +8,7 @@ import { api } from "../services/api";
 import {
 	calculateFertilityIndicators,
 	type FertilityIndicators,
+	toFertilityEntry,
 } from "../utils/fertility";
 import {
 	countIndicators,
@@ -35,6 +36,7 @@ class MetricChart extends HTMLElement {
 	private fertility: FertilityIndicators = {
 		ovulationDays: new Set(),
 		fertileWindowDays: new Set(),
+		cmFertileDays: new Set(),
 		periodDays: new Set(),
 		predictedPeriodDays: new Set(),
 		predictedOvulationDays: new Set(),
@@ -104,7 +106,7 @@ class MetricChart extends HTMLElement {
 
 			decryptedEntries.sort((a, b) => a.date.localeCompare(b.date));
 			this.entries = decryptedEntries;
-			this.fertility = calculateFertilityIndicators(decryptedEntries);
+			this.fertility = calculateFertilityIndicators(decryptedEntries.map(toFertilityEntry));
 
 			this.renderDashboard(content);
 		} catch (err: unknown) {
