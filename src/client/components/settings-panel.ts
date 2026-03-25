@@ -147,37 +147,43 @@ class SettingsPanel extends HTMLElement {
 	}
 
 	private setupConfirmAction(id: string, onConfirm: () => Promise<void>) {
-		const triggerBtn = this.shadow.querySelector(
-			`#${id}-btn`,
-		) as HTMLElement;
-		const dialog = this.shadow.querySelector(
-			`#${id}-confirm`,
-		) as HTMLElement;
+		const triggerBtn = this.shadow.querySelector(`#${id}-btn`) as HTMLElement;
+		const dialog = this.shadow.querySelector(`#${id}-confirm`) as HTMLElement;
 
 		triggerBtn.addEventListener("click", () => {
 			dialog.classList.add("visible");
 		});
-		this.shadow.querySelector(`#cancel-${id}`)?.addEventListener("click", () => {
-			dialog.classList.remove("visible");
-		});
-		this.shadow.querySelector(`#confirm-${id}`)?.addEventListener("click", async () => {
-			try {
-				await onConfirm();
+		this.shadow
+			.querySelector(`#cancel-${id}`)
+			?.addEventListener("click", () => {
 				dialog.classList.remove("visible");
-			} catch (err: unknown) {
-				const message = err instanceof Error ? err.message : "Unknown error";
-				alert(`Operation failed: ${message}`);
-			}
-		});
+			});
+		this.shadow
+			.querySelector(`#confirm-${id}`)
+			?.addEventListener("click", async () => {
+				try {
+					await onConfirm();
+					dialog.classList.remove("visible");
+				} catch (err: unknown) {
+					const message = err instanceof Error ? err.message : "Unknown error";
+					alert(`Operation failed: ${message}`);
+				}
+			});
 	}
 
 	private async exportData() {
 		const msgEl = this.shadow.querySelector("#export-msg") as HTMLElement;
-		const btn = this.shadow.querySelector("#export-data-btn") as HTMLButtonElement;
+		const btn = this.shadow.querySelector(
+			"#export-data-btn",
+		) as HTMLButtonElement;
 
 		const storedKey = getStoredKey();
 		if (!storedKey) {
-			this.showMessage(msgEl, "Encryption key not found. Please log in again.", "error");
+			this.showMessage(
+				msgEl,
+				"Encryption key not found. Please log in again.",
+				"error",
+			);
 			return;
 		}
 
@@ -206,7 +212,9 @@ class SettingsPanel extends HTMLElement {
 				entries: decryptedEntries,
 			};
 
-			const blob = new Blob([JSON.stringify(exportPayload, null, 2)], { type: "application/json" });
+			const blob = new Blob([JSON.stringify(exportPayload, null, 2)], {
+				type: "application/json",
+			});
 			const url = URL.createObjectURL(blob);
 			const a = document.createElement("a");
 			a.href = url;
@@ -214,7 +222,11 @@ class SettingsPanel extends HTMLElement {
 			a.click();
 			URL.revokeObjectURL(url);
 
-			this.showMessage(msgEl, `Exported ${decryptedEntries.length} entries.`, "success");
+			this.showMessage(
+				msgEl,
+				`Exported ${decryptedEntries.length} entries.`,
+				"success",
+			);
 		} catch (err: unknown) {
 			const message = err instanceof Error ? err.message : "Export failed.";
 			this.showMessage(msgEl, message, "error");

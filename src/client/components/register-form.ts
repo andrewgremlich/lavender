@@ -47,7 +47,9 @@ export class RegisterForm extends HTMLElement {
 	private setupListeners() {
 		const form = this.shadow.querySelector("#register-form") as HTMLFormElement;
 
-		const passwordInput = this.shadow.querySelector("#reg-password") as HTMLInputElement;
+		const passwordInput = this.shadow.querySelector(
+			"#reg-password",
+		) as HTMLInputElement;
 		passwordInput.addEventListener("input", () => {
 			this.updateRequirements(passwordInput.value);
 		});

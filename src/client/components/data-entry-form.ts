@@ -27,6 +27,12 @@ const MUCUS_OPTIONS: RadioOption[] = [
 	{ id: "cm-eggwhite", value: "eggWhite", icon: "egg", label: "Egg White" },
 ];
 
+const LH_OPTIONS: RadioOption[] = [
+	{ id: "lh-none", value: "0", icon: "circle", label: "None" },
+	{ id: "lh-light", value: "1", icon: "circle-dot", label: "Light" },
+	{ id: "lh-positive", value: "2", icon: "circle-check", label: "Positive" },
+];
+
 const FLOW_OPTIONS: RadioOption[] = [
 	{ id: "flow-light", value: "light", icon: "minus", label: "Light" },
 	{ id: "flow-medium", value: "medium", icon: "droplet", label: "Medium" },
@@ -94,14 +100,16 @@ class DataEntryForm extends HTMLElement {
 		if (!form) return;
 
 		if (data.date) {
-			(this.shadow.querySelector("#entry-date") as HTMLInputElement).value = data.date;
+			(this.shadow.querySelector("#entry-date") as HTMLInputElement).value =
+				data.date;
 		}
 
 		if (data.basalBodyTemp != null) {
 			const bbtInput = this.shadow.querySelector("#bbt") as HTMLInputElement;
-			const temp = this.tempUnit === "F"
-				? celsiusToFahrenheit(data.basalBodyTemp)
-				: data.basalBodyTemp;
+			const temp =
+				this.tempUnit === "F"
+					? celsiusToFahrenheit(data.basalBodyTemp)
+					: data.basalBodyTemp;
 			bbtInput.value = (Math.round(temp * 100) / 100).toString();
 		}
 
@@ -112,18 +120,37 @@ class DataEntryForm extends HTMLElement {
 			if (radio) radio.checked = true;
 		}
 
+		if (data.lhSurge != null) {
+			const lhValue =
+				typeof data.lhSurge === "boolean"
+					? data.lhSurge
+						? 2
+						: 0
+					: data.lhSurge;
+			const radio = this.shadow.querySelector(
+				`input[name="lh-surge"][value="${lhValue}"]`,
+			) as HTMLInputElement | null;
+			if (radio) radio.checked = true;
+		}
+
 		for (const ind of INDICATORS) {
 			if ((data as unknown as Record<string, unknown>)[ind.key]) {
-				const checkbox = this.shadow.querySelector(`#ind-${ind.key}`) as HTMLInputElement | null;
+				const checkbox = this.shadow.querySelector(
+					`#ind-${ind.key}`,
+				) as HTMLInputElement | null;
 				if (checkbox) checkbox.checked = true;
 			}
 		}
 
 		if (data.bleedingStart) {
-			const radio = this.shadow.querySelector("#bleeding-started") as HTMLInputElement;
+			const radio = this.shadow.querySelector(
+				"#bleeding-started",
+			) as HTMLInputElement;
 			if (radio) radio.checked = true;
 		} else if (data.bleedingEnd) {
-			const radio = this.shadow.querySelector("#bleeding-ended") as HTMLInputElement;
+			const radio = this.shadow.querySelector(
+				"#bleeding-ended",
+			) as HTMLInputElement;
 			if (radio) radio.checked = true;
 		}
 
@@ -135,7 +162,8 @@ class DataEntryForm extends HTMLElement {
 		}
 
 		if (data.notes) {
-			(this.shadow.querySelector("#notes") as HTMLTextAreaElement).value = data.notes;
+			(this.shadow.querySelector("#notes") as HTMLTextAreaElement).value =
+				data.notes;
 		}
 	}
 
@@ -188,6 +216,13 @@ class DataEntryForm extends HTMLElement {
             <summary>Cervical Mucus</summary>
             <div class="collapsible-content">
               ${radioGroup("cervical-mucus", MUCUS_OPTIONS, "mucus-options")}
+            </div>
+          </details>
+
+          <details class="collapsible">
+            <summary>LH Surge</summary>
+            <div class="collapsible-content">
+              ${radioGroup("lh-surge", LH_OPTIONS, "mucus-options")}
             </div>
           </details>
 
@@ -311,6 +346,7 @@ class DataEntryForm extends HTMLElement {
 			const date = formData.get("entry-date") as string;
 			const bbtRaw = formData.get("bbt") as string;
 			const mucus = formData.get("cervical-mucus") as string | null;
+			const lhSurge = formData.get("lh-surge") as string | null;
 			const notes = (formData.get("notes") as string)?.trim();
 			const bleedingStatus = formData.get("bleeding-status") as string | null;
 			const bleedingFlow = formData.get("bleeding-flow") as string | null;
@@ -334,6 +370,14 @@ class DataEntryForm extends HTMLElement {
 				entry.cervicalMucus = mucus as HealthEntryData["cervicalMucus"];
 			}
 
+			if (lhSurge) {
+				const lhValue = Number.parseInt(
+					lhSurge,
+					10,
+				) as HealthEntryData["lhSurge"];
+				if (lhValue) entry.lhSurge = lhValue;
+			}
+
 			for (const ind of INDICATORS) {
 				if (formData.get(ind.key)) {
 					(entry as unknown as Record<string, unknown>)[ind.key] = true;
@@ -344,8 +388,7 @@ class DataEntryForm extends HTMLElement {
 			if (bleedingStatus === "ended") entry.bleedingEnd = true;
 
 			if (bleedingFlow) {
-				entry.bleedingFlow =
-					bleedingFlow as HealthEntryData["bleedingFlow"];
+				entry.bleedingFlow = bleedingFlow as HealthEntryData["bleedingFlow"];
 			}
 
 			if (notes) entry.notes = notes;

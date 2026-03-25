@@ -2,7 +2,7 @@ export interface HealthEntryData {
 	date: string;
 	basalBodyTemp?: number;
 	cervicalMucus?: "dry" | "sticky" | "creamy" | "watery" | "eggWhite";
-	lhSurge?: boolean;
+	lhSurge?: 0 | 1 | 2;
 	appetiteChange?: boolean;
 	moodChange?: boolean;
 	increasedSexDrive?: boolean;

@@ -112,7 +112,7 @@ interface HealthEntry {
 	date: string;
 	basalBodyTemp?: number;
 	cervicalMucus?: MucusType;
-	lhSurge?: boolean;
+	lhSurge?: 0 | 1 | 2;
 	appetiteChange?: boolean;
 	moodChange?: boolean;
 	increasedSexDrive?: boolean;
@@ -193,8 +193,7 @@ function generateCycle(startDate: string, cycleLength: number): HealthEntry[] {
 			entry.cervicalMucus = "creamy";
 		} else if (cycleDay <= ovulationDay + 1) {
 			// Peak fertility mucus
-			entry.cervicalMucus =
-				cycleDay === ovulationDay ? "eggWhite" : "watery";
+			entry.cervicalMucus = cycleDay === ovulationDay ? "eggWhite" : "watery";
 		} else if (cycleDay <= ovulationDay + 3) {
 			entry.cervicalMucus = "creamy";
 		} else if (cycleDay <= ovulationDay + 5) {
@@ -211,13 +210,22 @@ function generateCycle(startDate: string, cycleLength: number): HealthEntry[] {
 		if (cycleDay >= ovulationDay - 2 && cycleDay <= ovulationDay) {
 			entry.heightenedSmell = true;
 		}
+		if (cycleDay === ovulationDay - 2) {
+			entry.lhSurge = 1;
+			entry.notes = "Faint LH line appearing.";
+		}
+		if (cycleDay === ovulationDay - 1) {
+			entry.lhSurge = 2;
+			entry.notes = "Positive OPK - strong LH surge.";
+		}
 		if (cycleDay === ovulationDay) {
-			entry.lhSurge = true;
-			entry.notes = "Positive OPK - LH surge detected.";
+			entry.lhSurge = 2;
+			entry.notes = "Positive OPK - peak LH surge detected.";
 		}
 		if (cycleDay === ovulationDay + 1) {
+			entry.lhSurge = 1;
 			entry.mildSpotting = true;
-			entry.notes = "Mild ovulation spotting observed.";
+			entry.notes = "LH declining. Mild ovulation spotting observed.";
 		}
 
 		// ── Luteal phase indicators ──
@@ -246,7 +254,7 @@ function generateCycle(startDate: string, cycleLength: number): HealthEntry[] {
  */
 function generateAllEntries(): HealthEntry[] {
 	const today = todayStr();
-	const cycleLengths = [29, 28, 27]; // Slight variation each cycle
+	const cycleLengths = [31, 32, 33]; // Slight variation, avg 32 days
 	const totalDays = cycleLengths.reduce((a, b) => a + b, 0);
 
 	// Start far enough back that the last cycle ends near today
@@ -305,10 +313,7 @@ async function main() {
 
 	let count = 0;
 	for (const entry of entries) {
-		const { encrypted, iv } = await encrypt(
-			JSON.stringify(entry),
-			cryptoKey,
-		);
+		const { encrypted, iv } = await encrypt(JSON.stringify(entry), cryptoKey);
 		await request("/metrics", {
 			method: "POST",
 			body: JSON.stringify({ encryptedData: encrypted, iv }),

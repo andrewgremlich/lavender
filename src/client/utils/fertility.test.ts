@@ -17,7 +17,7 @@ function makeEntry(
 		basalBodyTemp?: number;
 		basalBodyTempTime?: number;
 		basalBodyTempDiscarded?: boolean;
-		lhSurge?: boolean;
+		lhSurge?: 0 | 1 | 2 | boolean;
 		bleedingStart?: boolean;
 		bleedingEnd?: boolean;
 		bleedingFlow?: "light" | "medium" | "heavy";
@@ -42,6 +42,18 @@ describe("calculateFertilityIndicators", () => {
 
 	describe("ovulation detection", () => {
 		it("detects ovulation from LH surge (1 day after)", () => {
+			const entries = [makeEntry(0, { lhSurge: 2 })];
+			const result = calculateFertilityIndicators(entries);
+			expect(result.ovulationDays.has(date(1))).toBe(true);
+		});
+
+		it("detects ovulation from light LH surge value", () => {
+			const entries = [makeEntry(0, { lhSurge: 1 })];
+			const result = calculateFertilityIndicators(entries);
+			expect(result.ovulationDays.has(date(1))).toBe(true);
+		});
+
+		it("backward compat: boolean true treated as positive (2)", () => {
 			const entries = [makeEntry(0, { lhSurge: true })];
 			const result = calculateFertilityIndicators(entries);
 			expect(result.ovulationDays.has(date(1))).toBe(true);
@@ -95,7 +107,7 @@ describe("calculateFertilityIndicators", () => {
 				...Array.from({ length: 6 }, (_, i) =>
 					makeEntry(i + 8, { basalBodyTemp: 36.4 }),
 				),
-				makeEntry(12, { basalBodyTemp: 36.4, lhSurge: true }),
+				makeEntry(12, { basalBodyTemp: 36.4, lhSurge: 2 }),
 				makeEntry(14, { basalBodyTemp: 36.7 }),
 				makeEntry(15, { basalBodyTemp: 36.7 }),
 				makeEntry(16, { basalBodyTemp: 36.8 }),
@@ -108,8 +120,8 @@ describe("calculateFertilityIndicators", () => {
 		it("keeps separate ovulation events more than 2 days apart", () => {
 			// Two LH surges far apart
 			const entries = [
-				makeEntry(0, { lhSurge: true }),
-				makeEntry(30, { lhSurge: true }),
+				makeEntry(0, { lhSurge: 2 }),
+				makeEntry(30, { lhSurge: 2 }),
 			];
 			const result = calculateFertilityIndicators(entries);
 			expect(result.ovulationDays.size).toBe(2);
@@ -118,7 +130,7 @@ describe("calculateFertilityIndicators", () => {
 
 	describe("fertile window", () => {
 		it("marks 5 days before through ovulation day (6-day window)", () => {
-			const entries = [makeEntry(14, { lhSurge: true })];
+			const entries = [makeEntry(14, { lhSurge: 2 })];
 			const result = calculateFertilityIndicators(entries);
 			// LH surge day 14 → ovulation candidates day 15 and 16
 			// Reconciliation collapses to day 15 (first in cluster)
@@ -335,7 +347,7 @@ describe("calculateFertilityIndicators", () => {
 			const entries = [
 				makeEntry(0, { bleedingStart: true }),
 				makeEntry(4, { bleedingEnd: true }),
-				makeEntry(12, { lhSurge: true }),
+				makeEntry(12, { lhSurge: 2 }),
 				makeEntry(26, { bleedingStart: true }),
 				makeEntry(30, { bleedingEnd: true }),
 			];
@@ -358,7 +370,7 @@ describe("calculateFertilityIndicators", () => {
 				...Array.from({ length: 6 }, (_, i) =>
 					makeEntry(i + 8, { basalBodyTemp: 36.3 }),
 				),
-				makeEntry(13, { lhSurge: true, basalBodyTemp: 36.35 }),
+				makeEntry(13, { lhSurge: 2, basalBodyTemp: 36.35 }),
 				makeEntry(14, { basalBodyTemp: 36.6 }),
 				makeEntry(15, { basalBodyTemp: 36.65 }),
 				makeEntry(16, { basalBodyTemp: 36.7 }),

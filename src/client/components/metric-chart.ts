@@ -21,6 +21,19 @@ import type { CycleCalendar } from "./cycle-calendar";
 type HealthEntry = HealthEntryData & { id: string };
 type DateRange = "30" | "90" | "180" | "365" | "all";
 
+const LH_LABELS: Record<number, string> = {
+	0: "None",
+	1: "Light",
+	2: "Positive",
+};
+
+function normalizeLhSurge(value: unknown): 0 | 1 | 2 {
+	if (value === true) return 2;
+	if (typeof value === "number" && (value === 0 || value === 1 || value === 2))
+		return value;
+	return 0;
+}
+
 const MUCUS_LABELS: Record<string, string> = {
 	dry: "Dry",
 	sticky: "Sticky",
@@ -106,7 +119,9 @@ class MetricChart extends HTMLElement {
 
 			decryptedEntries.sort((a, b) => a.date.localeCompare(b.date));
 			this.entries = decryptedEntries;
-			this.fertility = calculateFertilityIndicators(decryptedEntries.map(toFertilityEntry));
+			this.fertility = calculateFertilityIndicators(
+				decryptedEntries.map(toFertilityEntry),
+			);
 
 			this.renderDashboard(content);
 		} catch (err: unknown) {
@@ -143,7 +158,7 @@ class MetricChart extends HTMLElement {
         </div>
         <div class="legend-section">
           <div class="legend-item"><span class="legend-dot" style="background:#7c3aed"></span> BBT</div>
-          <div class="legend-item"><span class="legend-dot" style="background:#f59e0b"></span> LH Surge</div>
+          <div class="legend-item"><span class="legend-dot" style="background:rgba(245,158,11,0.5);border-radius:2px"></span> LH Surge</div>
           <div class="legend-item"><span class="legend-dot" style="background:#ec4899"></span> Ovulation</div>
           <div class="legend-item"><span class="legend-dot" style="background:#10b981;opacity:0.3"></span> Fertile Window</div>
           <div class="legend-item"><span class="legend-dot" style="background:rgba(244,114,182,0.5);border-radius:2px"></span> Indicators</div>
@@ -213,19 +228,23 @@ class MetricChart extends HTMLElement {
 		const { ovulationDays, fertileWindowDays } = this.fertility;
 		const pointBorderColors = bbtEntries.map((e) => {
 			if (ovulationDays.has(e.date)) return "#ec4899";
-			if (e.lhSurge) return "#f59e0b";
+			if (normalizeLhSurge(e.lhSurge) >= 1) return "#f59e0b";
 			return "#7c3aed";
 		});
 		const pointRadius = bbtEntries.map((e) => {
-			if (ovulationDays.has(e.date) || e.lhSurge) return 6;
+			if (ovulationDays.has(e.date) || normalizeLhSurge(e.lhSurge) >= 1)
+				return 6;
 			return 3;
 		});
 		const pointBgColors = bbtEntries.map((e) => {
 			if (ovulationDays.has(e.date)) return "#ec4899";
-			if (e.lhSurge) return "#f59e0b";
+			if (normalizeLhSurge(e.lhSurge) >= 1) return "#f59e0b";
 			if (fertileWindowDays.has(e.date)) return "rgba(16, 185, 129, 0.4)";
 			return "#7c3aed";
 		});
+
+		// Build LH surge data aligned to the same labels
+		const lhSurgeData = bbtEntries.map((e) => normalizeLhSurge(e.lhSurge));
 
 		// Build indicator count data aligned to the same labels
 		const indicatorCounts = bbtEntries.map((e) =>
@@ -237,6 +256,16 @@ class MetricChart extends HTMLElement {
 			data: {
 				labels,
 				datasets: [
+					{
+						type: "bar" as const,
+						label: "LH Surge",
+						data: lhSurgeData,
+						backgroundColor: "rgba(245, 158, 11, 0.5)",
+						borderColor: "rgba(245, 158, 11, 0.8)",
+						borderWidth: 1,
+						yAxisID: "yIndicators",
+						order: 3,
+					},
 					{
 						type: "bar" as const,
 						label: "Indicators",
@@ -313,6 +342,8 @@ class MetricChart extends HTMLElement {
 							afterLabel: (ctx: TooltipItem<"line">) => {
 								const entry = bbtEntries[ctx.dataIndex];
 								const lines: string[] = [];
+								const lh = normalizeLhSurge(entry.lhSurge);
+								if (lh > 0) lines.push(`LH Surge: ${LH_LABELS[lh]}`);
 								if (entry.cervicalMucus)
 									lines.push(
 										`Mucus: ${MUCUS_LABELS[entry.cervicalMucus] || entry.cervicalMucus}`,

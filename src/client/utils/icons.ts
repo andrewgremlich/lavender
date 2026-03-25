@@ -1,24 +1,26 @@
 import {
 	Circle,
+	CircleCheck,
 	CircleDot,
 	CirclePlus,
+	createElement,
 	Droplet,
 	Droplets,
 	Egg,
 	House,
+	type IconNode,
 	Info,
 	LogOut,
 	Minus,
 	Save,
 	Settings,
-	createElement,
-	type IconNode,
 } from "lucide";
 
 const ICON_MAP: Record<string, IconNode> = {
 	circle: Circle,
 	"circle-dot": CircleDot,
 	"circle-plus": CirclePlus,
+	"circle-check": CircleCheck,
 	droplet: Droplet,
 	droplets: Droplets,
 	egg: Egg,

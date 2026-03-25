@@ -1,5 +1,4 @@
 export const INDICATORS = [
-	{ key: "lhSurge", label: "LH Surge" },
 	{ key: "appetiteChange", label: "Appetite Change" },
 	{ key: "moodChange", label: "Mood Change" },
 	{ key: "increasedSexDrive", label: "Increased Sex Drive" },

@@ -48,7 +48,7 @@ export interface EntryWithTemp {
 	 * basalBodyTemp > DISCARD_ABOVE_C (fever threshold).
 	 */
 	basalBodyTempDiscarded?: boolean;
-	lhSurge?: boolean;
+	lhSurge?: 0 | 1 | 2 | boolean;
 	bleedingStart?: boolean;
 	bleedingEnd?: boolean;
 	bleedingFlow?: "light" | "medium" | "heavy";
@@ -74,8 +74,8 @@ export interface FertilityIndicators {
 // ---------------------------------------------------------------------------
 
 const THERMAL_SHIFT_THRESHOLD = 0.2; // °C — unchanged; [FH07] 3-over-6 rule
-const BASELINE_DAYS = 6;             // unchanged; [FH07] standard 6-day baseline
-const SUSTAINED_RISE_DAYS = 3;       // unchanged; [FH07] 3 days above coverline
+const BASELINE_DAYS = 6; // unchanged; [FH07] standard 6-day baseline
+const SUSTAINED_RISE_DAYS = 3; // unchanged; [FH07] 3 days above coverline
 
 /**
  * Slow-rise confirmation requires 4 days instead of 3.
@@ -113,8 +113,8 @@ const REFERENCE_HOUR = 6; // correction is relative to 06:00 baseline
  */
 const FERTILE_WINDOW_BEFORE_OVULATION = 5; // O−5 to O inclusive
 
-const DEFAULT_CYCLE_LENGTH = 29;   // [B19] population mean 29.3 d, was 28
-const DEFAULT_LUTEAL_PHASE = 13;   // [L84][B19] mean ~12.4–14.1 d, was 14
+const DEFAULT_CYCLE_LENGTH = 29; // [B19] population mean 29.3 d, was 28
+const DEFAULT_LUTEAL_PHASE = 13; // [L84][B19] mean ~12.4–14.1 d, was 14
 const MAX_PERIOD_DAYS = 10;
 const PREDICTION_CYCLES = 3;
 const POST_OVULATION_SKIP_DAYS = 14;
@@ -264,10 +264,18 @@ function detectBBTOvulationDays(entries: EntryWithTemp[]): Set<string> {
 //    Reconciliation downstream merges overlapping BBT + LH detections.
 // ---------------------------------------------------------------------------
 
+/** Normalize lhSurge to numeric 0|1|2, with backward compat for boolean true → 2. */
+function normalizeLhSurge(value: EntryWithTemp["lhSurge"]): 0 | 1 | 2 {
+	if (value === true) return 2;
+	if (value === 1 || value === 2) return value;
+	return 0;
+}
+
 function detectLHOvulationDays(entries: EntryWithTemp[]): Set<string> {
 	const lhOvulationDays = new Set<string>();
 	for (const entry of entries) {
-		if (entry.lhSurge) {
+		const lh = normalizeLhSurge(entry.lhSurge);
+		if (lh >= 1) {
 			// Both +1 and +2 are plausible ovulation days from a positive OPK [AB22]
 			lhOvulationDays.add(addDaysToStr(entry.date, 1));
 			lhOvulationDays.add(addDaysToStr(entry.date, 2));
@@ -416,7 +424,7 @@ function identifyPeriodDays(entries: EntryWithTemp[]): PeriodResult {
 		periodLengths.length > 0
 			? Math.round(
 					periodLengths.reduce((a, b) => a + b, 0) / periodLengths.length,
-			  )
+				)
 			: 5;
 
 	return { periodDays, periodStartDates, averagePeriodLength };
@@ -455,13 +463,12 @@ function analyzeCycleStats(
 		cycleLengths.length > 0
 			? Math.round(
 					cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length,
-			  )
+				)
 			: null;
 
 	let cycleVariability: number | null = null;
 	if (cycleLengths.length >= 2) {
-		const mean =
-			cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length;
+		const mean = cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length;
 		const variance =
 			cycleLengths.reduce((sum, l) => sum + (l - mean) ** 2, 0) /
 			(cycleLengths.length - 1);
@@ -516,7 +523,9 @@ function weightedCycleLength(cycleLengths: number[]): number {
 	// Iterate oldest → newest (cycleLengths is already oldest-first from getCycleLengths)
 	let ema = cycleLengths[0];
 	for (let i = 1; i < cycleLengths.length; i++) {
-		ema = CYCLE_PREDICTION_ALPHA * cycleLengths[i] + (1 - CYCLE_PREDICTION_ALPHA) * ema;
+		ema =
+			CYCLE_PREDICTION_ALPHA * cycleLengths[i] +
+			(1 - CYCLE_PREDICTION_ALPHA) * ema;
 	}
 	return Math.round(ema);
 }
@@ -533,7 +542,7 @@ interface PredictionResult {
 
 function predictFutureCycles(
 	periodStartDates: string[],
-	cycleLengths: number[],           // raw lengths, passed in for weighting
+	cycleLengths: number[], // raw lengths, passed in for weighting
 	lutealPhase: number,
 	cycleVariability: number | null,
 	periodLength: number,
@@ -543,7 +552,11 @@ function predictFutureCycles(
 	const predictedFertileDays = new Set<string>();
 
 	if (periodStartDates.length === 0) {
-		return { predictedPeriodDays, predictedOvulationDays, predictedFertileDays };
+		return {
+			predictedPeriodDays,
+			predictedOvulationDays,
+			predictedFertileDays,
+		};
 	}
 
 	// Use exponential moving average rather than simple mean [LI21]
@@ -567,11 +580,7 @@ function predictFutureCycles(
 		predictedOvulationDays.add(predictedOvDay);
 
 		// Fertile window is O−5 to O, expanded by variability on the early side [WB95]
-		for (
-			let d = -(FERTILE_WINDOW_BEFORE_OVULATION + extraDays);
-			d <= 0;
-			d++
-		) {
+		for (let d = -(FERTILE_WINDOW_BEFORE_OVULATION + extraDays); d <= 0; d++) {
 			predictedFertileDays.add(addDaysToStr(predictedOvDay, d));
 		}
 	}
@@ -600,16 +609,18 @@ const CM_SCORE_MAP: Record<string, CervicalMucusScore> = {
  * expected by the fertility algorithm. Accepts any object with the required fields.
  */
 export function toFertilityEntry(
-	entry: Omit<EntryWithTemp, "cervicalMucus"> & {
+	entry: Omit<EntryWithTemp, "cervicalMucus" | "lhSurge"> & {
 		cervicalMucus?: string;
+		lhSurge?: 0 | 1 | 2 | boolean;
 	},
 ): EntryWithTemp {
-	const { cervicalMucus, ...rest } = entry;
+	const { cervicalMucus, lhSurge, ...rest } = entry;
 	return {
 		...rest,
 		cervicalMucus: cervicalMucus
-			? CM_SCORE_MAP[cervicalMucus] ?? undefined
+			? (CM_SCORE_MAP[cervicalMucus] ?? undefined)
 			: undefined,
+		lhSurge: lhSurge != null ? normalizeLhSurge(lhSurge) : undefined,
 	};
 }
 
