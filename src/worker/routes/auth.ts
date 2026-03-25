@@ -25,7 +25,10 @@ auth.post("/register", async (c) => {
 		return c.json({ error: "Password must contain at least one number" }, 400);
 	}
 	if (!/[^a-zA-Z0-9]/.test(password)) {
-		return c.json({ error: "Password must contain at least one special character" }, 400);
+		return c.json(
+			{ error: "Password must contain at least one special character" },
+			400,
+		);
 	}
 
 	const existing = await c.env.DB.prepare(

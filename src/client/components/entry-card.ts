@@ -58,10 +58,18 @@ class EntryCard extends HTMLElement {
 		const rows: string[] = [];
 
 		if (data.basalBodyTemp != null) {
-			rows.push(detailRow("Basal Body Temp", formatTemp(data.basalBodyTemp as number)));
+			rows.push(
+				detailRow("Basal Body Temp", formatTemp(data.basalBodyTemp as number)),
+			);
 		}
 		if (data.cervicalMucus) {
-			rows.push(detailRow("Cervical Mucus", MUCUS_LABELS[data.cervicalMucus as string] || (data.cervicalMucus as string)));
+			rows.push(
+				detailRow(
+					"Cervical Mucus",
+					MUCUS_LABELS[data.cervicalMucus as string] ||
+						(data.cervicalMucus as string),
+				),
+			);
 		}
 		for (const ind of INDICATORS) {
 			if (data[ind.key]) {
@@ -75,14 +83,24 @@ class EntryCard extends HTMLElement {
 			rows.push(detailRow("Bleeding Ended", "Yes"));
 		}
 		if (data.bleedingFlow) {
-			rows.push(detailRow("Flow Intensity", FLOW_LABELS[data.bleedingFlow as string] || (data.bleedingFlow as string)));
+			rows.push(
+				detailRow(
+					"Flow Intensity",
+					FLOW_LABELS[data.bleedingFlow as string] ||
+						(data.bleedingFlow as string),
+				),
+			);
 		}
 		if (data.notes) {
-			rows.push(detailRow("Notes", this.escapeHtml(data.notes as string), "notes-row"));
+			rows.push(
+				detailRow("Notes", this.escapeHtml(data.notes as string), "notes-row"),
+			);
 		}
 
 		if (rows.length === 0) {
-			rows.push('<div class="detail-row"><span class="detail-value" style="opacity:0.5">No details recorded</span></div>');
+			rows.push(
+				'<div class="detail-row"><span class="detail-value" style="opacity:0.5">No details recorded</span></div>',
+			);
 		}
 
 		return rows.join("");
@@ -99,7 +117,9 @@ class EntryCard extends HTMLElement {
 		const tags: string[] = [];
 
 		if (data.basalBodyTemp != null) {
-			tags.push(`<span class="entry-tag">${formatTemp(data.basalBodyTemp as number)}</span>`);
+			tags.push(
+				`<span class="entry-tag">${formatTemp(data.basalBodyTemp as number)}</span>`,
+			);
 		}
 		if (data.cervicalMucus) {
 			tags.push(
@@ -110,9 +130,7 @@ class EntryCard extends HTMLElement {
 			const flowText = data.bleedingFlow
 				? ` (${FLOW_LABELS[data.bleedingFlow as string] || data.bleedingFlow})`
 				: "";
-			tags.push(
-				`<span class="entry-tag bleeding">Period${flowText}</span>`,
-			);
+			tags.push(`<span class="entry-tag bleeding">Period${flowText}</span>`);
 		}
 		const indCount = countIndicators(data);
 		if (indCount > 0) {
@@ -147,16 +165,17 @@ class EntryCard extends HTMLElement {
 			"#expanded-content",
 		) as HTMLElement;
 
-		const editBtn = this.shadow.querySelector(
-			"#edit-btn",
-		) as HTMLButtonElement;
+		const editBtn = this.shadow.querySelector("#edit-btn") as HTMLButtonElement;
 		editBtn.appendChild(createElement(Pencil));
 
 		editBtn.addEventListener("click", (e) => {
 			e.stopPropagation();
 			const id = this.entryId;
 			if (!id) return;
-			sessionStorage.setItem("lavendar_edit_entry", JSON.stringify({ id, ...data }));
+			sessionStorage.setItem(
+				"lavendar_edit_entry",
+				JSON.stringify({ id, ...data }),
+			);
 			this.dispatchEvent(
 				new CustomEvent("entry-edit", { bubbles: true, composed: true }),
 			);

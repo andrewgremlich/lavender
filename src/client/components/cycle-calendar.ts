@@ -73,7 +73,8 @@ export class CycleCalendar extends HTMLElement {
 		}
 
 		const variabilityNote =
-			this.fertility.cycleVariability != null && this.fertility.cycleVariability > 2
+			this.fertility.cycleVariability != null &&
+			this.fertility.cycleVariability > 2
 				? ` (±${this.fertility.cycleVariability} days)`
 				: "";
 		const cycleInfo = this.fertility.averageCycleLength
@@ -149,13 +150,16 @@ export class CycleCalendar extends HTMLElement {
 		const f = this.fertility;
 
 		if (f.periodDays.has(dateStr)) labels.push("Period");
-		else if (f.predictedPeriodDays.has(dateStr)) labels.push("Predicted Period");
+		else if (f.predictedPeriodDays.has(dateStr))
+			labels.push("Predicted Period");
 
 		if (f.ovulationDays.has(dateStr)) labels.push("Ovulation");
-		else if (f.predictedOvulationDays.has(dateStr)) labels.push("Predicted Ovulation");
+		else if (f.predictedOvulationDays.has(dateStr))
+			labels.push("Predicted Ovulation");
 
 		if (f.fertileWindowDays.has(dateStr)) labels.push("Fertile Window");
-		else if (f.predictedFertileDays.has(dateStr)) labels.push("Predicted Fertile");
+		else if (f.predictedFertileDays.has(dateStr))
+			labels.push("Predicted Fertile");
 
 		if (labels.length === 0) return "";
 		return labels.join("\n");

@@ -1,7 +1,6 @@
 export interface Env {
 	DB: D1Database;
 	JWT_SECRET: string;
-
 }
 
 export interface UserRow {
@@ -11,7 +10,6 @@ export interface UserRow {
 	salt: string;
 	created_at: string;
 }
-
 
 export interface HealthEntryRow {
 	id: string;

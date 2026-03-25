@@ -10,6 +10,11 @@ export function authMiddleware() {
 }
 
 export function getUserId(c: Context): string {
-	const payload = c.get("jwtPayload");
-	return payload.sub as string;
+	const payload = c.get("jwtPayload") as { sub?: string } | undefined;
+
+	if (!payload?.sub) {
+		throw new Error("Missing jwtPayload.sub");
+	}
+
+	return payload.sub;
 }
