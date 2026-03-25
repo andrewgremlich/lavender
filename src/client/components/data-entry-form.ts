@@ -55,6 +55,8 @@ function radioGroup(
 class DataEntryForm extends HTMLElement {
 	private shadow: ShadowRoot;
 	private tempUnit: TempUnit = getUnitSystem() === "us" ? "F" : "C";
+	private editEntryId: string | null = null;
+	private editData: HealthEntryData | null = null;
 
 	constructor() {
 		super();
@@ -62,8 +64,79 @@ class DataEntryForm extends HTMLElement {
 	}
 
 	connectedCallback() {
+		this.loadEditData();
 		this.render();
+		if (this.editData) this.populateForm();
 		this.setupListeners();
+	}
+
+	disconnectedCallback() {
+		sessionStorage.removeItem("lavendar_edit_entry");
+	}
+
+	private loadEditData() {
+		const raw = sessionStorage.getItem("lavendar_edit_entry");
+		if (!raw) return;
+		try {
+			const parsed = JSON.parse(raw);
+			this.editEntryId = parsed.id ?? null;
+			this.editData = parsed;
+		} catch {
+			// ignore invalid data
+		}
+	}
+
+	private populateForm() {
+		const data = this.editData;
+		if (!data) return;
+
+		const form = this.shadow.querySelector("#entry-form") as HTMLFormElement;
+		if (!form) return;
+
+		if (data.date) {
+			(this.shadow.querySelector("#entry-date") as HTMLInputElement).value = data.date;
+		}
+
+		if (data.basalBodyTemp != null) {
+			const bbtInput = this.shadow.querySelector("#bbt") as HTMLInputElement;
+			const temp = this.tempUnit === "F"
+				? celsiusToFahrenheit(data.basalBodyTemp)
+				: data.basalBodyTemp;
+			bbtInput.value = (Math.round(temp * 100) / 100).toString();
+		}
+
+		if (data.cervicalMucus) {
+			const radio = this.shadow.querySelector(
+				`input[name="cervical-mucus"][value="${data.cervicalMucus}"]`,
+			) as HTMLInputElement | null;
+			if (radio) radio.checked = true;
+		}
+
+		for (const ind of INDICATORS) {
+			if ((data as unknown as Record<string, unknown>)[ind.key]) {
+				const checkbox = this.shadow.querySelector(`#ind-${ind.key}`) as HTMLInputElement | null;
+				if (checkbox) checkbox.checked = true;
+			}
+		}
+
+		if (data.bleedingStart) {
+			const radio = this.shadow.querySelector("#bleeding-started") as HTMLInputElement;
+			if (radio) radio.checked = true;
+		} else if (data.bleedingEnd) {
+			const radio = this.shadow.querySelector("#bleeding-ended") as HTMLInputElement;
+			if (radio) radio.checked = true;
+		}
+
+		if (data.bleedingFlow) {
+			const radio = this.shadow.querySelector(
+				`input[name="bleeding-flow"][value="${data.bleedingFlow}"]`,
+			) as HTMLInputElement | null;
+			if (radio) radio.checked = true;
+		}
+
+		if (data.notes) {
+			(this.shadow.querySelector("#notes") as HTMLTextAreaElement).value = data.notes;
+		}
 	}
 
 	private getTodayDate(): string {
@@ -81,13 +154,13 @@ class DataEntryForm extends HTMLElement {
 		this.shadow.innerHTML = `
       <link rel="stylesheet" href="/styles/main.css">
       <link rel="stylesheet" href="/styles/data-entry-form.css">
-      <h2>Log Health Data</h2>
+      <h2>${this.editEntryId ? "Edit Entry" : "Log Health Data"}</h2>
       <div class="form-card">
         <div class="message error" id="error-msg"></div>
         <div class="message success" id="success-msg">
-          Entry saved successfully!
+          ${this.editEntryId ? "Entry updated successfully!" : "Entry saved successfully!"}
           <div class="success-actions">
-            <button type="button" class="btn-add-another" id="add-another-btn">Add Another</button>
+            ${this.editEntryId ? "" : '<button type="button" class="btn-add-another" id="add-another-btn">Add Another</button>'}
             <button type="button" class="btn-view-chart" id="view-chart-btn">View Chart</button>
           </div>
         </div>
@@ -166,7 +239,7 @@ class DataEntryForm extends HTMLElement {
             </div>
           </details>
 
-          <button type="submit" class="btn-submit" id="submit-btn"><i data-icon="save"></i> <span>Save Entry</span></button>
+          <button type="submit" class="btn-submit" id="submit-btn"><i data-icon="save"></i> <span>${this.editEntryId ? "Update Entry" : "Save Entry"}</span></button>
         </form>
       </div>
     `;
@@ -179,7 +252,7 @@ class DataEntryForm extends HTMLElement {
 		const successMsg = this.shadow.querySelector("#success-msg") as HTMLElement;
 		const addAnotherBtn = this.shadow.querySelector(
 			"#add-another-btn",
-		) as HTMLButtonElement;
+		) as HTMLButtonElement | null;
 		const viewChartBtn = this.shadow.querySelector(
 			"#view-chart-btn",
 		) as HTMLButtonElement;
@@ -293,7 +366,13 @@ class DataEntryForm extends HTMLElement {
 					JSON.stringify(entry),
 					cryptoKey,
 				);
-				await api.metrics.create(encrypted, iv);
+
+				if (this.editEntryId) {
+					await api.metrics.update(this.editEntryId, encrypted, iv);
+					sessionStorage.removeItem("lavendar_edit_entry");
+				} else {
+					await api.metrics.create(encrypted, iv);
+				}
 
 				form.style.display = "none";
 				successMsg.classList.add("visible");
@@ -309,7 +388,7 @@ class DataEntryForm extends HTMLElement {
 			}
 		});
 
-		addAnotherBtn.addEventListener("click", () => {
+		addAnotherBtn?.addEventListener("click", () => {
 			form.reset();
 			(this.shadow.querySelector("#entry-date") as HTMLInputElement).value =
 				this.getTodayDate();

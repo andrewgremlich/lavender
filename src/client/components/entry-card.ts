@@ -1,4 +1,4 @@
-import { ChevronDown, createElement, Trash2 } from "lucide";
+import { ChevronDown, createElement, Pencil, Trash2 } from "lucide";
 
 import { api } from "../services/api";
 import { countIndicators, INDICATORS } from "../utils/indicators";
@@ -128,6 +128,7 @@ class EntryCard extends HTMLElement {
           <span class="chevron" id="chevron"></span>
           <span class="entry-date">${data.date ?? ""}</span>
           <div class="entry-details">${tags.join("") || '<span style="opacity:0.5">No details</span>'}</div>
+          <button class="edit-btn" id="edit-btn" title="Edit entry"></button>
           <button class="delete-btn" id="delete-btn" title="Delete entry"></button>
         </div>
         <div class="expanded-content" id="expanded-content">
@@ -146,8 +147,24 @@ class EntryCard extends HTMLElement {
 			"#expanded-content",
 		) as HTMLElement;
 
+		const editBtn = this.shadow.querySelector(
+			"#edit-btn",
+		) as HTMLButtonElement;
+		editBtn.appendChild(createElement(Pencil));
+
+		editBtn.addEventListener("click", (e) => {
+			e.stopPropagation();
+			const id = this.entryId;
+			if (!id) return;
+			sessionStorage.setItem("lavendar_edit_entry", JSON.stringify({ id, ...data }));
+			this.dispatchEvent(
+				new CustomEvent("entry-edit", { bubbles: true, composed: true }),
+			);
+		});
+
 		header.addEventListener("click", (e) => {
 			if ((e.target as HTMLElement).closest("#delete-btn")) return;
+			if ((e.target as HTMLElement).closest("#edit-btn")) return;
 			this.expanded = !this.expanded;
 			expandedContent.classList.toggle("open", this.expanded);
 			chevron.classList.toggle("expanded", this.expanded);

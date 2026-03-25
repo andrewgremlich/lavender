@@ -362,6 +362,9 @@ class MetricChart extends HTMLElement {
 					this.renderDashboard(content);
 				}
 			});
+			card.addEventListener("entry-edit", () => {
+				navigate("/entry");
+			});
 			list.appendChild(card);
 		}
 	}

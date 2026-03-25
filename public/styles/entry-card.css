@@ -52,7 +52,7 @@
 }
 .entry-tag.indicators { background: #fce7f3; color: #9d174d; }
 .entry-tag.bleeding { background: #fee2e2; color: #991b1b; }
-.delete-btn {
+.edit-btn, .delete-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -62,12 +62,13 @@
   cursor: pointer;
   border-radius: 0.375rem;
   padding: 0.25rem;
-  margin-left: auto;
   transition: color 0.15s, background 0.15s;
   flex-shrink: 0;
 }
+.edit-btn { margin-left: auto; }
+.edit-btn:hover { color: #7c3aed; background: rgba(124,58,237,0.08); }
 .delete-btn:hover { color: #dc2626; background: rgba(220,38,38,0.08); }
-.delete-btn svg { width: 16px; height: 16px; }
+.edit-btn svg, .delete-btn svg { width: 16px; height: 16px; }
 .expanded-content {
   max-height: 0;
   overflow: hidden;
