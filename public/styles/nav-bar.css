@@ -1,94 +1,124 @@
-:host { display: block; }
+:host {
+	display: block;
+}
 
 /* Mobile: bottom nav */
 nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: var(--color-surface, #fff);
-  border-top: 1px solid var(--color-border, #e5e7eb);
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  padding: 0.5rem 0;
-  padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
-  z-index: 100;
-  box-shadow: 0 -2px 10px rgba(0,0,0,0.05);
+	position: fixed;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	background: var(--color-surface, #fff);
+	border-top: 1px solid var(--color-border, #e5e7eb);
+	display: flex;
+	justify-content: space-around;
+	align-items: center;
+	padding: 0.5rem 0;
+	padding-bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+	z-index: 100;
+	box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
 }
 
 .nav-item {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.75rem;
-  border: none;
-  background: transparent;
-  color: var(--color-text, #9ca3af);
-  cursor: pointer;
-  text-decoration: none;
-  transition: color 0.2s;
-  border-radius: 0.5rem;
-  -webkit-tap-highlight-color: transparent;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.25rem;
+	padding: 0.25rem 0.75rem;
+	border: none;
+	background: transparent;
+	color: var(--color-text, #9ca3af);
+	cursor: pointer;
+	text-decoration: none;
+	transition: color 0.2s;
+	border-radius: 0.5rem;
+	-webkit-tap-highlight-color: transparent;
 }
-.nav-item:hover { color: var(--color-primary, #7c3aed); }
-.nav-item.active { color: var(--color-primary, #7c3aed); }
-.nav-item svg { width: 24px; height: 24px; }
-.icon { display: flex; align-items: center; justify-content: center; }
-.nav-label { font-size: 0.6875rem; font-weight: 500; }
+.nav-item:hover {
+	color: var(--color-primary, #7c3aed);
+}
+.nav-item.active {
+	color: var(--color-primary, #7c3aed);
+}
+.nav-item svg {
+	width: 24px;
+	height: 24px;
+}
+.icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+.nav-label {
+	font-size: 0.6875rem;
+	font-weight: 500;
+}
 
 /* Desktop: left sidebar */
 @media (min-width: 1024px) {
-  nav {
-    position: sticky;
-    top: 0;
-    height: 100vh;
-    box-sizing: border-box;
-    flex-direction: column;
-    justify-content: flex-start;
-    align-items: stretch;
-    width: 220px;
-    border-top: none;
-    border-right: 1px solid var(--color-border, #e5e7eb);
-    padding: 1.5rem 0.75rem;
-    box-shadow: none;
-    flex-shrink: 0;
-  }
+	nav {
+		position: sticky;
+		top: 0;
+		height: 100vh;
+		box-sizing: border-box;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: stretch;
+		width: 220px;
+		border-top: none;
+		border-right: 1px solid var(--color-border, #e5e7eb);
+		padding: 1.5rem 0.75rem;
+		box-shadow: none;
+		flex-shrink: 0;
+	}
 
-  .nav-brand {
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0 0.75rem;
-    margin-bottom: 2rem;
-  }
-  .nav-brand h1 {
-    font-size: 1.25rem;
-    color: var(--color-primary, #7c3aed);
-    margin: 0;
-  }
+	.nav-brand {
+		display: flex;
+		align-items: center;
+		gap: 0.5rem;
+		padding: 0 0.75rem;
+		margin-bottom: 2rem;
+	}
+	.nav-brand h1 {
+		font-size: 1.25rem;
+		color: var(--color-primary, #7c3aed);
+		margin: 0;
+	}
 
-  .nav-item {
-    flex-direction: row;
-    justify-content: flex-start;
-    gap: 0.75rem;
-    padding: 0.625rem 0.75rem;
-    margin-bottom: 0.25rem;
-  }
-  .nav-item.active {
-    background: rgba(124, 58, 237, 0.08);
-  }
-  .nav-label { font-size: 0.875rem; }
+	.nav-item {
+		flex-direction: row;
+		justify-content: flex-start;
+		gap: 0.75rem;
+		padding: 0.625rem 0.75rem;
+		margin-bottom: 0.25rem;
+	}
+	.nav-item.active {
+		background: rgba(124, 58, 237, 0.08);
+	}
+	.nav-label {
+		font-size: 0.875rem;
+	}
 }
 
 /* Hide brand on mobile */
-.nav-brand { display: none; }
-@media (min-width: 1024px) { .nav-brand { display: flex; } }
-
-.nav-spacer { flex: 1; }
-
-.nav-item.logout { color: var(--color-text); }
+.nav-brand {
+	display: none;
+}
 @media (min-width: 1024px) {
-  .nav-item.logout { margin-top: auto; }
+	.nav-brand {
+		display: flex;
+	}
+}
+
+.nav-spacer {
+	flex: 1;
+}
+
+.nav-item.logout {
+	color: var(--color-text);
+}
+@media (min-width: 1024px) {
+	.nav-item.logout {
+		margin-top: auto;
+	}
 }
