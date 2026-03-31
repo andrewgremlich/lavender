@@ -13,15 +13,17 @@ metrics.get("/", async (c) => {
 	const userId = getUserId(c);
 
 	// Clean up expired entries first
-	await c.env.DB.prepare(
-		"DELETE FROM health_entries WHERE user_id = ? AND expires_at < datetime('now')",
-	)
+	await c.env.lavender_db
+		.prepare(
+			"DELETE FROM health_entries WHERE user_id = ? AND expires_at < datetime('now')",
+		)
 		.bind(userId)
 		.run();
 
-	const rows = await c.env.DB.prepare(
-		"SELECT * FROM health_entries WHERE user_id = ? ORDER BY created_at DESC",
-	)
+	const rows = await c.env.lavender_db
+		.prepare(
+			"SELECT * FROM health_entries WHERE user_id = ? ORDER BY created_at DESC",
+		)
 		.bind(userId)
 		.all<HealthEntryRow>();
 
@@ -49,9 +51,8 @@ metrics.post("/", async (c) => {
 	}
 
 	// Get user's retention setting
-	const settings = await c.env.DB.prepare(
-		"SELECT data_retention_days FROM user_settings WHERE user_id = ?",
-	)
+	const settings = await c.env.lavender_db
+		.prepare("SELECT data_retention_days FROM user_settings WHERE user_id = ?")
 		.bind(userId)
 		.first<{ data_retention_days: number }>();
 
@@ -61,9 +62,10 @@ metrics.post("/", async (c) => {
 		Date.now() + retentionDays * 24 * 60 * 60 * 1000,
 	).toISOString();
 
-	await c.env.DB.prepare(
-		"INSERT INTO health_entries (id, user_id, encrypted_data, iv, expires_at) VALUES (?, ?, ?, ?, ?)",
-	)
+	await c.env.lavender_db
+		.prepare(
+			"INSERT INTO health_entries (id, user_id, encrypted_data, iv, expires_at) VALUES (?, ?, ?, ?, ?)",
+		)
 		.bind(id, userId, encryptedData, iv, expiresAt)
 		.run();
 
@@ -83,9 +85,8 @@ metrics.put("/:id", async (c) => {
 		return c.json({ error: "Encrypted data and IV required" }, 400);
 	}
 
-	const existing = await c.env.DB.prepare(
-		"SELECT id FROM health_entries WHERE id = ? AND user_id = ?",
-	)
+	const existing = await c.env.lavender_db
+		.prepare("SELECT id FROM health_entries WHERE id = ? AND user_id = ?")
 		.bind(entryId, userId)
 		.first();
 
@@ -93,9 +94,10 @@ metrics.put("/:id", async (c) => {
 		return c.json({ error: "Entry not found" }, 404);
 	}
 
-	await c.env.DB.prepare(
-		"UPDATE health_entries SET encrypted_data = ?, iv = ? WHERE id = ? AND user_id = ?",
-	)
+	await c.env.lavender_db
+		.prepare(
+			"UPDATE health_entries SET encrypted_data = ?, iv = ? WHERE id = ? AND user_id = ?",
+		)
 		.bind(encryptedData, iv, entryId, userId)
 		.run();
 
@@ -107,9 +109,8 @@ metrics.delete("/:id", async (c) => {
 	const userId = getUserId(c);
 	const entryId = c.req.param("id");
 
-	await c.env.DB.prepare(
-		"DELETE FROM health_entries WHERE id = ? AND user_id = ?",
-	)
+	await c.env.lavender_db
+		.prepare("DELETE FROM health_entries WHERE id = ? AND user_id = ?")
 		.bind(entryId, userId)
 		.run();
 
@@ -120,7 +121,8 @@ metrics.delete("/:id", async (c) => {
 metrics.delete("/", async (c) => {
 	const userId = getUserId(c);
 
-	await c.env.DB.prepare("DELETE FROM health_entries WHERE user_id = ?")
+	await c.env.lavender_db
+		.prepare("DELETE FROM health_entries WHERE user_id = ?")
 		.bind(userId)
 		.run();
 

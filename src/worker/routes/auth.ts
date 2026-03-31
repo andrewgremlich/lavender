@@ -31,9 +31,8 @@ auth.post("/register", async (c) => {
 		);
 	}
 
-	const existing = await c.env.DB.prepare(
-		"SELECT id FROM users WHERE username = ?",
-	)
+	const existing = await c.env.lavender_db
+		.prepare("SELECT id FROM users WHERE username = ?")
 		.bind(username)
 		.first();
 	if (existing) {
@@ -44,14 +43,16 @@ auth.post("/register", async (c) => {
 	const salt = generateSalt();
 	const passwordHash = await hashPassword(password, salt);
 
-	await c.env.DB.prepare(
-		"INSERT INTO users (id, username, password_hash, salt) VALUES (?, ?, ?, ?)",
-	)
+	await c.env.lavender_db
+		.prepare(
+			"INSERT INTO users (id, username, password_hash, salt) VALUES (?, ?, ?, ?)",
+		)
 		.bind(id, username, passwordHash, salt)
 		.run();
 
 	// Create default settings
-	await c.env.DB.prepare("INSERT INTO user_settings (user_id) VALUES (?)")
+	await c.env.lavender_db
+		.prepare("INSERT INTO user_settings (user_id) VALUES (?)")
 		.bind(id)
 		.run();
 
@@ -69,7 +70,8 @@ auth.post("/login", async (c) => {
 		return c.json({ error: "Username and password required" }, 400);
 	}
 
-	const user = await c.env.DB.prepare("SELECT * FROM users WHERE username = ?")
+	const user = await c.env.lavender_db
+		.prepare("SELECT * FROM users WHERE username = ?")
 		.bind(username)
 		.first<UserRow>();
 
@@ -114,7 +116,8 @@ auth.put("/password", authMiddleware(), async (c) => {
 		);
 	}
 
-	const user = await c.env.DB.prepare("SELECT * FROM users WHERE id = ?")
+	const user = await c.env.lavender_db
+		.prepare("SELECT * FROM users WHERE id = ?")
 		.bind(userId)
 		.first<UserRow>();
 
@@ -132,22 +135,24 @@ auth.put("/password", authMiddleware(), async (c) => {
 
 	// Update password and re-encrypted entries atomically in a batch
 	const statements = [
-		c.env.DB.prepare(
-			"UPDATE users SET password_hash = ?, salt = ? WHERE id = ?",
-		).bind(newHash, newSalt, userId),
+		c.env.lavender_db
+			.prepare("UPDATE users SET password_hash = ?, salt = ? WHERE id = ?")
+			.bind(newHash, newSalt, userId),
 	];
 
 	if (reEncryptedEntries?.length) {
 		for (const entry of reEncryptedEntries) {
 			statements.push(
-				c.env.DB.prepare(
-					"UPDATE health_entries SET encrypted_data = ?, iv = ? WHERE id = ? AND user_id = ?",
-				).bind(entry.encryptedData, entry.iv, entry.id, userId),
+				c.env.lavender_db
+					.prepare(
+						"UPDATE health_entries SET encrypted_data = ?, iv = ? WHERE id = ? AND user_id = ?",
+					)
+					.bind(entry.encryptedData, entry.iv, entry.id, userId),
 			);
 		}
 	}
 
-	await c.env.DB.batch(statements);
+	await c.env.lavender_db.batch(statements);
 
 	// Return new token so the client stays authenticated
 	const token = await sign(
@@ -161,7 +166,10 @@ auth.delete("/account", authMiddleware(), async (c) => {
 	const userId = getUserId(c);
 
 	// CASCADE will handle related records
-	await c.env.DB.prepare("DELETE FROM users WHERE id = ?").bind(userId).run();
+	await c.env.lavender_db
+		.prepare("DELETE FROM users WHERE id = ?")
+		.bind(userId)
+		.run();
 
 	return c.json({ message: "Account deleted" });
 });

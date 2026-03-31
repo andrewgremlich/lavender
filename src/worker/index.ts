@@ -21,9 +21,9 @@ app.get("/api/health", (c) => c.json({ status: "ok" }));
 
 // Cleanup expired entries (can be called via cron trigger)
 app.get("/api/cleanup", async (c) => {
-	const result = await c.env.DB.prepare(
-		"DELETE FROM health_entries WHERE expires_at < datetime('now')",
-	).run();
+	const result = await c.env.lavender_db
+		.prepare("DELETE FROM health_entries WHERE expires_at < datetime('now')")
+		.run();
 
 	return c.json({ deleted: result.meta.changes });
 });

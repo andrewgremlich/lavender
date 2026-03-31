@@ -10,9 +10,8 @@ settings.use("/*", authMiddleware());
 settings.get("/", async (c) => {
 	const userId = getUserId(c);
 
-	const row = await c.env.DB.prepare(
-		"SELECT * FROM user_settings WHERE user_id = ?",
-	)
+	const row = await c.env.lavender_db
+		.prepare("SELECT * FROM user_settings WHERE user_id = ?")
 		.bind(userId)
 		.first<UserSettingsRow>();
 
@@ -36,9 +35,10 @@ settings.put("/", async (c) => {
 		);
 	}
 
-	await c.env.DB.prepare(
-		"INSERT INTO user_settings (user_id, data_retention_days, updated_at) VALUES (?, ?, datetime('now')) ON CONFLICT(user_id) DO UPDATE SET data_retention_days = ?, updated_at = datetime('now')",
-	)
+	await c.env.lavender_db
+		.prepare(
+			"INSERT INTO user_settings (user_id, data_retention_days, updated_at) VALUES (?, ?, datetime('now')) ON CONFLICT(user_id) DO UPDATE SET data_retention_days = ?, updated_at = datetime('now')",
+		)
 		.bind(userId, dataRetentionDays, dataRetentionDays)
 		.run();
 
@@ -46,9 +46,8 @@ settings.put("/", async (c) => {
 	const newExpiresAt = new Date(
 		Date.now() + dataRetentionDays * 24 * 60 * 60 * 1000,
 	).toISOString();
-	await c.env.DB.prepare(
-		"UPDATE health_entries SET expires_at = ? WHERE user_id = ?",
-	)
+	await c.env.lavender_db
+		.prepare("UPDATE health_entries SET expires_at = ? WHERE user_id = ?")
 		.bind(newExpiresAt, userId)
 		.run();
 
