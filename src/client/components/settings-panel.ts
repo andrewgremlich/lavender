@@ -1,5 +1,12 @@
-import { decrypt, getStoredKey, importKey } from "../crypto/encryption";
-import { api } from "../services/api";
+import {
+	decrypt,
+	deriveKeyFromPassword,
+	encrypt,
+	getStoredKey,
+	importKey,
+	storeKey,
+} from "../crypto/encryption";
+import { api, setToken } from "../services/api";
 import { logout } from "../services/auth";
 import { getUnitSystem, setUnitSystem } from "../utils/units";
 
@@ -78,6 +85,26 @@ class SettingsPanel extends HTMLElement {
         <div class="message" id="export-msg"></div>
       </div>
 
+      <!-- Change Password -->
+      <div class="settings-card">
+        <h3>Change Password</h3>
+        <p class="muted-text">Changing your password will re-encrypt all your health data with a new key. This may take a moment.</p>
+        <div class="form-row">
+          <label for="current-password">Current password</label>
+          <input type="password" id="current-password" autocomplete="current-password" />
+        </div>
+        <div class="form-row">
+          <label for="new-password">New password</label>
+          <input type="password" id="new-password" autocomplete="new-password" />
+        </div>
+        <div class="form-row">
+          <label for="confirm-password">Confirm new password</label>
+          <input type="password" id="confirm-password" autocomplete="new-password" />
+        </div>
+        <button class="btn btn-primary" id="change-password-btn">Change Password</button>
+        <div class="message" id="password-msg"></div>
+      </div>
+
       <!-- Danger Zone -->
       <div class="settings-card" style="border:1px solid #fca5a5;">
         <h3 style="color:#dc2626;">Danger Zone</h3>
@@ -122,6 +149,11 @@ class SettingsPanel extends HTMLElement {
 					this.showMessage(msgEl, message, "error");
 				}
 			});
+
+		// Change password
+		this.shadow
+			.querySelector("#change-password-btn")
+			?.addEventListener("click", () => this.changePassword());
 
 		// Export data
 		this.shadow
@@ -169,6 +201,109 @@ class SettingsPanel extends HTMLElement {
 					alert(`Operation failed: ${message}`);
 				}
 			});
+	}
+
+	private async changePassword() {
+		const msgEl = this.shadow.querySelector("#password-msg") as HTMLElement;
+		const btn = this.shadow.querySelector(
+			"#change-password-btn",
+		) as HTMLButtonElement;
+		const currentPw = (
+			this.shadow.querySelector("#current-password") as HTMLInputElement
+		).value;
+		const newPw = (
+			this.shadow.querySelector("#new-password") as HTMLInputElement
+		).value;
+		const confirmPw = (
+			this.shadow.querySelector("#confirm-password") as HTMLInputElement
+		).value;
+
+		if (!currentPw || !newPw || !confirmPw) {
+			this.showMessage(msgEl, "All fields are required.", "error");
+			return;
+		}
+		if (newPw !== confirmPw) {
+			this.showMessage(msgEl, "New passwords do not match.", "error");
+			return;
+		}
+		if (currentPw === newPw) {
+			this.showMessage(
+				msgEl,
+				"New password must be different from current password.",
+				"error",
+			);
+			return;
+		}
+
+		const storedKey = getStoredKey();
+		if (!storedKey) {
+			this.showMessage(
+				msgEl,
+				"Encryption key not found. Please log in again.",
+				"error",
+			);
+			return;
+		}
+
+		btn.disabled = true;
+		btn.textContent = "Re-encrypting data…";
+
+		try {
+			// Fetch all entries and re-encrypt with new key
+			const entries = await api.metrics.getAll();
+			const oldKey = await importKey(storedKey);
+
+			// Derive the username from the token payload
+			const token = sessionStorage.getItem("lavendar_token");
+			if (!token) throw new Error("Not authenticated");
+			const payload = JSON.parse(atob(token.split(".")[1]));
+			const username = payload.username as string;
+
+			const newDerivedKey = await deriveKeyFromPassword(newPw, username);
+			const newCryptoKey = await importKey(newDerivedKey);
+
+			const reEncryptedEntries = await Promise.all(
+				entries.map(async (entry) => {
+					const plaintext = await decrypt(
+						entry.encryptedData,
+						entry.iv,
+						oldKey,
+					);
+					const { encrypted, iv } = await encrypt(plaintext, newCryptoKey);
+					return { id: entry.id, encryptedData: encrypted, iv };
+				}),
+			);
+
+			// Send password change + re-encrypted entries to server atomically
+			const result = await api.auth.changePassword(
+				currentPw,
+				newPw,
+				reEncryptedEntries,
+			);
+
+			// Update session with new token and encryption key
+			setToken(result.token);
+			storeKey(newDerivedKey);
+
+			// Clear form fields
+			(
+				this.shadow.querySelector("#current-password") as HTMLInputElement
+			).value = "";
+			(this.shadow.querySelector("#new-password") as HTMLInputElement).value =
+				"";
+			(
+				this.shadow.querySelector("#confirm-password") as HTMLInputElement
+			).value = "";
+
+			this.showMessage(msgEl, "Password changed successfully.", "success");
+		} catch (err: unknown) {
+			const message =
+				err instanceof Error ? err.message : "Failed to change password.";
+			this.showMessage(msgEl, message, "error");
+		} finally {
+			btn.disabled = false;
+			btn.textContent = "Change Password";
+		}
 	}
 
 	private async exportData() {

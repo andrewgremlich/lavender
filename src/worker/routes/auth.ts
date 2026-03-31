@@ -86,6 +86,77 @@ auth.post("/login", async (c) => {
 	return c.json({ token, username });
 });
 
+auth.put("/password", authMiddleware(), async (c) => {
+	const userId = getUserId(c);
+	const { oldPassword, newPassword, reEncryptedEntries } = await c.req.json<{
+		oldPassword: string;
+		newPassword: string;
+		reEncryptedEntries: Array<{
+			id: string;
+			encryptedData: string;
+			iv: string;
+		}>;
+	}>();
+
+	if (!oldPassword || !newPassword) {
+		return c.json({ error: "Old and new passwords required" }, 400);
+	}
+	if (newPassword.length < 12) {
+		return c.json({ error: "Password must be at least 12 characters" }, 400);
+	}
+	if (!/\d/.test(newPassword)) {
+		return c.json({ error: "Password must contain at least one number" }, 400);
+	}
+	if (!/[^a-zA-Z0-9]/.test(newPassword)) {
+		return c.json(
+			{ error: "Password must contain at least one special character" },
+			400,
+		);
+	}
+
+	const user = await c.env.DB.prepare("SELECT * FROM users WHERE id = ?")
+		.bind(userId)
+		.first<UserRow>();
+
+	if (!user) {
+		return c.json({ error: "User not found" }, 404);
+	}
+
+	const oldHash = await hashPassword(oldPassword, user.salt);
+	if (oldHash !== user.password_hash) {
+		return c.json({ error: "Current password is incorrect" }, 401);
+	}
+
+	const newSalt = generateSalt();
+	const newHash = await hashPassword(newPassword, newSalt);
+
+	// Update password and re-encrypted entries atomically in a batch
+	const statements = [
+		c.env.DB.prepare(
+			"UPDATE users SET password_hash = ?, salt = ? WHERE id = ?",
+		).bind(newHash, newSalt, userId),
+	];
+
+	if (reEncryptedEntries?.length) {
+		for (const entry of reEncryptedEntries) {
+			statements.push(
+				c.env.DB.prepare(
+					"UPDATE health_entries SET encrypted_data = ?, iv = ? WHERE id = ? AND user_id = ?",
+				).bind(entry.encryptedData, entry.iv, entry.id, userId),
+			);
+		}
+	}
+
+	await c.env.DB.batch(statements);
+
+	// Return new token so the client stays authenticated
+	const token = await sign(
+		{ sub: user.id, username: user.username },
+		c.env.JWT_SECRET,
+	);
+	return c.json({ token, username: user.username });
+});
+
 auth.delete("/account", authMiddleware(), async (c) => {
 	const userId = getUserId(c);
 

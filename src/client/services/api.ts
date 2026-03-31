@@ -42,6 +42,19 @@ export const api = {
 				method: "POST",
 				body: JSON.stringify({ username, password }),
 			}),
+		changePassword: (
+			oldPassword: string,
+			newPassword: string,
+			reEncryptedEntries: Array<{
+				id: string;
+				encryptedData: string;
+				iv: string;
+			}>,
+		) =>
+			request<{ token: string; username: string }>("/auth/password", {
+				method: "PUT",
+				body: JSON.stringify({ oldPassword, newPassword, reEncryptedEntries }),
+			}),
 		deleteAccount: () =>
 			request<{ message: string }>("/auth/account", { method: "DELETE" }),
 	},
