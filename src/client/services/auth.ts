@@ -1,8 +1,10 @@
 import {
 	clearStoredKey,
 	deriveKeyFromPassword,
+	deriveLegacyKey,
 	getStoredKey,
 	storeKey,
+	storeLegacyKey,
 } from "@client/crypto/encryption";
 import { api, clearToken, setToken } from "@client/services/api";
 
@@ -21,6 +23,8 @@ export async function login(username: string, password: string): Promise<void> {
 	setToken(result.token);
 	const encryptionKey = await deriveKeyFromPassword(password, username);
 	storeKey(encryptionKey);
+	const legacyKey = await deriveLegacyKey(password, username);
+	storeLegacyKey(legacyKey);
 }
 
 export function logout(): void {

@@ -2,7 +2,14 @@ import type { HealthEntryData } from "@shared/types";
 import type { TooltipItem } from "chart.js";
 import Chart from "chart.js/auto";
 
-import { decrypt, getStoredKey, importKey } from "../crypto/encryption";
+import {
+	clearLegacyKey,
+	decrypt,
+	encrypt,
+	getLegacyKey,
+	getStoredKey,
+	importKey,
+} from "../crypto/encryption";
 import { navigate } from "../router";
 import { api } from "../services/api";
 import {
@@ -106,6 +113,11 @@ class MetricChart extends HTMLElement {
 				return;
 			}
 
+			const legacyKeyBase64 = getLegacyKey();
+			const legacyCryptoKey = legacyKeyBase64
+				? await importKey(legacyKeyBase64)
+				: null;
+
 			const decryptedEntries: HealthEntry[] = [];
 			for (const raw of rawEntries) {
 				try {
@@ -113,8 +125,28 @@ class MetricChart extends HTMLElement {
 					const parsed = JSON.parse(decrypted) as HealthEntryData;
 					decryptedEntries.push({ ...parsed, id: raw.id });
 				} catch {
-					// Skip entries that fail to decrypt
+					if (!legacyCryptoKey) continue;
+					try {
+						const decrypted = await decrypt(
+							raw.encryptedData,
+							raw.iv,
+							legacyCryptoKey,
+						);
+						const parsed = JSON.parse(decrypted) as HealthEntryData;
+						decryptedEntries.push({ ...parsed, id: raw.id });
+
+						// Re-encrypt with current key and update server
+						const { encrypted, iv } = await encrypt(decrypted, cryptoKey);
+						await api.metrics.update(raw.id, encrypted, iv);
+						console.log(`Migrated entry ${raw.id} to current key`);
+					} catch (legacyErr) {
+						console.error("Decryption failed for entry", raw.id, legacyErr);
+					}
 				}
+			}
+
+			if (legacyKeyBase64) {
+				clearLegacyKey();
 			}
 
 			decryptedEntries.sort((a, b) => a.date.localeCompare(b.date));

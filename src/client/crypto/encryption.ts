@@ -1,9 +1,11 @@
 const ALGO = "AES-GCM";
 const KEY_LENGTH = 256;
+const LEGACY_SALT_PREFIX = "lavendar";
 
-export async function deriveKeyFromPassword(
+export async function deriveKeyWithSalt(
 	password: string,
 	username: string,
+	saltPrefix: string,
 ): Promise<string> {
 	const enc = new TextEncoder();
 	const baseKey = await crypto.subtle.importKey(
@@ -16,7 +18,7 @@ export async function deriveKeyFromPassword(
 	const bits = await crypto.subtle.deriveBits(
 		{
 			name: "PBKDF2",
-			salt: enc.encode(`lavender:${username}`),
+			salt: enc.encode(`${saltPrefix}:${username}`),
 			iterations: 100000,
 			hash: "SHA-256",
 		},
@@ -24,6 +26,20 @@ export async function deriveKeyFromPassword(
 		256,
 	);
 	return btoa(String.fromCharCode(...new Uint8Array(bits)));
+}
+
+export async function deriveLegacyKey(
+	password: string,
+	username: string,
+): Promise<string> {
+	return deriveKeyWithSalt(password, username, LEGACY_SALT_PREFIX);
+}
+
+export async function deriveKeyFromPassword(
+	password: string,
+	username: string,
+): Promise<string> {
+	return deriveKeyWithSalt(password, username, "lavender");
 }
 
 export async function generateEncryptionKey(): Promise<string> {
@@ -96,4 +112,17 @@ export function getStoredKey(): string | null {
 
 export function clearStoredKey(): void {
 	sessionStorage.removeItem("lavender_ek");
+	sessionStorage.removeItem("lavender_ek_legacy");
+}
+
+export function storeLegacyKey(base64Key: string): void {
+	sessionStorage.setItem("lavender_ek_legacy", base64Key);
+}
+
+export function getLegacyKey(): string | null {
+	return sessionStorage.getItem("lavender_ek_legacy");
+}
+
+export function clearLegacyKey(): void {
+	sessionStorage.removeItem("lavender_ek_legacy");
 }
