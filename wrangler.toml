@@ -1,4 +1,4 @@
-name = "lavendar"
+name = "lavender"
 main = "src/worker/index.ts"
 compatibility_date = "2025-01-01"
 
@@ -10,6 +10,6 @@ not_found_handling = "single-page-application"
 
 
 [[d1_databases]]
-binding = "DB"
-database_name = "lavendar-db"
-database_id = "27b67368-fbfc-4b55-bbf6-d7fca8918263"
+binding = "lavender_db"
+database_name = "lavender-db"
+database_id = "bbc77a7e-325b-4426-8e96-7fffe2941ea7"

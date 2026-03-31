@@ -29,7 +29,7 @@ export function logout(): void {
 }
 
 export function isLoggedIn(): boolean {
-	return !!sessionStorage.getItem("lavendar_token");
+	return !!sessionStorage.getItem("lavender_token");
 }
 
 export function hasEncryptionKey(): boolean {

@@ -15,7 +15,7 @@ class InfoPanel extends HTMLElement {
       <link rel="stylesheet" href="/styles/main.css">
       <link rel="stylesheet" href="/styles/info-panel.css">
 
-      <h2>About Lavendar</h2>
+      <h2>About Lavender</h2>
 
       <div class="card">
         <h3>How Fertility Indicators Are Calculated</h3>

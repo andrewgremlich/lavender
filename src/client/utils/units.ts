@@ -1,6 +1,6 @@
 export type UnitSystem = "metric" | "us";
 
-const KEY = "lavendar_units";
+const KEY = "lavender_units";
 
 export function getUnitSystem(): UnitSystem {
 	return (localStorage.getItem(KEY) as UnitSystem) ?? "metric";

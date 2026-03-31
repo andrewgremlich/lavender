@@ -16,7 +16,7 @@ export async function deriveKeyFromPassword(
 	const bits = await crypto.subtle.deriveBits(
 		{
 			name: "PBKDF2",
-			salt: enc.encode(`lavendar:${username}`),
+			salt: enc.encode(`lavender:${username}`),
 			iterations: 100000,
 			hash: "SHA-256",
 		},
@@ -87,13 +87,13 @@ export async function decrypt(
 
 // Store/retrieve encryption key from sessionStorage (never localStorage for security)
 export function storeKey(base64Key: string): void {
-	sessionStorage.setItem("lavendar_ek", base64Key);
+	sessionStorage.setItem("lavender_ek", base64Key);
 }
 
 export function getStoredKey(): string | null {
-	return sessionStorage.getItem("lavendar_ek");
+	return sessionStorage.getItem("lavender_ek");
 }
 
 export function clearStoredKey(): void {
-	sessionStorage.removeItem("lavendar_ek");
+	sessionStorage.removeItem("lavender_ek");
 }

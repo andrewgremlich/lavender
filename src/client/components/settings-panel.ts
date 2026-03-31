@@ -254,7 +254,7 @@ class SettingsPanel extends HTMLElement {
 			const oldKey = await importKey(storedKey);
 
 			// Derive the username from the token payload
-			const token = sessionStorage.getItem("lavendar_token");
+			const token = sessionStorage.getItem("lavender_token");
 			if (!token) throw new Error("Not authenticated");
 			const payload = JSON.parse(atob(token.split(".")[1]));
 			const username = payload.username as string;
@@ -353,7 +353,7 @@ class SettingsPanel extends HTMLElement {
 			const url = URL.createObjectURL(blob);
 			const a = document.createElement("a");
 			a.href = url;
-			a.download = `lavendar-backup-${new Date().toISOString().slice(0, 10)}.json`;
+			a.download = `lavender-backup-${new Date().toISOString().slice(0, 10)}.json`;
 			a.click();
 			URL.revokeObjectURL(url);
 

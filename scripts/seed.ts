@@ -28,7 +28,7 @@ async function deriveKeyFromPassword(
 	const bits = await crypto.subtle.deriveBits(
 		{
 			name: "PBKDF2",
-			salt: enc.encode(`lavendar:${username}`),
+			salt: enc.encode(`lavender:${username}`),
 			iterations: 100000,
 			hash: "SHA-256",
 		},
@@ -275,7 +275,7 @@ function generateAllEntries(): HealthEntry[] {
 // ── Main ────────────────────────────────────────────────────────────────────
 
 async function main() {
-	console.log("Seeding Lavendar with test data...\n");
+	console.log("Seeding Lavender with test data...\n");
 
 	// 1. Register or login
 	let token: string;

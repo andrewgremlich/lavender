@@ -1,7 +1,7 @@
 /**
  * Query the number of users in the production database.
  *
- * Usage: npx wrangler d1 execute lavendar-db --remote --command "SELECT COUNT(*) as user_count FROM users;"
+ * Usage: npx wrangler d1 execute lavender-db --remote --command "SELECT COUNT(*) as user_count FROM users;"
  *
  * Or run this script:
  *   npx tsx scripts/user-count.ts
@@ -13,7 +13,7 @@ function main() {
 	console.log("Querying user count from production database...\n");
 
 	const result = execSync(
-		'npx wrangler d1 execute lavendar-db --remote --command "SELECT COUNT(*) as user_count FROM users;" --json',
+		'npx wrangler d1 execute lavender-db --remote --command "SELECT COUNT(*) as user_count FROM users;" --json',
 		{ encoding: "utf-8" },
 	);
 

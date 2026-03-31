@@ -29,7 +29,7 @@ class NavBar extends HTMLElement {
 
       <nav>
         <div class="nav-brand">
-          <h1>Lavendar</h1>
+          <h1>Lavender</h1>
         </div>
 
         <button class="nav-item ${route === "/" ? "active" : ""}" data-route="/">

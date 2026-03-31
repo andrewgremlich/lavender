@@ -70,7 +70,7 @@ class AppRoot extends HTMLElement {
 				<link rel="stylesheet" href="/styles/app-root.css">
 				<div class="auth-container">
 				<div class="app-title">
-					<h1>Lavendar</h1>
+					<h1>Lavender</h1>
 					<p>Private Health Tracking</p>
 					<div class="auth-toggle">
 						<span id="toggle-text">Don't have an account? </span>

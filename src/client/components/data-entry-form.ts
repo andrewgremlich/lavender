@@ -77,11 +77,11 @@ class DataEntryForm extends HTMLElement {
 	}
 
 	disconnectedCallback() {
-		sessionStorage.removeItem("lavendar_edit_entry");
+		sessionStorage.removeItem("lavender_edit_entry");
 	}
 
 	private loadEditData() {
-		const raw = sessionStorage.getItem("lavendar_edit_entry");
+		const raw = sessionStorage.getItem("lavender_edit_entry");
 		if (!raw) return;
 		try {
 			const parsed = JSON.parse(raw);
@@ -412,7 +412,7 @@ class DataEntryForm extends HTMLElement {
 
 				if (this.editEntryId) {
 					await api.metrics.update(this.editEntryId, encrypted, iv);
-					sessionStorage.removeItem("lavendar_edit_entry");
+					sessionStorage.removeItem("lavender_edit_entry");
 				} else {
 					await api.metrics.create(encrypted, iv);
 				}

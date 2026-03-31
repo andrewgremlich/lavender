@@ -191,7 +191,7 @@ class EntryCard extends HTMLElement {
 			const id = this.entryId;
 			if (!id) return;
 			sessionStorage.setItem(
-				"lavendar_edit_entry",
+				"lavender_edit_entry",
 				JSON.stringify({ id, ...data }),
 			);
 			this.dispatchEvent(

@@ -1,5 +1,5 @@
 {
-	"name": "lavendar",
+	"name": "lavender",
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",
@@ -8,8 +8,8 @@
 		"build": "vite build",
 		"deploy": "vite build && wrangler deploy",
 		"preview": "vite preview",
-		"db:migrate:local": "wrangler d1 execute lavendar-db --local --file=src/worker/db/schema.sql",
-		"db:migrate:remote": "wrangler d1 execute lavendar-db --remote --file=src/worker/db/schema.sql",
+		"db:migrate:local": "wrangler d1 execute lavender-db --local --file=src/worker/db/schema.sql",
+		"db:migrate:remote": "wrangler d1 execute lavender-db --remote --file=src/worker/db/schema.sql",
 		"check": "tsc --noEmit && pnpx @biomejs/biome check --write",
 		"seed": "npx tsx scripts/seed.ts",
 		"db:user-count": "npx tsx scripts/user-count.ts",

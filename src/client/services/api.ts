@@ -1,7 +1,7 @@
 const API_BASE = "/api";
 
 function getToken(): string | null {
-	return sessionStorage.getItem("lavendar_token");
+	return sessionStorage.getItem("lavender_token");
 }
 
 async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
@@ -98,11 +98,11 @@ export const api = {
 };
 
 export function setToken(token: string): void {
-	sessionStorage.setItem("lavendar_token", token);
+	sessionStorage.setItem("lavender_token", token);
 }
 
 export function clearToken(): void {
-	sessionStorage.removeItem("lavendar_token");
+	sessionStorage.removeItem("lavender_token");
 }
 
 export function isAuthenticated(): boolean {
