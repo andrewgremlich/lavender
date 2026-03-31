@@ -3,7 +3,7 @@ export type UnitSystem = "metric" | "us";
 const KEY = "lavender_units";
 
 export function getUnitSystem(): UnitSystem {
-	return (localStorage.getItem(KEY) as UnitSystem) ?? "metric";
+	return (localStorage.getItem(KEY) as UnitSystem) ?? "us";
 }
 
 export function setUnitSystem(system: UnitSystem): void {
