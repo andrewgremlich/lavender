@@ -1,5 +1,6 @@
 {
 	"name": "lavender",
+	"description": "A gentle companion for your personal wellness journey. Track, reflect, and bloom at your own rhythm.",
 	"version": "0.1.0",
 	"private": true,
 	"type": "module",

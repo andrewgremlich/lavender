@@ -8,3 +8,9 @@ import "./components/nav-bar";
 import "./components/info-panel";
 import "./components/entry-card";
 import "./components/cycle-calendar";
+
+if ("serviceWorker" in navigator) {
+	navigator.serviceWorker.register("/sw.js").catch((err) => {
+		console.warn("Service worker registration failed:", err);
+	});
+}
