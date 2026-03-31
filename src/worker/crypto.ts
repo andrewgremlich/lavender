@@ -38,3 +38,20 @@ export function generateSalt(): string {
 export function generateId(): string {
 	return crypto.randomUUID();
 }
+
+export function timingSafeEqual(a: string, b: string): boolean {
+	const encoder = new TextEncoder();
+	const bufA = encoder.encode(a);
+	const bufB = encoder.encode(b);
+
+	if (bufA.byteLength !== bufB.byteLength) {
+		return false;
+	}
+
+	let result = 0;
+	for (let i = 0; i < bufA.byteLength; i++) {
+		result |= bufA[i] ^ bufB[i];
+	}
+
+	return result === 0;
+}

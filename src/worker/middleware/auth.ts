@@ -1,4 +1,5 @@
 import type { Context, Next } from "hono";
+import { HTTPException } from "hono/http-exception";
 import { jwt } from "hono/jwt";
 import type { Env } from "../types.js";
 
@@ -13,7 +14,7 @@ export function getUserId(c: Context): string {
 	const payload = c.get("jwtPayload") as { sub?: string } | undefined;
 
 	if (!payload?.sub) {
-		throw new Error("Missing jwtPayload.sub");
+		throw new HTTPException(401, { message: "Unauthorized" });
 	}
 
 	return payload.sub;

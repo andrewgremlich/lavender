@@ -50,6 +50,10 @@ metrics.post("/", async (c) => {
 		return c.json({ error: "Encrypted data and IV required" }, 400);
 	}
 
+	if (encryptedData.length > 100000 || iv.length > 100) {
+		return c.json({ error: "Payload too large" }, 413);
+	}
+
 	// Get user's retention setting
 	const settings = await c.env.lavender_db
 		.prepare("SELECT data_retention_days FROM user_settings WHERE user_id = ?")
@@ -83,6 +87,10 @@ metrics.put("/:id", async (c) => {
 
 	if (!encryptedData || !iv) {
 		return c.json({ error: "Encrypted data and IV required" }, 400);
+	}
+
+	if (encryptedData.length > 100000 || iv.length > 100) {
+		return c.json({ error: "Payload too large" }, 413);
 	}
 
 	const existing = await c.env.lavender_db

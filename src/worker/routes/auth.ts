@@ -1,10 +1,19 @@
 import { Hono } from "hono";
 import { sign } from "hono/jwt";
-import { generateId, generateSalt, hashPassword } from "../crypto.js";
+import {
+	generateId,
+	generateSalt,
+	hashPassword,
+	timingSafeEqual,
+} from "../crypto.js";
 import { authMiddleware, getUserId } from "../middleware/auth.js";
+import { rateLimiter } from "../middleware/rate-limit.js";
 import type { Env, UserRow } from "../types.js";
 
 const auth = new Hono<{ Bindings: Env }>();
+
+// Rate limit all auth endpoints
+auth.use("/*", rateLimiter());
 
 auth.post("/register", async (c) => {
 	const { username, password } = await c.req.json<{
@@ -56,7 +65,10 @@ auth.post("/register", async (c) => {
 		.bind(id)
 		.run();
 
-	const token = await sign({ sub: id, username }, c.env.JWT_SECRET);
+	const token = await sign(
+		{ sub: id, username, exp: Math.floor(Date.now() / 1000) + 86400 },
+		c.env.JWT_SECRET,
+	);
 	return c.json({ token, username }, 201);
 });
 
@@ -80,11 +92,14 @@ auth.post("/login", async (c) => {
 	}
 
 	const passwordHash = await hashPassword(password, user.salt);
-	if (passwordHash !== user.password_hash) {
+	if (!timingSafeEqual(passwordHash, user.password_hash)) {
 		return c.json({ error: "Invalid credentials" }, 401);
 	}
 
-	const token = await sign({ sub: user.id, username }, c.env.JWT_SECRET);
+	const token = await sign(
+		{ sub: user.id, username, exp: Math.floor(Date.now() / 1000) + 86400 },
+		c.env.JWT_SECRET,
+	);
 	return c.json({ token, username });
 });
 
@@ -122,11 +137,11 @@ auth.put("/password", authMiddleware(), async (c) => {
 		.first<UserRow>();
 
 	if (!user) {
-		return c.json({ error: "User not found" }, 404);
+		return c.json({ error: "Invalid credentials" }, 401);
 	}
 
 	const oldHash = await hashPassword(oldPassword, user.salt);
-	if (oldHash !== user.password_hash) {
+	if (!timingSafeEqual(oldHash, user.password_hash)) {
 		return c.json({ error: "Current password is incorrect" }, 401);
 	}
 
@@ -156,7 +171,11 @@ auth.put("/password", authMiddleware(), async (c) => {
 
 	// Return new token so the client stays authenticated
 	const token = await sign(
-		{ sub: user.id, username: user.username },
+		{
+			sub: user.id,
+			username: user.username,
+			exp: Math.floor(Date.now() / 1000) + 86400,
+		},
 		c.env.JWT_SECRET,
 	);
 	return c.json({ token, username: user.username });

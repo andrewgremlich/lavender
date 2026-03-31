@@ -256,8 +256,17 @@ class SettingsPanel extends HTMLElement {
 			// Derive the username from the token payload
 			const token = sessionStorage.getItem("lavender_token");
 			if (!token) throw new Error("Not authenticated");
-			const payload = JSON.parse(atob(token.split(".")[1]));
-			const username = payload.username as string;
+			const parts = token.split(".");
+			if (parts.length !== 3) throw new Error("Invalid token format");
+			let payload: { username?: string };
+			try {
+				payload = JSON.parse(atob(parts[1]));
+			} catch {
+				throw new Error("Invalid token. Please log in again.");
+			}
+			if (!payload.username)
+				throw new Error("Invalid token. Please log in again.");
+			const username = payload.username;
 
 			const newDerivedKey = await deriveKeyFromPassword(newPw, username);
 			const newCryptoKey = await importKey(newDerivedKey);
