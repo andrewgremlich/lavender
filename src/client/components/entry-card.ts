@@ -18,6 +18,11 @@ const FLOW_LABELS: Record<string, string> = {
 	heavy: "Heavy",
 };
 
+const LH_LABELS: Record<number, string> = {
+	1: "Light",
+	2: "Positive",
+};
+
 function formatTemp(tempC: number): string {
 	const isUS = getUnitSystem() === "us";
 	const temp = isUS ? celsiusToFahrenheit(tempC) : tempC;
@@ -68,6 +73,14 @@ class EntryCard extends HTMLElement {
 					"Cervical Mucus",
 					MUCUS_LABELS[data.cervicalMucus as string] ||
 						(data.cervicalMucus as string),
+				),
+			);
+		}
+		if (data.lhSurge != null && (data.lhSurge as number) > 0) {
+			rows.push(
+				detailRow(
+					"LH Surge",
+					LH_LABELS[data.lhSurge as number] ?? String(data.lhSurge),
 				),
 			);
 		}
@@ -124,6 +137,11 @@ class EntryCard extends HTMLElement {
 		if (data.cervicalMucus) {
 			tags.push(
 				`<span class="entry-tag">${MUCUS_LABELS[data.cervicalMucus as string] || data.cervicalMucus}</span>`,
+			);
+		}
+		if (data.lhSurge != null && (data.lhSurge as number) > 0) {
+			tags.push(
+				`<span class="entry-tag">${(data.lhSurge as number) === 2 ? "LH+" : "LH Light"}</span>`,
 			);
 		}
 		if (data.bleedingStart || data.bleedingFlow) {
