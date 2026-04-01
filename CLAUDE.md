@@ -11,8 +11,8 @@ npm run deploy           # Build and deploy to Cloudflare Workers
 npm run preview          # Preview production build locally
 npm run check            # Type-check and run biome both client and worker code
 npm run seed             # Seed local database with sample cycle data
-npm run db:migrate:local # Initialize/migrate local D1 database
-npm run db:migrate:remote # Initialize/migrate remote D1 database
+npm run db:migrate:local # Apply pending D1 migrations locally
+npm run db:migrate:remote # Apply pending D1 migrations to remote
 ```
 
 **Environment setup:** Copy `.dev.vars.example` to `.dev.vars` and set `JWT_SECRET` (32+ chars).
@@ -33,7 +33,7 @@ The core privacy design: **the server never sees plaintext health data**.
 ### Backend (`src/worker/`)
 
 - **Framework:** Hono with JWT auth middleware
-- **Database:** Cloudflare D1 (SQLite). Schema in `src/worker/db/schema.sql`
+- **Database:** Cloudflare D1 (SQLite). Schema managed via D1 migrations in `migrations/`
 - **Password hashing:** PBKDF2 via Web Crypto API (100k iterations, SHA-256) — no external crypto libs
 - **API routes** mounted under `/api/*`:
   - `/api/auth` — register, login, account deletion

@@ -1,15 +1,13 @@
+-- Migration number: 0001 	 2026-04-01T03:39:53.699Z
+-- Initial schema
+
 CREATE TABLE IF NOT EXISTS users (
   id TEXT PRIMARY KEY,
   username TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
   salt TEXT NOT NULL,
-  created_at TEXT NOT NULL DEFAULT (datetime('now')),
-  recovery_code_hash TEXT,
-  recovery_code_salt TEXT,
-  wrapped_encryption_key TEXT,
-  wrapped_encryption_key_iv TEXT
+  created_at TEXT NOT NULL DEFAULT (datetime('now'))
 );
-
 
 CREATE TABLE IF NOT EXISTS user_settings (
   user_id TEXT PRIMARY KEY,
