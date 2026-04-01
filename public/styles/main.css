@@ -84,10 +84,10 @@ h6 {
 /* ----- Custom Properties ----- */
 :root {
 	/* Colors */
-	--color-primary: #936BF2;
+	--color-primary: #936bf2;
 	--color-primary-dark: #695999;
-	--color-secondary: #F2AE6B;
-	--color-tertiary: #7AF589;
+	--color-secondary: #f2ae6b;
+	--color-tertiary: #7af589;
 
 	--color-primary-light: #a78bfa;
 	--color-primary-hover: #6d28d9;
@@ -1173,4 +1173,85 @@ p {
 
 ::-webkit-scrollbar-thumb:hover {
 	background: var(--color-text);
+}
+
+/* ----- App Root Shell ----- */
+#app-root {
+	display: block;
+	min-height: 100vh;
+	background: var(--color-bg, #faf5ff);
+}
+#app-root .app-layout {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+#app-root .content {
+	flex: 1;
+	padding: 1rem;
+	padding-bottom: 5rem;
+	max-width: 800px;
+	margin: 0 auto;
+	width: 100%;
+	box-sizing: border-box;
+}
+@media (min-width: 768px) {
+	#app-root .content {
+		padding: 2rem;
+		padding-bottom: 2rem;
+	}
+}
+@media (min-width: 1024px) {
+	#app-root .app-layout {
+		flex-direction: row;
+	}
+	#app-root .content {
+		padding: 2rem;
+	}
+}
+
+/* Auth (logged-out) layout */
+#app-root.auth {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 100vh;
+	background: var(--color-bg, #faf5ff);
+}
+#app-root .auth-container {
+	width: 100%;
+	padding: 1rem;
+}
+#app-root .auth-toggle {
+	text-align: center;
+	margin-top: 1rem;
+	color: var(--color-text, #6b7280);
+	font-size: 12px;
+}
+#app-root .auth-toggle a {
+	color: var(--color-primary, #7c3aed);
+	cursor: pointer;
+	text-decoration: underline;
+}
+#app-root .app-title {
+	text-align: center;
+	margin-bottom: 2rem;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+}
+#app-root .app-title img {
+	width: 200px;
+	margin-bottom: 2rem;
+	border-radius: 50%;
+	box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
+}
+#app-root .app-title h1 {
+	font-size: 2rem;
+	color: var(--color-primary, #7c3aed);
+	margin: 0;
+}
+#app-root .app-title p {
+	color: var(--color-text, #6b7280);
+	margin: 0.5rem 0 0;
 }
