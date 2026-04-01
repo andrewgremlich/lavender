@@ -101,6 +101,11 @@ class SettingsPanel extends HTMLElement {
           <label for="confirm-password">Confirm new password</label>
           <input type="password" id="confirm-password" autocomplete="new-password" />
         </div>
+        <ul class="pw-requirements" id="pw-requirements">
+          <li id="req-length">At least 12 characters</li>
+          <li id="req-number">At least one number</li>
+          <li id="req-special">At least one special character (!@#$%^&* etc.)</li>
+        </ul>
         <button class="btn btn-primary" id="change-password-btn">Change Password</button>
         <div class="message" id="password-msg"></div>
       </div>
@@ -154,6 +159,13 @@ class SettingsPanel extends HTMLElement {
 		this.shadow
 			.querySelector("#change-password-btn")
 			?.addEventListener("click", () => this.changePassword());
+
+		const newPasswordInput = this.shadow.querySelector(
+			"#new-password",
+		) as HTMLInputElement;
+		newPasswordInput?.addEventListener("input", () => {
+			this.updateRequirements(newPasswordInput.value);
+		});
 
 		// Export data
 		this.shadow
@@ -226,6 +238,15 @@ class SettingsPanel extends HTMLElement {
 			this.showMessage(msgEl, "New passwords do not match.", "error");
 			return;
 		}
+		if (!this.isPasswordValid(newPw)) {
+			this.showMessage(
+				msgEl,
+				"Password does not meet requirements: 12+ chars, number, special character.",
+				"error",
+			);
+			return;
+		}
+
 		if (currentPw === newPw) {
 			this.showMessage(
 				msgEl,
@@ -386,6 +407,26 @@ class SettingsPanel extends HTMLElement {
 		setTimeout(() => {
 			el.classList.remove("visible");
 		}, 4000);
+	}
+
+	private isPasswordValid(password: string): boolean {
+		return (
+			password.length >= 12 &&
+			/\d/.test(password) &&
+			/[^a-zA-Z0-9]/.test(password)
+		);
+	}
+
+	private updateRequirements(password: string) {
+		const reqs: Array<{ id: string; met: boolean }> = [
+			{ id: "req-length", met: password.length >= 12 },
+			{ id: "req-number", met: /\d/.test(password) },
+			{ id: "req-special", met: /[^a-zA-Z0-9]/.test(password) },
+		];
+		for (const { id, met } of reqs) {
+			const el = this.shadow.querySelector(`#${id}`);
+			el?.classList.toggle("met", met);
+		}
 	}
 }
 
