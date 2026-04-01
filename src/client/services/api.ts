@@ -32,16 +32,31 @@ async function request<T>(path: string, options: RequestInit = {}): Promise<T> {
 
 export const api = {
 	auth: {
-		register: (username: string, password: string) =>
-			request<{ token: string; username: string }>("/auth/register", {
-				method: "POST",
-				body: JSON.stringify({ username, password }),
-			}),
+		register: (
+			username: string,
+			password: string,
+			recovery?: {
+				wrappedEncryptionKey: string;
+				wrappedEncryptionKeyIv: string;
+				recoveryCodeHash: string;
+				recoveryCodeSalt: string;
+			},
+		) =>
+			request<{ token: string; username: string; hasRecovery: boolean }>(
+				"/auth/register",
+				{
+					method: "POST",
+					body: JSON.stringify({ username, password, ...recovery }),
+				},
+			),
 		login: (username: string, password: string) =>
-			request<{ token: string; username: string }>("/auth/login", {
-				method: "POST",
-				body: JSON.stringify({ username, password }),
-			}),
+			request<{ token: string; username: string; hasRecovery: boolean }>(
+				"/auth/login",
+				{
+					method: "POST",
+					body: JSON.stringify({ username, password }),
+				},
+			),
 		changePassword: (
 			oldPassword: string,
 			newPassword: string,
@@ -57,6 +72,43 @@ export const api = {
 			}),
 		deleteAccount: () =>
 			request<{ message: string }>("/auth/account", { method: "DELETE" }),
+		recoverySetup: (payload: {
+			wrappedEncryptionKey: string;
+			wrappedEncryptionKeyIv: string;
+			recoveryCodeHash: string;
+			recoveryCodeSalt: string;
+		}) =>
+			request<{ message: string }>("/auth/recovery-setup", {
+				method: "POST",
+				body: JSON.stringify(payload),
+			}),
+		recoveryStart: (recoveryCode: string, username: string) =>
+			request<{
+				wrappedEncryptionKey: string;
+				wrappedEncryptionKeyIv: string;
+				entries: Array<{ id: string; encryptedData: string; iv: string }>;
+			}>("/auth/recovery-start", {
+				method: "POST",
+				body: JSON.stringify({ username, recoveryCode }),
+			}),
+		recover: (payload: {
+			username: string;
+			recoveryCode: string;
+			newPassword: string;
+			reEncryptedEntries: Array<{
+				id: string;
+				encryptedData: string;
+				iv: string;
+			}>;
+			newWrappedEncryptionKey: string;
+			newWrappedEncryptionKeyIv: string;
+			newRecoveryCodeHash: string;
+			newRecoveryCodeSalt: string;
+		}) =>
+			request<{ token: string; username: string; hasRecovery: boolean }>(
+				"/auth/recover",
+				{ method: "POST", body: JSON.stringify(payload) },
+			),
 	},
 	metrics: {
 		getAll: () =>

@@ -1,4 +1,4 @@
-import { login } from "../services/auth";
+import { login, setupRecovery } from "../services/auth";
 
 export class LoginForm extends HTMLElement {
 	private shadow: ShadowRoot;
@@ -27,6 +27,7 @@ export class LoginForm extends HTMLElement {
           <input type="password" id="password" name="password" required autocomplete="current-password" />
         </div>
         <button type="submit" class="btn-primary" id="login-btn">Sign In</button>
+        <a id="forgot-link" href="#/recovery" style="display:block;text-align:center;margin-top:0.75rem;font-size:0.875rem;color:var(--color-primary,#7c3aed);">Forgot your password?</a>
       </form>
     `;
 		this.setupListeners();
@@ -58,8 +59,14 @@ export class LoginForm extends HTMLElement {
 				loginBtn.disabled = true;
 				loginBtn.innerHTML =
 					'<span class="loading-spinner"></span>Signing in...';
-				await login(username, password);
-				window.dispatchEvent(new CustomEvent("auth-success"));
+				const hasRecovery = await login(username, password);
+
+				if (!hasRecovery) {
+					// Existing account without a recovery code — set one up now
+					await this.promptRecoverySetup();
+				} else {
+					window.dispatchEvent(new CustomEvent("auth-success"));
+				}
 			} catch (err: unknown) {
 				const message =
 					err instanceof Error
@@ -71,6 +78,27 @@ export class LoginForm extends HTMLElement {
 				loginBtn.textContent = "Sign In";
 			}
 		});
+	}
+
+	/**
+	 * Called for existing users who don't have a recovery code yet.
+	 * Generates one, wraps the current session key, stores it, and shows the code.
+	 */
+	private async promptRecoverySetup(): Promise<void> {
+		const recoveryCode = await setupRecovery();
+
+		const display = document.createElement("recovery-code-display");
+		display.setAttribute("code", recoveryCode);
+		document.body.appendChild(display);
+
+		window.addEventListener(
+			"recovery-code-acknowledged",
+			() => {
+				display.remove();
+				window.dispatchEvent(new CustomEvent("auth-success"));
+			},
+			{ once: true },
+		);
 	}
 
 	private showError(msg: string) {

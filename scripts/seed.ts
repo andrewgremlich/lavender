@@ -9,7 +9,7 @@
 
 const API_BASE = "http://localhost:5173/api";
 const USERNAME = "seeduser";
-const PASSWORD = "seedpassword!123456";
+const PASSWORD = "seedpassword!123456"; // 6DB98CAC-7E8889E6-349B100E-CD627513
 
 // ── Crypto helpers (mirrors src/client/crypto/encryption.ts) ────────────────
 

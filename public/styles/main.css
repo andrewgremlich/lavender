@@ -84,9 +84,12 @@ h6 {
 /* ----- Custom Properties ----- */
 :root {
 	/* Colors */
-	--color-primary: #7c3aed;
+	--color-primary: #936BF2;
+	--color-primary-dark: #695999;
+	--color-secondary: #F2AE6B;
+	--color-tertiary: #7AF589;
+
 	--color-primary-light: #a78bfa;
-	--color-primary-dark: #5b21b6;
 	--color-primary-hover: #6d28d9;
 	--color-primary-alpha: rgba(124, 58, 237, 0.12);
 

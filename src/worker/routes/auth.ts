@@ -16,9 +16,20 @@ const auth = new Hono<{ Bindings: Env }>();
 auth.use("/*", rateLimiter());
 
 auth.post("/register", async (c) => {
-	const { username, password } = await c.req.json<{
+	const {
+		username,
+		password,
+		wrappedEncryptionKey,
+		wrappedEncryptionKeyIv,
+		recoveryCodeHash,
+		recoveryCodeSalt,
+	} = await c.req.json<{
 		username: string;
 		password: string;
+		wrappedEncryptionKey?: string;
+		wrappedEncryptionKeyIv?: string;
+		recoveryCodeHash?: string;
+		recoveryCodeSalt?: string;
 	}>();
 
 	if (!username || !password) {
@@ -52,11 +63,28 @@ auth.post("/register", async (c) => {
 	const salt = generateSalt();
 	const passwordHash = await hashPassword(password, salt);
 
+	const hasRecovery = !!(
+		wrappedEncryptionKey &&
+		wrappedEncryptionKeyIv &&
+		recoveryCodeHash &&
+		recoveryCodeSalt
+	);
+
 	await c.env.lavender_db
 		.prepare(
-			"INSERT INTO users (id, username, password_hash, salt) VALUES (?, ?, ?, ?)",
+			`INSERT INTO users (id, username, password_hash, salt, recovery_code_hash, recovery_code_salt, wrapped_encryption_key, wrapped_encryption_key_iv)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
 		)
-		.bind(id, username, passwordHash, salt)
+		.bind(
+			id,
+			username,
+			passwordHash,
+			salt,
+			recoveryCodeHash ?? null,
+			recoveryCodeSalt ?? null,
+			wrappedEncryptionKey ?? null,
+			wrappedEncryptionKeyIv ?? null,
+		)
 		.run();
 
 	// Create default settings
@@ -69,7 +97,7 @@ auth.post("/register", async (c) => {
 		{ sub: id, username, exp: Math.floor(Date.now() / 1000) + 86400 },
 		c.env.JWT_SECRET,
 	);
-	return c.json({ token, username }, 201);
+	return c.json({ token, username, hasRecovery }, 201);
 });
 
 auth.post("/login", async (c) => {
@@ -96,11 +124,15 @@ auth.post("/login", async (c) => {
 		return c.json({ error: "Invalid credentials" }, 401);
 	}
 
+	const hasRecovery = !!(
+		user.wrapped_encryption_key && user.recovery_code_hash
+	);
+
 	const token = await sign(
 		{ sub: user.id, username, exp: Math.floor(Date.now() / 1000) + 86400 },
 		c.env.JWT_SECRET,
 	);
-	return c.json({ token, username });
+	return c.json({ token, username, hasRecovery });
 });
 
 auth.put("/password", authMiddleware(), async (c) => {
@@ -178,7 +210,221 @@ auth.put("/password", authMiddleware(), async (c) => {
 		},
 		c.env.JWT_SECRET,
 	);
-	return c.json({ token, username: user.username });
+	return c.json({
+		token,
+		username: user.username,
+		hasRecovery: !!(user.wrapped_encryption_key && user.recovery_code_hash),
+	});
+});
+
+/** POST /api/auth/recovery-setup — store a recovery code for an existing user (JWT required). */
+auth.post("/recovery-setup", authMiddleware(), async (c) => {
+	const userId = getUserId(c);
+	const {
+		wrappedEncryptionKey,
+		wrappedEncryptionKeyIv,
+		recoveryCodeHash,
+		recoveryCodeSalt,
+	} = await c.req.json<{
+		wrappedEncryptionKey: string;
+		wrappedEncryptionKeyIv: string;
+		recoveryCodeHash: string;
+		recoveryCodeSalt: string;
+	}>();
+
+	if (
+		!wrappedEncryptionKey ||
+		!wrappedEncryptionKeyIv ||
+		!recoveryCodeHash ||
+		!recoveryCodeSalt
+	) {
+		return c.json({ error: "All recovery fields required" }, 400);
+	}
+
+	await c.env.lavender_db
+		.prepare(
+			`UPDATE users SET wrapped_encryption_key = ?, wrapped_encryption_key_iv = ?,
+       recovery_code_hash = ?, recovery_code_salt = ? WHERE id = ?`,
+		)
+		.bind(
+			wrappedEncryptionKey,
+			wrappedEncryptionKeyIv,
+			recoveryCodeHash,
+			recoveryCodeSalt,
+			userId,
+		)
+		.run();
+
+	return c.json({ message: "Recovery code saved" });
+});
+
+/**
+ * POST /api/auth/recovery-start — verify recovery code and return wrapped key + entries.
+ * No JWT required; authenticated by the recovery code (hashed server-side against stored hash).
+ */
+auth.post("/recovery-start", async (c) => {
+	const { username, recoveryCode } = await c.req.json<{
+		username: string;
+		recoveryCode: string;
+	}>();
+
+	if (!username || !recoveryCode) {
+		return c.json({ error: "Username and recovery code required" }, 400);
+	}
+
+	const user = await c.env.lavender_db
+		.prepare("SELECT * FROM users WHERE username = ?")
+		.bind(username)
+		.first<UserRow>();
+
+	if (
+		!user ||
+		!user.recovery_code_hash ||
+		!user.recovery_code_salt ||
+		!user.wrapped_encryption_key ||
+		!user.wrapped_encryption_key_iv
+	) {
+		return c.json({ error: "No recovery code found for this account" }, 404);
+	}
+
+	// Hash the supplied code with the stored salt and compare (same pattern as password login)
+	const suppliedHash = await hashPassword(
+		recoveryCode,
+		user.recovery_code_salt,
+	);
+	if (!timingSafeEqual(suppliedHash, user.recovery_code_hash)) {
+		return c.json({ error: "Invalid recovery code" }, 401);
+	}
+
+	const entries = await c.env.lavender_db
+		.prepare(
+			"SELECT id, encrypted_data, iv FROM health_entries WHERE user_id = ?",
+		)
+		.bind(user.id)
+		.all<{ id: string; encrypted_data: string; iv: string }>();
+
+	const mappedEntries = (entries.results ?? []).map((e) => ({
+		id: e.id,
+		encryptedData: e.encrypted_data,
+		iv: e.iv,
+	}));
+
+	return c.json({
+		wrappedEncryptionKey: user.wrapped_encryption_key,
+		wrappedEncryptionKeyIv: user.wrapped_encryption_key_iv,
+		entries: mappedEntries,
+	});
+});
+
+/**
+ * POST /api/auth/recover — complete password recovery.
+ * Verifies recovery code, atomically updates password + all entries + rotated recovery code.
+ */
+auth.post("/recover", async (c) => {
+	const {
+		username,
+		recoveryCode,
+		newPassword,
+		reEncryptedEntries,
+		newWrappedEncryptionKey,
+		newWrappedEncryptionKeyIv,
+		newRecoveryCodeHash,
+		newRecoveryCodeSalt,
+	} = await c.req.json<{
+		username: string;
+		recoveryCode: string;
+		newPassword: string;
+		reEncryptedEntries: Array<{
+			id: string;
+			encryptedData: string;
+			iv: string;
+		}>;
+		newWrappedEncryptionKey: string;
+		newWrappedEncryptionKeyIv: string;
+		newRecoveryCodeHash: string;
+		newRecoveryCodeSalt: string;
+	}>();
+
+	if (!username || !recoveryCode || !newPassword) {
+		return c.json({ error: "All fields required" }, 400);
+	}
+	if (newPassword.length < 12) {
+		return c.json({ error: "Password must be at least 12 characters" }, 400);
+	}
+	if (!/\d/.test(newPassword)) {
+		return c.json({ error: "Password must contain at least one number" }, 400);
+	}
+	if (!/[^a-zA-Z0-9]/.test(newPassword)) {
+		return c.json(
+			{ error: "Password must contain at least one special character" },
+			400,
+		);
+	}
+
+	const user = await c.env.lavender_db
+		.prepare("SELECT * FROM users WHERE username = ?")
+		.bind(username)
+		.first<UserRow>();
+
+	if (!user || !user.recovery_code_hash || !user.recovery_code_salt) {
+		return c.json({ error: "No recovery code found for this account" }, 404);
+	}
+
+	// Hash the supplied code with the stored salt and compare (same pattern as password login)
+	const suppliedHash = await hashPassword(
+		recoveryCode,
+		user.recovery_code_salt,
+	);
+	if (!timingSafeEqual(suppliedHash, user.recovery_code_hash)) {
+		return c.json({ error: "Invalid recovery code" }, 401);
+	}
+
+	const newSalt = generateSalt();
+	const newHash = await hashPassword(newPassword, newSalt);
+
+	// Atomically update: password, rotated recovery fields, and all re-encrypted entries
+	const statements = [
+		c.env.lavender_db
+			.prepare(
+				`UPDATE users SET password_hash = ?, salt = ?,
+         wrapped_encryption_key = ?, wrapped_encryption_key_iv = ?,
+         recovery_code_hash = ?, recovery_code_salt = ?
+         WHERE id = ?`,
+			)
+			.bind(
+				newHash,
+				newSalt,
+				newWrappedEncryptionKey,
+				newWrappedEncryptionKeyIv,
+				newRecoveryCodeHash,
+				newRecoveryCodeSalt,
+				user.id,
+			),
+	];
+
+	if (reEncryptedEntries?.length) {
+		for (const entry of reEncryptedEntries) {
+			statements.push(
+				c.env.lavender_db
+					.prepare(
+						"UPDATE health_entries SET encrypted_data = ?, iv = ? WHERE id = ? AND user_id = ?",
+					)
+					.bind(entry.encryptedData, entry.iv, entry.id, user.id),
+			);
+		}
+	}
+
+	await c.env.lavender_db.batch(statements);
+
+	const token = await sign(
+		{
+			sub: user.id,
+			username: user.username,
+			exp: Math.floor(Date.now() / 1000) + 86400,
+		},
+		c.env.JWT_SECRET,
+	);
+	return c.json({ token, username: user.username, hasRecovery: true });
 });
 
 auth.delete("/account", authMiddleware(), async (c) => {

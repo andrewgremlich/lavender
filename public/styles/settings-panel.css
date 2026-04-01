@@ -151,6 +151,39 @@ input:focus {
 	color: var(--color-text, #6b7280);
 }
 
+.pw-requirements {
+	margin-top: 0.5rem;
+	padding: 0.625rem 0.75rem;
+	background: var(--color-surface, #f9fafb);
+	border: 1px solid var(--color-border, #e5e7eb);
+	border-radius: 0.5rem;
+	list-style: none;
+	font-size: 0.8125rem;
+	color: var(--color-text, #6b7280);
+}
+.pw-requirements li {
+	display: flex;
+	align-items: center;
+	gap: 0.375rem;
+	padding: 0.125rem 0;
+}
+.pw-requirements li::before {
+	content: "\2715";
+	color: #dc2626;
+	font-weight: 600;
+	font-size: 0.75rem;
+	width: 1rem;
+	text-align: center;
+	flex-shrink: 0;
+}
+.pw-requirements li.met::before {
+	content: "\2713";
+	color: #16a34a;
+}
+.pw-requirements li.met {
+	color: var(--color-text, #374151);
+}
+
 .danger-spacer {
 	height: 0.75rem;
 }

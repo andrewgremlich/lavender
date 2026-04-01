@@ -91,9 +91,21 @@ export class RegisterForm extends HTMLElement {
 				registerBtn.innerHTML =
 					'<span class="loading-spinner"></span>Creating account...';
 
-				await register(username, password);
+				const recoveryCode = await register(username, password);
 
-				window.dispatchEvent(new CustomEvent("auth-success"));
+				// Show the recovery code — user must acknowledge before entering the app
+				const display = document.createElement("recovery-code-display");
+				display.setAttribute("code", recoveryCode);
+				document.body.appendChild(display);
+
+				window.addEventListener(
+					"recovery-code-acknowledged",
+					() => {
+						display.remove();
+						window.dispatchEvent(new CustomEvent("auth-success"));
+					},
+					{ once: true },
+				);
 			} catch (err: unknown) {
 				const message =
 					err instanceof Error

@@ -63,6 +63,28 @@ class AppRoot extends HTMLElement {
           <main class="content" id="content"></main>
         </div>
       `;
+		} else if (window.location.hash === "#/recovery") {
+			// Recovery page — shown without login
+			this.classList.add("auth");
+			this.shadow.innerHTML = `
+				<link rel="stylesheet" href="/styles/main.css">
+				<link rel="stylesheet" href="/styles/app-root.css">
+				<div class="auth-container">
+					<div class="app-title">
+						<img src="/logo-512x512.png" />
+						<div>
+							<h1>Lavender</h1>
+							<p>Private Health Tracking</p>
+						</div>
+					</div>
+					<recovery-form></recovery-form>
+				</div>
+			`;
+			// Re-render if the hash changes away from /recovery
+			const onHashChange = () => {
+				if (!isLoggedIn()) this.render();
+			};
+			window.addEventListener("hashchange", onHashChange, { once: true });
 		} else {
 			this.classList.add("auth");
 			this.shadow.innerHTML = `
@@ -110,7 +132,13 @@ class AppRoot extends HTMLElement {
 			applyAuthView(!isRegisterHash());
 
 			const onHashChange = () => {
-				if (!isLoggedIn()) applyAuthView(!isRegisterHash());
+				if (!isLoggedIn()) {
+					if (window.location.hash === "#/recovery") {
+						this.render();
+					} else {
+						applyAuthView(!isRegisterHash());
+					}
+				}
 			};
 			window.addEventListener("hashchange", onHashChange);
 

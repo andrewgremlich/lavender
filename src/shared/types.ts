@@ -33,6 +33,7 @@ export interface UserSettings {
 export interface AuthResponse {
 	token: string;
 	username: string;
+	hasRecovery: boolean;
 }
 
 export interface ApiError {

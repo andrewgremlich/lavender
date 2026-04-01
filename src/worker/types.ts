@@ -9,6 +9,10 @@ export interface UserRow {
 	password_hash: string;
 	salt: string;
 	created_at: string;
+	recovery_code_hash: string | null;
+	recovery_code_salt: string | null;
+	wrapped_encryption_key: string | null;
+	wrapped_encryption_key_iv: string | null;
 }
 
 export interface HealthEntryRow {

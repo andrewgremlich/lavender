@@ -1,6 +1,8 @@
 import "./components/app-root";
 import "./components/login-form";
 import "./components/register-form";
+import "./components/recovery-code-display";
+import "./components/recovery-form";
 import "./components/data-entry-form";
 import "./components/metric-chart";
 import "./components/settings-panel";
