@@ -3,7 +3,11 @@ CREATE TABLE IF NOT EXISTS users (
   username TEXT UNIQUE NOT NULL,
   password_hash TEXT NOT NULL,
   salt TEXT NOT NULL,
-  created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  created_at TEXT NOT NULL DEFAULT (datetime('now')),
+  recovery_code_hash TEXT,
+  recovery_code_salt TEXT,
+  wrapped_encryption_key TEXT,
+  wrapped_encryption_key_iv TEXT
 );
 
 
