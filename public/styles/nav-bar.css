@@ -114,6 +114,18 @@ nav {
 	flex: 1;
 }
 
+.sync-dot {
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
+	display: inline-block;
+	flex-shrink: 0;
+	transition: background-color 0.3s;
+}
+.sync-dot--synced { background: #6b7280; }
+.sync-dot--pending { background: #f59e0b; }
+.sync-dot--error { background: #ef4444; }
+
 .nav-item.logout {
 	color: var(--color-text);
 }

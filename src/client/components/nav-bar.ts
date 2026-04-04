@@ -1,5 +1,7 @@
 import { currentRoute, navigate } from "../router";
 import { logout } from "../services/auth";
+import { metricsStore } from "../services/metrics-store";
+import type { SyncStatus } from "../services/sync-engine";
 import { renderIcons } from "../utils/icons";
 
 class NavBar extends HTMLElement {
@@ -14,10 +16,33 @@ class NavBar extends HTMLElement {
 		this.render();
 		this.setupListeners();
 		window.addEventListener("hashchange", () => this.updateActiveState());
+		window.addEventListener("sync-status-change", this._onSyncStatus);
+		// Set initial dot state from queue
+		metricsStore.getQueue().then((q) => {
+			if (q.length > 0) this.updateSyncDot("pending");
+		});
 	}
 
 	disconnectedCallback() {
 		window.removeEventListener("hashchange", () => this.updateActiveState());
+		window.removeEventListener("sync-status-change", this._onSyncStatus);
+	}
+
+	private _onSyncStatus = (e: Event) => {
+		const status = (e as CustomEvent<{ status: SyncStatus }>).detail.status;
+		this.updateSyncDot(status);
+	};
+
+	private updateSyncDot(status: SyncStatus) {
+		const dot = this.shadow.querySelector("#sync-dot") as HTMLElement | null;
+		if (!dot) return;
+		dot.className = `sync-dot sync-dot--${status}`;
+		dot.title =
+			status === "synced"
+				? "All changes saved"
+				: status === "pending"
+					? "Syncing changes..."
+					: "Sync error — will retry when online";
 	}
 
 	private render() {
@@ -30,6 +55,7 @@ class NavBar extends HTMLElement {
       <nav>
         <div class="nav-brand">
 			<h1>Lavender</h1>
+			<span id="sync-dot" class="sync-dot sync-dot--synced" title="All changes saved"></span>
         </div>
 
         <button class="nav-item ${route === "/" ? "active" : ""}" data-route="/">
@@ -72,10 +98,13 @@ class NavBar extends HTMLElement {
 			});
 		});
 
-		this.shadow.querySelector("#logout-btn")?.addEventListener("click", () => {
-			logout();
-			window.dispatchEvent(new CustomEvent("user-logout"));
-		});
+		this.shadow
+			.querySelector("#logout-btn")
+			?.addEventListener("click", async () => {
+				await metricsStore.clearCache();
+				logout();
+				window.dispatchEvent(new CustomEvent("user-logout"));
+			});
 	}
 
 	private updateActiveState() {

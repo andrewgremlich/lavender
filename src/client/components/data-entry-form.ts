@@ -1,7 +1,8 @@
 import type { HealthEntryData } from "@shared/types";
 import { encrypt, getStoredKey, importKey } from "../crypto/encryption";
 import { navigate } from "../router";
-import { api } from "../services/api";
+import { metricsStore } from "../services/metrics-store";
+import { scheduleFlush } from "../services/sync-engine";
 import { renderIcons } from "../utils/icons";
 import { INDICATORS } from "../utils/indicators";
 import {
@@ -410,12 +411,49 @@ class DataEntryForm extends HTMLElement {
 					cryptoKey,
 				);
 
+				const now = Date.now();
+
 				if (this.editEntryId) {
-					await api.metrics.update(this.editEntryId, encrypted, iv);
+					// Optimistic update: write to IDB, queue server sync
+					await metricsStore.put({
+						id: this.editEntryId,
+						encryptedData: encrypted,
+						iv,
+						createdAt: new Date().toISOString(),
+						expiresAt: new Date(
+							Date.now() + 180 * 24 * 60 * 60 * 1000,
+						).toISOString(),
+					});
+					await metricsStore.enqueue({
+						type: "update",
+						tempId: this.editEntryId,
+						serverId: this.editEntryId,
+						payload: { encryptedData: encrypted, iv },
+						timestamp: now,
+						retries: 0,
+					});
 					sessionStorage.removeItem("lavender_edit_entry");
 				} else {
-					await api.metrics.create(encrypted, iv);
+					const tempId = crypto.randomUUID();
+					await metricsStore.put({
+						id: tempId,
+						encryptedData: encrypted,
+						iv,
+						createdAt: new Date().toISOString(),
+						expiresAt: new Date(
+							Date.now() + 180 * 24 * 60 * 60 * 1000,
+						).toISOString(),
+					});
+					await metricsStore.enqueue({
+						type: "create",
+						tempId,
+						payload: { encryptedData: encrypted, iv },
+						timestamp: now,
+						retries: 0,
+					});
 				}
+
+				scheduleFlush();
 
 				form.style.display = "none";
 				successMsg.classList.add("visible");

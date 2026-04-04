@@ -1,6 +1,7 @@
 import { ChevronDown, createElement, Pencil, Trash2 } from "lucide";
 
-import { api } from "../services/api";
+import { metricsStore } from "../services/metrics-store";
+import { scheduleFlush } from "../services/sync-engine";
 import { countIndicators, INDICATORS } from "../utils/indicators";
 import { celsiusToFahrenheit, getUnitSystem } from "../utils/units";
 
@@ -218,7 +219,16 @@ class EntryCard extends HTMLElement {
 			if (!id) return;
 			deleteBtn.disabled = true;
 			try {
-				await api.metrics.delete(id);
+				// Optimistic delete: remove from IDB immediately, queue server sync
+				await metricsStore.remove(id);
+				await metricsStore.enqueue({
+					type: "delete",
+					tempId: id,
+					serverId: id,
+					timestamp: Date.now(),
+					retries: 0,
+				});
+				scheduleFlush();
 				this.dispatchEvent(
 					new CustomEvent("entry-deleted", { bubbles: true, composed: true }),
 				);

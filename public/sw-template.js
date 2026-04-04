@@ -169,10 +169,17 @@ self.addEventListener("fetch", (event) => {
 	);
 });
 
-// Handle background sync for when connection is restored
+// Handle background sync for when connection is restored (Chrome/Edge)
 self.addEventListener("sync", (event) => {
-	console.log("Background sync triggered:", event.tag);
-	// You can implement background sync logic here if needed
+	if (event.tag === "metrics-sync") {
+		event.waitUntil(
+			self.clients.matchAll().then((clients) => {
+				for (const client of clients) {
+					client.postMessage({ type: "TRIGGER_SYNC" });
+				}
+			}),
+		);
+	}
 });
 
 // Handle push notifications if needed in the future
