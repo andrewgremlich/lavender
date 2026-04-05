@@ -1,5 +1,6 @@
 import { navigate, route, startRouter } from "@client/router";
 import { isLoggedIn } from "@client/services/auth";
+import { syncEngine } from "@client/services/sync-engine";
 
 import "./components/login-form";
 import "./components/register-form";
@@ -18,6 +19,8 @@ if ("serviceWorker" in navigator) {
 		console.warn("Service worker registration failed:", err);
 	});
 }
+
+syncEngine.init();
 
 function getAppRoot(): HTMLElement {
 	return document.getElementById("app-root") as HTMLElement;

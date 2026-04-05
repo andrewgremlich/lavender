@@ -12,6 +12,8 @@ import {
 } from "../crypto/encryption";
 import { navigate } from "../router";
 import { api } from "../services/api";
+import { metricsStore } from "../services/metrics-store";
+import { refreshFromServer } from "../services/sync-engine";
 import {
 	calculateFertilityIndicators,
 	type FertilityIndicators,
@@ -74,6 +76,7 @@ class MetricChart extends HTMLElement {
 	connectedCallback() {
 		this.render();
 		this.loadData();
+		window.addEventListener("sync-complete", this._onSyncComplete);
 	}
 
 	disconnectedCallback() {
@@ -81,7 +84,12 @@ class MetricChart extends HTMLElement {
 			this.chart.destroy();
 			this.chart = null;
 		}
+		window.removeEventListener("sync-complete", this._onSyncComplete);
 	}
+
+	private _onSyncComplete = () => {
+		this.loadData();
+	};
 
 	private render() {
 		this.shadow.innerHTML = `
@@ -106,60 +114,87 @@ class MetricChart extends HTMLElement {
 			}
 
 			const cryptoKey = await importKey(storedKey);
-			const rawEntries = await api.metrics.getAll();
 
-			if (rawEntries.length === 0) {
-				this.renderEmpty(content);
-				return;
+			// Step 1: Render from IDB immediately (offline-first)
+			const cachedEntries = await metricsStore.getAll();
+			if (cachedEntries.length > 0) {
+				await this.decryptAndRender(cachedEntries, cryptoKey, content);
 			}
 
-			const legacyKeyBase64 = getLegacyKey();
-			const legacyCryptoKey = legacyKeyBase64
-				? await importKey(legacyKeyBase64)
-				: null;
+			// Step 2: Sync from server in background (server is authoritative)
+			const serverEntries = await refreshFromServer();
 
-			const decryptedEntries: HealthEntry[] = [];
-			for (const raw of rawEntries) {
-				try {
-					const decrypted = await decrypt(raw.encryptedData, raw.iv, cryptoKey);
-					const parsed = JSON.parse(decrypted) as HealthEntryData;
-					decryptedEntries.push({ ...parsed, id: raw.id });
-				} catch {
-					if (!legacyCryptoKey) continue;
-					try {
-						const decrypted = await decrypt(
-							raw.encryptedData,
-							raw.iv,
-							legacyCryptoKey,
-						);
-						const parsed = JSON.parse(decrypted) as HealthEntryData;
-						decryptedEntries.push({ ...parsed, id: raw.id });
-
-						// Re-encrypt with current key and update server
-						const { encrypted, iv } = await encrypt(decrypted, cryptoKey);
-						await api.metrics.update(raw.id, encrypted, iv);
-						console.log(`Migrated entry ${raw.id} to current key`);
-					} catch (legacyErr) {
-						console.error("Decryption failed for entry", raw.id, legacyErr);
-					}
-				}
+			// Re-render only if server data differs from cache
+			const cacheIds = cachedEntries
+				.map((e) => e.id)
+				.sort()
+				.join(",");
+			const serverIds = serverEntries
+				.map((e) => e.id)
+				.sort()
+				.join(",");
+			if (cacheIds !== serverIds || cachedEntries.length === 0) {
+				await this.decryptAndRender(serverEntries, cryptoKey, content);
 			}
-
-			if (legacyKeyBase64) {
-				clearLegacyKey();
-			}
-
-			decryptedEntries.sort((a, b) => a.date.localeCompare(b.date));
-			this.entries = decryptedEntries;
-			this.fertility = calculateFertilityIndicators(
-				decryptedEntries.map(toFertilityEntry),
-			);
-
-			this.renderDashboard(content);
 		} catch (err: unknown) {
 			const message = err instanceof Error ? err.message : "Unknown error";
 			content.innerHTML = `<div class="error-msg">Failed to load data: ${message}</div>`;
 		}
+	}
+
+	private async decryptAndRender(
+		rawEntries: { id: string; encryptedData: string; iv: string }[],
+		cryptoKey: CryptoKey,
+		content: HTMLElement,
+	) {
+		if (rawEntries.length === 0) {
+			this.renderEmpty(content);
+			return;
+		}
+
+		const legacyKeyBase64 = getLegacyKey();
+		const legacyCryptoKey = legacyKeyBase64
+			? await importKey(legacyKeyBase64)
+			: null;
+
+		const decryptedEntries: HealthEntry[] = [];
+		for (const raw of rawEntries) {
+			try {
+				const decrypted = await decrypt(raw.encryptedData, raw.iv, cryptoKey);
+				const parsed = JSON.parse(decrypted) as HealthEntryData;
+				decryptedEntries.push({ ...parsed, id: raw.id });
+			} catch {
+				if (!legacyCryptoKey) continue;
+				try {
+					const decrypted = await decrypt(
+						raw.encryptedData,
+						raw.iv,
+						legacyCryptoKey,
+					);
+					const parsed = JSON.parse(decrypted) as HealthEntryData;
+					decryptedEntries.push({ ...parsed, id: raw.id });
+
+					// Re-encrypt with current key and update server
+					const { encrypted, iv } = await encrypt(decrypted, cryptoKey);
+					await api.metrics.update(raw.id, encrypted, iv);
+					console.log(`Migrated entry ${raw.id} to current key`);
+				} catch (legacyErr) {
+					console.error("Decryption failed for entry", raw.id, legacyErr);
+				}
+			}
+		}
+
+		if (legacyKeyBase64) {
+			clearLegacyKey();
+		}
+
+		decryptedEntries.sort((a, b) => a.date.localeCompare(b.date));
+		this.entries = decryptedEntries;
+		this.fertility = calculateFertilityIndicators(
+			decryptedEntries.map(toFertilityEntry),
+		);
+
+		this.renderDashboard(content);
 	}
 
 	private renderEmpty(container: HTMLElement) {

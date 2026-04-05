@@ -8,6 +8,7 @@ import {
 } from "../crypto/encryption";
 import { api, setToken } from "../services/api";
 import { logout } from "../services/auth";
+import { metricsStore } from "../services/metrics-store";
 import { getUnitSystem, setUnitSystem } from "../utils/units";
 
 function confirmDialog(
@@ -175,6 +176,7 @@ class SettingsPanel extends HTMLElement {
 		// Delete all data
 		this.setupConfirmAction("delete-data", async () => {
 			await api.metrics.deleteAll();
+			await metricsStore.clearCache();
 			const btn = this.shadow.querySelector(
 				"#delete-data-btn",
 			) as HTMLButtonElement;
@@ -185,6 +187,7 @@ class SettingsPanel extends HTMLElement {
 		// Delete account
 		this.setupConfirmAction("delete-account", async () => {
 			await api.auth.deleteAccount();
+			await metricsStore.clearCache();
 			logout();
 			window.dispatchEvent(new CustomEvent("user-logout"));
 		});
