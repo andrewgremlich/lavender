@@ -15,14 +15,11 @@ export const GET: RequestHandler = async (event) => {
 	if (authResult instanceof Response) return authResult;
 	const { userId } = authResult;
 
-	// Clean up expired entries first
-	await db
-		.prepare("DELETE FROM health_entries WHERE user_id = ? AND expires_at < datetime('now')")
-		.bind(userId)
-		.run();
-
+	// Return only non-expired entries; cleanup happens on POST.
 	const rows = await db
-		.prepare('SELECT * FROM health_entries WHERE user_id = ? ORDER BY created_at DESC')
+		.prepare(
+			"SELECT * FROM health_entries WHERE user_id = ? AND expires_at >= datetime('now') ORDER BY created_at DESC"
+		)
 		.bind(userId)
 		.all<HealthEntryRow>();
 
@@ -64,12 +61,17 @@ export const POST: RequestHandler = async (event) => {
 	const id = generateId();
 	const expiresAt = new Date(Date.now() + retentionDays * 24 * 60 * 60 * 1000).toISOString();
 
-	await db
-		.prepare(
-			'INSERT INTO health_entries (id, user_id, encrypted_data, iv, expires_at) VALUES (?, ?, ?, ?, ?)'
-		)
-		.bind(id, userId, encryptedData, iv, expiresAt)
-		.run();
+	// Insert new entry and lazily clean up expired ones in a single batch.
+	await db.batch([
+		db
+			.prepare(
+				'INSERT INTO health_entries (id, user_id, encrypted_data, iv, expires_at) VALUES (?, ?, ?, ?, ?)'
+			)
+			.bind(id, userId, encryptedData, iv, expiresAt),
+		db
+			.prepare("DELETE FROM health_entries WHERE user_id = ? AND expires_at < datetime('now')")
+			.bind(userId)
+	]);
 
 	return json({ id, createdAt: new Date().toISOString(), expiresAt }, { status: 201 });
 };
