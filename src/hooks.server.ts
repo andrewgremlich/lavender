@@ -3,11 +3,12 @@ import { sequence } from '@sveltejs/kit/hooks';
 import { verifyJwt } from '$lib/server/jwt';
 
 /**
- * Rate limit: 20 requests per 15-minute window per IP, keyed in KV.
- * Applies only to `/api/*` routes (the legacy Hono setup was the same).
+ * Rate limit: 100 requests per 15-minute window per IP, keyed in KV.
+ * Applies only to unauthenticated `/api/*` routes — authenticated requests
+ * (valid Bearer token) are exempt so bulk operations like seeding work.
  */
 const RATE_LIMIT_WINDOW_SEC = 15 * 60;
-const RATE_LIMIT_MAX = 20;
+const RATE_LIMIT_MAX = 100;
 
 const handleAuth: Handle = async ({ event, resolve }) => {
 	const header = event.request.headers.get('authorization');
@@ -25,6 +26,11 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 
 const handleRateLimit: Handle = async ({ event, resolve }) => {
 	if (!event.url.pathname.startsWith('/api/')) {
+		return resolve(event);
+	}
+
+	// Authenticated requests are exempt — they've already proved identity via JWT.
+	if (event.locals.user) {
 		return resolve(event);
 	}
 
@@ -82,7 +88,7 @@ const handleSecurityHeaders: Handle = async ({ event, resolve }) => {
 	return response;
 };
 
-export const handle: Handle = sequence(handleRateLimit, handleAuth, handleSecurityHeaders);
+export const handle: Handle = sequence(handleAuth, handleRateLimit, handleSecurityHeaders);
 
 export const handleError: HandleServerError = ({ error, event }) => {
 	console.error('Unhandled error on', event.url.pathname, error);
