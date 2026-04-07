@@ -135,12 +135,15 @@ function jitter(base: number, range: number): number {
 
 /**
  * Generate one full menstrual cycle of entries starting from `startDate`.
- * Models a realistic 28-day cycle:
+ * Models a realistic cycle:
  *   Days 1-5:   Menstruation (bleeding)
  *   Days 6-9:   Follicular (dry/sticky mucus, low temp)
  *   Days 10-13: Fertile window (watery/egg-white mucus, indicators ramp up)
  *   Day 14:     Ovulation (LH surge, temp dip then shift)
- *   Days 15-28: Luteal phase (elevated temp, dry/sticky mucus)
+ *   Days 15+:   Luteal phase (elevated temp, dry/sticky mucus)
+ *
+ * BBT ranges are deliberately well-separated so the thermal shift algorithm
+ * reliably fires: follicular ~36.1-36.25°C, luteal ~36.65-36.8°C.
  */
 function generateCycle(startDate: string, cycleLength: number): HealthEntry[] {
 	const entries: HealthEntry[] = [];
@@ -152,15 +155,15 @@ function generateCycle(startDate: string, cycleLength: number): HealthEntry[] {
 		const entry: HealthEntry = { date };
 
 		// ── BBT ──
+		// Follicular: tight low band (36.10–36.25°C) so coverline stays low.
+		// Shift day: a clear jump to 36.55–36.65°C, well above coverline + 0.2.
+		// Luteal: elevated band (36.65–36.80°C) sustained for confirmation.
 		if (cycleDay <= ovulationDay) {
-			// Follicular phase: lower temps ~36.1-36.4°C
-			entry.basalBodyTemp = jitter(36.25, 0.3);
+			entry.basalBodyTemp = jitter(36.175, 0.15); // 36.10–36.25
 		} else if (cycleDay === ovulationDay + 1) {
-			// Day after ovulation: thermal shift begins
-			entry.basalBodyTemp = jitter(36.55, 0.15);
+			entry.basalBodyTemp = jitter(36.6, 0.1);   // 36.55–36.65 (thermal shift)
 		} else {
-			// Luteal phase: elevated temps ~36.5-36.8°C
-			entry.basalBodyTemp = jitter(36.65, 0.2);
+			entry.basalBodyTemp = jitter(36.725, 0.15); // 36.65–36.80
 		}
 
 		// ── Menstruation (days 1-5) ──
@@ -249,12 +252,16 @@ function generateCycle(startDate: string, cycleLength: number): HealthEntry[] {
 }
 
 /**
- * Generate 3 full cycles of data ending roughly around today,
- * so the dashboard, chart, and calendar all have plenty to display.
+ * Generate 6 full cycles of data ending roughly around today.
+ * 6 cycles gives:
+ *   - Luteal trends: 5+ data points
+ *   - Prediction accuracy: 4 prediction records (needs ≥3 period starts)
+ *   - Cycle comparison: up to 5 overlaid cycles
  */
 function generateAllEntries(): HealthEntry[] {
 	const today = todayStr();
-	const cycleLengths = [31, 32, 33]; // Slight variation, avg 32 days
+	// Varied lengths (26–32 days) for realistic luteal/cycle spread
+	const cycleLengths = [28, 26, 30, 27, 32, 29];
 	const totalDays = cycleLengths.reduce((a, b) => a + b, 0);
 
 	// Start far enough back that the last cycle ends near today
@@ -309,7 +316,7 @@ async function main() {
 
 	// 4. Generate and upload entries
 	const entries = generateAllEntries();
-	console.log(`\nGenerating ${entries.length} entries across ~3 cycles...\n`);
+	console.log(`\nGenerating ${entries.length} entries across ~6 cycles...\n`);
 
 	let count = 0;
 	for (const entry of entries) {
