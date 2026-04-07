@@ -2,26 +2,31 @@
 	import { goto } from '$app/navigation';
 	import { settingsApi } from '$lib/client/api';
 	import { entriesStore } from '$lib/client/entries.svelte';
+	import Button from '$lib/components/Button.svelte';
+	import ChartLegend from '$lib/components/ChartLegend.svelte';
 	import CycleCalendar from '$lib/components/CycleCalendar.svelte';
 	import EntryCard from '$lib/components/EntryCard.svelte';
 	import MetricChart from '$lib/components/MetricChart.svelte';
-	import Button from '$lib/components/Button.svelte';
+	import RangeSelector from '$lib/components/RangeSelector.svelte';
 	import Text from '$lib/components/Text.svelte';
 
 	type Range = '7' | '30' | 'all';
 
+	const legendItems = [
+		{ color: '#7c3aed', label: 'BBT' },
+		{ color: 'rgba(245,158,11,0.6)', label: 'LH Surge', shape: 'square' as const },
+		{ color: '#ec4899', label: 'Ovulation' },
+		{ color: 'rgba(16,185,129,0.4)', label: 'Fertile Window' },
+		{ color: 'rgba(244,114,182,0.5)', label: 'Indicators', shape: 'square' as const }
+	];
+
 	let range = $state<Range>('30');
 
-	// Restore the user's preferred range from settings.
 	$effect(() => {
 		settingsApi
 			.get()
 			.then((s) => {
-				if (
-					s.defaultDateRange === '7' ||
-					s.defaultDateRange === '30' ||
-					s.defaultDateRange === 'all'
-				) {
+				if (s.defaultDateRange === '7' || s.defaultDateRange === '30' || s.defaultDateRange === 'all') {
 					range = s.defaultDateRange;
 				}
 			})
@@ -59,30 +64,13 @@
 	<div class="empty">
 		<Text as="h3">No Data Yet</Text>
 		<p>Start tracking your health metrics to see trends and insights.</p>
-		<Button type="button" onclick={() => goto('/app/entry')}>
-			Add Your First Entry
-		</Button>
+		<Button type="button" onclick={() => goto('/app/entry')}>Add Your First Entry</Button>
 	</div>
 {:else}
-	<div class="range-selector">
-		<Button variant="ghost" type="button" active={range === '7'} onclick={() => selectRange('7')}>Week</Button>
-		<Button variant="ghost" type="button" active={range === '30'} onclick={() => selectRange('30')}>30 Days</Button>
-		<Button variant="ghost" type="button" active={range === 'all'} onclick={() => selectRange('all')}>All</Button>
-	</div>
+	<RangeSelector value={range} onselect={selectRange} />
 
 	<MetricChart entries={filtered} fertility={entriesStore.fertility} />
-
-	<div class="legend">
-		<span><span class="dot" style="background:#7c3aed"></span> BBT</span>
-		<span
-			><span class="dot" style="background:rgba(245,158,11,0.6);border-radius:2px"></span> LH Surge</span
-		>
-		<span><span class="dot" style="background:#ec4899"></span> Ovulation</span>
-		<span><span class="dot" style="background:rgba(16,185,129,0.4)"></span> Fertile Window</span>
-		<span
-			><span class="dot" style="background:rgba(244,114,182,0.5);border-radius:2px"></span> Indicators</span
-		>
-	</div>
+	<ChartLegend items={legendItems} />
 
 	<section class="calendar-section">
 		<CycleCalendar fertility={entriesStore.fertility} view={range === '7' ? 'week' : 'month'} />
@@ -124,44 +112,6 @@
 	.empty p {
 		color: var(--color-text-muted);
 		margin-bottom: var(--space-md);
-	}
-
-	.range-selector {
-		display: flex;
-		gap: var(--space-xs);
-		margin-bottom: var(--space-md);
-	}
-
-	.range-selector :global(.btn) {
-		flex: 1;
-	}
-
-	.range-selector :global(.btn.active) {
-		background: var(--color-primary);
-		color: var(--color-text-inverse);
-		border-color: var(--color-primary);
-	}
-
-	.legend {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--space-md);
-		margin: var(--space-md) 0;
-		font-size: var(--text-xs);
-		color: var(--color-text-muted);
-	}
-
-	.legend span {
-		display: flex;
-		align-items: center;
-		gap: var(--space-xs);
-	}
-
-	.dot {
-		display: inline-block;
-		width: 10px;
-		height: 10px;
-		border-radius: 50%;
 	}
 
 	.calendar-section {
