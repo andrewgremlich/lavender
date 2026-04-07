@@ -16,9 +16,6 @@ binding = "lavender_db"
 database_name = "lavender-db"
 database_id = "bbc77a7e-325b-4426-8e96-7fffe2941ea7"
 
-# Rate limiter state. The id below is a placeholder for local dev only —
-# before `pnpm deploy` a real KV namespace must be created with
-# `wrangler kv namespace create RATE_LIMIT_KV` and its id substituted in.
 [[kv_namespaces]]
-binding = "RATE_LIMIT_KV"
-id = "0000000000000000000000000000000000"
+binding = "lavender_rate_limit"
+id = "f8c9ac47bdb04e59a42bbd7ca7370ffa"
