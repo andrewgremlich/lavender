@@ -74,17 +74,5 @@ I don't know if this would be valuable.
 - Start with English + 1-2 additional languages
 - Touches every component, so best done after other features stabilize
 
----
-
-## Suggested Implementation Order
-
-1. CSV Export (simplest, immediate value)
-2. Symptom Heatmap (already planned, high insight value)
-3. Luteal Phase Trends (reuses existing calculations)
-4. Prediction Accuracy (reuses existing predictions)
-5. Cycle Comparison (medium complexity, strong analytics)
-6. PDF Reports (doctor visit utility)
-7. Onboarding Tutorial (UX polish)
-8. Push Notifications (requires backend changes + VAPID setup)
-9. Import from Apps (format research needed)
-10. i18n (touches everything, do last)
+### 11. Convert to SvelteKit Application
+- See [SVELTEKIT_MIGRATION.md](SVELTEKIT_MIGRATION.md) for full migration plan.
