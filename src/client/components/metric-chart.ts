@@ -262,11 +262,12 @@ class MetricChart extends HTMLElement {
 			filtered.map(toFertilityEntry),
 		);
 		const calendarFertility = {
-			// Observed data filtered by selected range
+			// Simple observations filtered by range
 			periodDays: filteredFertility.periodDays,
-			ovulationDays: filteredFertility.ovulationDays,
-			fertileWindowDays: filteredFertility.fertileWindowDays,
 			cmFertileDays: filteredFertility.cmFertileDays,
+			// BBT/LH-derived fields need multi-day rolling context — always full history
+			ovulationDays: this.fertility.ovulationDays,
+			fertileWindowDays: this.fertility.fertileWindowDays,
 			// Predictions always from full history
 			predictedPeriodDays: this.fertility.predictedPeriodDays,
 			predictedOvulationDays: this.fertility.predictedOvulationDays,
