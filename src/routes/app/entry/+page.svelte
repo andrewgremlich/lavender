@@ -4,6 +4,7 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import Input from '$lib/components/Input.svelte';
+	import Text from '$lib/components/Text.svelte';
 	import type { HealthEntryData } from '$lib/types';
 	import { INDICATORS } from '$lib/utils/indicators';
 	import { celsiusToFahrenheit, fahrenheitToCelsius, getUnitSystem } from '$lib/utils/units';
@@ -166,7 +167,7 @@
 	<title>Log Health Data — Lavender</title>
 </svelte:head>
 
-<h2>{editId ? 'Edit Entry' : 'Log Health Data'}</h2>
+<Text as="h2">{editId ? 'Edit Entry' : 'Log Health Data'}</Text>
 
 <div class="card">
 	{#if error}

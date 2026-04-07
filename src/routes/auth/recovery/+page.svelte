@@ -4,6 +4,7 @@
 	import { auth } from '$lib/client/auth.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import Input from '$lib/components/Input.svelte';
+	import Text from '$lib/components/Text.svelte';
 
 	// Two modes:
 	//  - ?setup=1 (post-login): user is already authenticated and just needs to
@@ -68,7 +69,7 @@
 
 <main>
 	{#if generatedCode}
-		<h1>Save your {isSetupMode ? 'recovery' : 'new recovery'} code</h1>
+		<Text as="h1">Save your {isSetupMode ? 'recovery' : 'new recovery'} code</Text>
 		<p>
 			This code is the <strong>only way</strong> to recover your data if you forget your password. Store
 			it somewhere safe — we cannot show it to you again.
@@ -87,19 +88,19 @@
 			Continue to app
 		</Button>
 	{:else if isSetupMode}
-		<h1>Set up account recovery</h1>
+		<Text as="h1">Set up account recovery</Text>
 		<p>
 			Your account doesn't have a recovery code yet. Generate one now so you can restore access if
 			you forget your password.
 		</p>
 		{#if error}
-			<p class="error" role="alert">{error}</p>
+			<Text variant="error" role="alert">{error}</Text>
 		{/if}
 		<Button type="button" disabled={submitting} onclick={handleSetup}>
 			{submitting ? 'Generating…' : 'Generate recovery code'}
 		</Button>
 	{:else}
-		<h1>Recover account</h1>
+		<Text as="h1">Recover account</Text>
 		<p>Enter your username, recovery code, and a new password.</p>
 		<form onsubmit={handleRecover}>
 			<Input
@@ -137,15 +138,15 @@
 				disabled={submitting}
 			/>
 			{#if error}
-				<p class="error" role="alert">{error}</p>
+				<Text variant="error" role="alert">{error}</Text>
 			{/if}
 			<Button type="submit" disabled={submitting}>
 				{submitting ? 'Recovering…' : 'Recover account'}
 			</Button>
 		</form>
-		<p class="links">
+		<Text class="links">
 			<a href="/auth/login">Back to sign in</a>
-		</p>
+		</Text>
 	{/if}
 </main>
 
@@ -154,12 +155,6 @@
 		max-width: 26rem;
 		margin: 4rem auto;
 		padding: 2rem;
-	}
-	h1 {
-		margin: 0 0 1rem;
-	}
-	p {
-		margin: 0 0 1rem;
 	}
 	form {
 		display: flex;
@@ -173,11 +168,6 @@
 		font-size: 0.875rem;
 		gap: 0.5rem;
 		margin: 1.25rem 0;
-	}
-	.error {
-		margin: 0;
-		color: #b00020;
-		font-size: 0.875rem;
 	}
 	.code {
 		font-family: ui-monospace, 'SF Mono', Menlo, monospace;
@@ -202,12 +192,12 @@
 	.code-wrapper :global(.btn) {
 		align-self: flex-end;
 	}
-	.links {
+	:global(.links) {
 		margin-top: 1.5rem;
 		font-size: 0.875rem;
 		text-align: center;
 	}
-	.links a {
+	:global(.links) a {
 		color: #7c5cff;
 	}
 </style>

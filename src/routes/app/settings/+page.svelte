@@ -15,6 +15,7 @@
 	import { getUnitSystem, setUnitSystem, type UnitSystem } from '$lib/utils/units';
 	import Button from '$lib/components/Button.svelte';
 	import Input from '$lib/components/Input.svelte';
+	import Text from '$lib/components/Text.svelte';
 
 	let unitSystem = $state<UnitSystem>(getUnitSystem());
 	let retentionDays = $state(180);
@@ -299,12 +300,12 @@
 </svelte:head>
 
 <div class="header">
-	<h2>Settings</h2>
+	<Text as="h2">Settings</Text>
 	<Button variant="outline" type="button" onclick={logout}>Log Out</Button>
 </div>
 
 <section class="card">
-	<h3>Units</h3>
+	<Text as="h3">Units</Text>
 	<label for="unit-system">Measurement system</label>
 	<select id="unit-system" bind:value={unitSystem}>
 		<option value="metric">Metric (°C, kg, cm)</option>
@@ -317,7 +318,7 @@
 </section>
 
 <section class="card">
-	<h3>Data Retention</h3>
+	<Text as="h3">Data Retention</Text>
 	<label for="retention">Auto-delete entries older than</label>
 	<select id="retention" bind:value={retentionDays}>
 		<option value={180}>6 months</option>
@@ -331,7 +332,7 @@
 </section>
 
 <section class="card">
-	<h3>Export Data</h3>
+	<Text as="h3">Export Data</Text>
 	<p>Download all your health entries as a decrypted file for backup or analysis.</p>
 	<div class="export-actions">
 		<Button type="button" onclick={exportJson}>Export JSON</Button>
@@ -343,11 +344,11 @@
 </section>
 
 <section class="card">
-	<h3>Change Password</h3>
-	<p class="muted">
+	<Text as="h3">Change Password</Text>
+	<Text variant="muted">
 		Changing your password will re-encrypt all your health data with a new key. This may take a
 		moment.
-	</p>
+	</Text>
 	<Input
 		label="Current password"
 		id="current-pw"
@@ -371,7 +372,7 @@
 </section>
 
 <section class="card danger">
-	<h3>Danger Zone</h3>
+	<Text as="h3">Danger Zone</Text>
 	<div class="danger-actions">
 		{#if !confirmDeleteData}
 			<Button variant="danger-outline" type="button" onclick={() => (confirmDeleteData = true)}>
@@ -440,7 +441,7 @@
 		border-color: #fca5a5;
 	}
 
-	.card.danger h3 {
+	.card.danger :global(h3) {
 		color: var(--color-error);
 	}
 
@@ -448,11 +449,6 @@
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--space-sm);
-	}
-
-	.muted {
-		color: var(--color-text-muted);
-		font-size: var(--text-sm);
 	}
 
 	label {

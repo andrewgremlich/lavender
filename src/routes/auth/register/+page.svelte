@@ -3,6 +3,7 @@
 	import { auth } from '$lib/client/auth.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import Input from '$lib/components/Input.svelte';
+	import Text from '$lib/components/Text.svelte';
 
 	let username = $state('');
 	let password = $state('');
@@ -60,7 +61,7 @@
 
 <main>
 	{#if recoveryCode}
-		<h1>Save your recovery code</h1>
+		<Text as="h1">Save your recovery code</Text>
 		<p>
 			This code is the <strong>only way</strong> to recover your data if you forget your password. Store
 			it somewhere safe — we cannot show it to you again.
@@ -79,7 +80,7 @@
 			Continue to app
 		</Button>
 	{:else}
-		<h1>Create account</h1>
+		<Text as="h1">Create account</Text>
 		<form onsubmit={handleSubmit}>
 			<Input
 				label="Username"
@@ -111,15 +112,15 @@
 				disabled={submitting}
 			/>
 			{#if error}
-				<p class="error" role="alert">{error}</p>
+				<Text variant="error" role="alert">{error}</Text>
 			{/if}
 			<Button type="submit" disabled={submitting}>
 				{submitting ? 'Creating account…' : 'Create account'}
 			</Button>
 		</form>
-		<p class="links">
+		<Text class="links">
 			<a href="/auth/login">Already have an account?</a>
-		</p>
+		</Text>
 	{/if}
 </main>
 
@@ -128,9 +129,6 @@
 		max-width: 24rem;
 		margin: 4rem auto;
 		padding: 2rem;
-	}
-	h1 {
-		margin: 0 0 1.5rem;
 	}
 	form {
 		display: flex;
@@ -144,11 +142,6 @@
 		font-size: 0.875rem;
 		gap: 0.5rem;
 		margin: 1.25rem 0;
-	}
-	.error {
-		margin: 0;
-		color: #b00020;
-		font-size: 0.875rem;
 	}
 	.requirements {
 		font-size: 0.8125rem;
@@ -183,12 +176,12 @@
 		flex-direction: column;
 		gap: 0.5rem;
 	}
-	.links {
+	:global(.links) {
 		margin-top: 1.5rem;
 		font-size: 0.875rem;
 		text-align: center;
 	}
-	.links a {
+	:global(.links) a {
 		color: #7c5cff;
 	}
 </style>

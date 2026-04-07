@@ -6,6 +6,7 @@
 	import EntryCard from '$lib/components/EntryCard.svelte';
 	import MetricChart from '$lib/components/MetricChart.svelte';
 	import Button from '$lib/components/Button.svelte';
+	import Text from '$lib/components/Text.svelte';
 
 	type Range = '7' | '30' | 'all';
 
@@ -48,15 +49,15 @@
 	<title>Dashboard — Lavender</title>
 </svelte:head>
 
-<h2>Dashboard</h2>
+<Text as="h2">Dashboard</Text>
 
 {#if entriesStore.loading && entriesStore.entries.length === 0}
-	<p class="loading">Loading your data…</p>
+	<Text variant="muted">Loading your data…</Text>
 {:else if entriesStore.error}
 	<div class="error">{entriesStore.error}</div>
 {:else if entriesStore.entries.length === 0}
 	<div class="empty">
-		<h3>No Data Yet</h3>
+		<Text as="h3">No Data Yet</Text>
 		<p>Start tracking your health metrics to see trends and insights.</p>
 		<Button type="button" onclick={() => goto('/app/entry')}>
 			Add Your First Entry
@@ -88,9 +89,9 @@
 	</section>
 
 	<section class="entries">
-		<h3>Recent Entries</h3>
+		<Text as="h3">Recent Entries</Text>
 		{#if recent.length === 0}
-			<p class="empty-msg">No entries in this range.</p>
+			<Text variant="muted">No entries in this range.</Text>
 		{:else}
 			{#each recent as entry (entry.id)}
 				<EntryCard {entry} />
@@ -100,16 +101,6 @@
 {/if}
 
 <style>
-	h2 {
-		margin-bottom: var(--space-md);
-	}
-
-	.loading,
-	.empty-msg {
-		color: var(--color-text-muted);
-		font-size: var(--text-sm);
-	}
-
 	.error {
 		padding: var(--space-md);
 		background: var(--color-error-bg);
@@ -126,7 +117,7 @@
 		border-radius: var(--radius-lg);
 	}
 
-	.empty h3 {
+	.empty :global(h3) {
 		margin-bottom: var(--space-sm);
 	}
 
@@ -181,7 +172,7 @@
 		margin-top: var(--space-lg);
 	}
 
-	.entries h3 {
+	.entries :global(h3) {
 		margin-bottom: var(--space-md);
 	}
 </style>

@@ -1,17 +1,21 @@
+<script lang="ts">
+	import Text from '$lib/components/Text.svelte';
+</script>
+
 <svelte:head>
 	<title>About — Lavender</title>
 </svelte:head>
 
-<h2>About Lavender</h2>
+<Text as="h2">About Lavender</Text>
 
 <section class="card">
-	<h3>How Fertility Indicators Are Calculated</h3>
+	<Text as="h3">How Fertility Indicators Are Calculated</Text>
 	<p>
 		All fertility calculations happen locally on your device after your data is decrypted. The
 		server never performs these calculations and never sees your health data.
 	</p>
 
-	<h4>Ovulation Detection</h4>
+	<Text as="h4">Ovulation Detection</Text>
 	<p>Ovulation is detected using two methods, then reconciled:</p>
 	<ul>
 		<li>
@@ -33,14 +37,14 @@
 		because it retrospectively confirms that ovulation occurred, while LH only predicts it.
 	</p>
 
-	<h4>Fertile Window</h4>
+	<Text as="h4">Fertile Window</Text>
 	<p>
 		The fertile window spans the 5 days before ovulation through ovulation day itself (6 days
 		total). Sperm can survive up to 5 days in the reproductive tract, and the egg is viable for
 		about 24 hours after release.
 	</p>
 
-	<h4>Cervical Mucus</h4>
+	<Text as="h4">Cervical Mucus</Text>
 	<p>
 		Cervical mucus observations provide an independent fertility signal. Any mucus rated sticky or
 		above (score 2–4) marks that day as potentially fertile. Peak-type mucus (clear, stretchy,
@@ -48,14 +52,14 @@
 		last peak observation.
 	</p>
 
-	<h4>Cycle and Period Tracking</h4>
+	<Text as="h4">Cycle and Period Tracking</Text>
 	<p>
 		Your cycle length is calculated from the gaps between period start dates. Cycles shorter than 18
 		days or longer than 45 days are excluded as outliers. The luteal phase (ovulation to next
 		period) is derived from your observed data when available, defaulting to 13 days otherwise.
 	</p>
 
-	<h4>Predictions</h4>
+	<Text as="h4">Predictions</Text>
 	<p>
 		Future cycles are predicted using a recency-weighted average of your observed cycle lengths.
 		Predicted ovulation is calculated by subtracting your observed luteal phase from the expected
@@ -70,7 +74,7 @@
 </section>
 
 <section class="card">
-	<h3>End-to-End Encrypted Health Data</h3>
+	<Text as="h3">End-to-End Encrypted Health Data</Text>
 	<p>
 		Your health data is private by design. Every entry you log is encrypted on your device before it
 		is sent to the server — the server only ever stores an unreadable ciphertext blob. No one,
@@ -87,7 +91,7 @@
 </section>
 
 <section class="card">
-	<h3>Data Retention</h3>
+	<Text as="h3">Data Retention</Text>
 	<p>
 		Each health entry has an expiry date calculated from your retention period setting. When you
 		fetch your data, any entries older than your retention window are automatically deleted from the
@@ -102,10 +106,6 @@
 </section>
 
 <style>
-	h2 {
-		margin-bottom: var(--space-lg);
-	}
-
 	.card {
 		background: var(--color-surface);
 		border: 1px solid var(--color-border);
@@ -113,15 +113,6 @@
 		padding: var(--space-lg);
 		box-shadow: var(--shadow-sm);
 		margin-bottom: var(--space-lg);
-	}
-
-	h3 {
-		margin-bottom: var(--space-md);
-	}
-
-	h4 {
-		margin-top: var(--space-md);
-		margin-bottom: var(--space-sm);
 	}
 
 	p {

@@ -4,6 +4,7 @@
 	import { deriveKeyFromPassword, deriveLegacyKey, storeKey, storeLegacyKey } from '$lib/client/crypto';
 	import Button from './Button.svelte';
 	import Input from './Input.svelte';
+	import Text from './Text.svelte';
 	import type { Snippet } from 'svelte';
 
 	type Props = { children: Snippet };
@@ -65,8 +66,8 @@
 {#if gated}
 	<div class="gate">
 		<div class="gate-card">
-			<h2>Verify your identity</h2>
-			<p>For your security, please re-enter your password.</p>
+			<Text as="h2">Verify your identity</Text>
+			<Text variant="muted">For your security, please re-enter your password.</Text>
 			<form onsubmit={handleSubmit}>
 				<Input
 					label="Password"
@@ -77,7 +78,7 @@
 					disabled={submitting}
 				/>
 				{#if error}
-					<p class="error" role="alert">{error}</p>
+					<Text variant="error" role="alert">{error}</Text>
 				{/if}
 				<Button type="submit" disabled={submitting}>
 					{submitting ? 'Verifying…' : 'Continue'}
@@ -108,11 +109,11 @@
 		box-shadow: var(--shadow-md);
 	}
 
-	.gate-card h2 {
+	.gate-card :global(h2) {
 		margin: 0 0 var(--space-sm);
 	}
 
-	.gate-card p {
+	.gate-card :global(p) {
 		color: var(--color-text-muted);
 		font-size: var(--text-sm);
 		margin: 0 0 var(--space-lg);
@@ -122,11 +123,5 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-md);
-	}
-
-	.error {
-		margin: 0;
-		color: var(--color-error);
-		font-size: var(--text-sm);
 	}
 </style>

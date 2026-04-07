@@ -3,6 +3,7 @@
 	import { onDestroy } from 'svelte';
 	import { entriesStore } from '$lib/client/entries.svelte';
 	import Button from '$lib/components/Button.svelte';
+	import Text from '$lib/components/Text.svelte';
 	import {
 		getCycleDetails,
 		getCycleSegments,
@@ -335,13 +336,13 @@
 	<title>Analytics — Lavender</title>
 </svelte:head>
 
-<h2>Analytics</h2>
+<Text as="h2">Analytics</Text>
 
 {#if entriesStore.loading && entriesStore.entries.length === 0}
-	<p class="muted">Loading your data…</p>
+	<Text variant="muted">Loading your data…</Text>
 {:else if entriesStore.entries.length === 0}
 	<div class="empty">
-		<h3>No Data Yet</h3>
+		<Text as="h3">No Data Yet</Text>
 		<p>Add health entries to see analytics and trends.</p>
 	</div>
 {:else}
@@ -365,7 +366,7 @@
 	{#if tab === 'luteal'}
 		{#if lutealStats == null}
 			<div class="card empty">
-				<h3>Not Enough Data</h3>
+				<Text as="h3">Not Enough Data</Text>
 				<p>
 					Luteal phase trends require at least 2 complete cycles with detected ovulation. Keep
 					logging daily to unlock this view.
@@ -403,7 +404,7 @@
 	{:else if tab === 'accuracy'}
 		{#if accuracyStats == null}
 			<div class="card empty">
-				<h3>Not Enough Data</h3>
+				<Text as="h3">Not Enough Data</Text>
 				<p>Prediction accuracy requires at least 3 recorded period start dates.</p>
 			</div>
 		{:else}
@@ -428,7 +429,7 @@
 		{/if}
 	{:else if alignedSegments.length < 2}
 		<div class="card empty">
-			<h3>Not Enough Data</h3>
+			<Text as="h3">Not Enough Data</Text>
 			<p>
 				Cycle comparison requires at least 2 cycles with both BBT readings and detected ovulation.
 			</p>
@@ -483,18 +484,6 @@
 {/if}
 
 <style>
-	h2 {
-		margin-bottom: var(--space-md);
-	}
-
-	.muted {
-		color: var(--color-text-muted);
-	}
-
-	.small {
-		font-size: var(--text-xs);
-	}
-
 	.tab-bar {
 		display: flex;
 		gap: var(--space-xs);
@@ -522,7 +511,7 @@
 		border-radius: var(--radius-lg);
 	}
 
-	.empty h3 {
+	.empty :global(h3) {
 		margin-bottom: var(--space-sm);
 	}
 

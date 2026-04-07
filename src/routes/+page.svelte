@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { auth } from '$lib/client/auth.svelte';
+	import Text from '$lib/components/Text.svelte';
 
 	$effect(() => {
 		if (auth.loggedIn) goto('/app', { replaceState: true });
@@ -12,11 +13,11 @@
 </svelte:head>
 
 <main>
-	<h1>Lavender</h1>
-	<p>
+	<Text as="h1">Lavender</Text>
+	<Text variant="muted">
 		A gentle companion for your personal wellness journey. Track, reflect, and bloom at your own
 		rhythm.
-	</p>
+	</Text>
 	<a href="/auth/login">Sign in</a>
 </main>
 
@@ -26,14 +27,6 @@
 		margin: 4rem auto;
 		padding: 0 1rem;
 		font-family: system-ui, sans-serif;
-	}
-	h1 {
-		font-size: 2.5rem;
-		margin-bottom: 0.5rem;
-	}
-	p {
-		color: #555;
-		margin-bottom: 1.5rem;
 	}
 	a {
 		color: #7a5cbf;

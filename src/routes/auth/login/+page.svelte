@@ -3,6 +3,7 @@
 	import { auth } from '$lib/client/auth.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import Input from '$lib/components/Input.svelte';
+	import Text from '$lib/components/Text.svelte';
 
 	let username = $state('');
 	let password = $state('');
@@ -34,7 +35,7 @@
 </svelte:head>
 
 <main>
-	<h1>Sign in</h1>
+	<Text as="h1">Sign in</Text>
 	<form onsubmit={handleSubmit}>
 		<Input
 			label="Username"
@@ -53,17 +54,17 @@
 			disabled={submitting}
 		/>
 		{#if error}
-			<p class="error" role="alert">{error}</p>
+			<Text variant="error" role="alert">{error}</Text>
 		{/if}
 		<Button type="submit" disabled={submitting}>
 			{submitting ? 'Signing in…' : 'Sign in'}
 		</Button>
 	</form>
-	<p class="links">
+	<Text class="links">
 		<a href="/auth/register">Create an account</a>
 		<span aria-hidden="true">·</span>
 		<a href="/auth/recovery">Forgot password?</a>
-	</p>
+	</Text>
 </main>
 
 <style>
@@ -72,25 +73,17 @@
 		margin: 4rem auto;
 		padding: 2rem;
 	}
-	h1 {
-		margin: 0 0 1.5rem;
-	}
 	form {
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
 	}
-	.error {
-		margin: 0;
-		color: #b00020;
-		font-size: 0.875rem;
-	}
-	.links {
+	:global(.links) {
 		margin-top: 1.5rem;
 		font-size: 0.875rem;
 		text-align: center;
 	}
-	.links a {
+	:global(.links) a {
 		color: #7c5cff;
 	}
 </style>
