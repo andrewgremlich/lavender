@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { PDF, rgb, StandardFonts } from '@libpdf/core';
 	import { metricsApi } from '$lib/client/api';
 	import { decrypt, getStoredKey, importKey } from '$lib/client/crypto';
 	import Button from './Button.svelte';
@@ -30,8 +31,11 @@
 		);
 	}
 
-	function downloadBlob(content: string, mime: string, filename: string) {
-		const blob = new Blob([content], { type: mime });
+	function downloadFile(content: string | Uint8Array, mime: string, filename: string) {
+		const blob =
+			content instanceof Uint8Array
+				? new Blob([new Uint8Array(content).buffer], { type: mime })
+				: new Blob([content], { type: mime });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');
 		a.href = url;
@@ -48,7 +52,7 @@
 				entryCount: decrypted.length,
 				entries: decrypted
 			};
-			downloadBlob(
+			downloadFile(
 				JSON.stringify(payload, null, 2),
 				'application/json',
 				`lavender-backup-${new Date().toISOString().slice(0, 10)}.json`
@@ -90,7 +94,7 @@
 					.join(',')
 			);
 			const csv = [csvHeaders.join(','), ...rows].join('\n');
-			downloadBlob(csv, 'text/csv', `lavender-export-${new Date().toISOString().slice(0, 10)}.csv`);
+			downloadFile(csv, 'text/csv', `lavender-export-${new Date().toISOString().slice(0, 10)}.csv`);
 			flash(`Exported ${decrypted.length} entries as CSV.`, 'success');
 		} catch (err) {
 			flash(err instanceof Error ? err.message : 'Export failed.', 'error');
@@ -117,72 +121,136 @@
 					new Date(b.data.date as string).getTime() - new Date(a.data.date as string).getTime()
 			);
 
-			const printWindow = window.open('', '_blank');
-			if (!printWindow) {
-				flash('Pop-up blocked. Please allow pop-ups and try again.', 'error');
-				return;
+			const pdf = PDF.create();
+			const margin = 50;
+			const headerFont = StandardFonts.HelveticaBold;
+			const bodyFont = StandardFonts.Helvetica;
+			const headerSize = 8;
+			const bodySize = 7;
+			const rowHeight = 16;
+
+			const columns: { label: string; x: number; width: number }[] = [
+				{ label: 'Date', x: margin, width: 62 },
+				{ label: 'BBT', x: 112, width: 36 },
+				{ label: 'Mucus', x: 148, width: 52 },
+				{ label: 'LH', x: 200, width: 26 },
+				{ label: 'Bleeding', x: 226, width: 48 },
+				{ label: 'Symptoms', x: 274, width: 200 },
+				{ label: 'Notes', x: 474, width: 88 }
+			];
+			const tableWidth = columns[columns.length - 1].x + columns[columns.length - 1].width - margin;
+
+			const black = rgb(0, 0, 0);
+			const gray = rgb(0.4, 0.4, 0.4);
+			const headerBg = rgb(0.96, 0.94, 0.98);
+			const lineColor = rgb(0.8, 0.8, 0.8);
+
+			function truncate(text: string, maxChars: number): string {
+				return text.length > maxChars ? text.slice(0, maxChars - 1) + '…' : text;
 			}
 
-			const doc = printWindow.document;
-			doc.title = 'Lavender — Cycle Report';
+			let page = pdf.addPage({ size: 'letter' });
+			let y = page.height - margin;
 
-			const style = doc.createElement('style');
-			style.textContent = `
-				body { font-family: system-ui, sans-serif; padding: 2rem; color: #1e1e2e; }
-				h1 { font-size: 1.4rem; margin-bottom: 0.25rem; }
-				.meta { font-size: 0.85rem; color: #666; margin-bottom: 1rem; }
-				table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-				th, td { border: 1px solid #ccc; padding: 6px 8px; text-align: left; }
-				th { background: #f4f0fa; }
-				@media print { body { padding: 0; } }
-			`;
-			doc.head.appendChild(style);
+			// Title
+			page.drawText('Lavender — Cycle Report', {
+				x: margin,
+				y,
+				font: headerFont,
+				size: 16,
+				color: black
+			});
+			y -= 16;
+			page.drawText(
+				`Generated ${new Date().toLocaleDateString()} · ${decrypted.length} entries`,
+				{ x: margin, y, font: bodyFont, size: 9, color: gray }
+			);
+			y -= 24;
 
-			const h1 = doc.createElement('h1');
-			h1.textContent = 'Lavender — Cycle Report';
-			doc.body.appendChild(h1);
-
-			const meta = doc.createElement('p');
-			meta.className = 'meta';
-			meta.textContent = `Generated ${new Date().toLocaleDateString()} · ${decrypted.length} entries`;
-			doc.body.appendChild(meta);
-
-			const table = doc.createElement('table');
-			const thead = table.createTHead();
-			const headerRow = thead.insertRow();
-			for (const label of ['Date', 'BBT', 'Cervical Mucus', 'LH Surge', 'Bleeding', 'Symptoms', 'Notes']) {
-				const th = doc.createElement('th');
-				th.textContent = label;
-				headerRow.appendChild(th);
+			function drawTableHeader() {
+				// Header background
+				page.drawRectangle({
+					x: margin,
+					y: y - rowHeight + 4,
+					width: tableWidth,
+					height: rowHeight,
+					color: headerBg
+				});
+				// Header text
+				for (const col of columns) {
+					page.drawText(col.label, {
+						x: col.x + 3,
+						y: y - 8,
+						font: headerFont,
+						size: headerSize,
+						color: black
+					});
+				}
+				// Header bottom line
+				page.drawLine({
+					start: { x: margin, y: y - rowHeight + 4 },
+					end: { x: margin + tableWidth, y: y - rowHeight + 4 },
+					color: black,
+					thickness: 0.5
+				});
+				y -= rowHeight;
 			}
 
-			const tbody = table.createTBody();
+			drawTableHeader();
+
 			for (const entry of decrypted) {
+				// New page if we're running out of space
+				if (y - rowHeight < margin) {
+					page = pdf.addPage({ size: 'letter' });
+					y = page.height - margin;
+					drawTableHeader();
+				}
+
 				const d = entry.data;
 				const symptoms = symptomLabels
 					.filter(([key]) => d[key])
 					.map(([, label]) => label)
 					.join(', ');
 
-				const row = tbody.insertRow();
-				for (const val of [
-					d.date ?? '',
-					d.basalBodyTemp ?? '',
-					d.cervicalMucus ?? '',
+				const values = [
+					String(d.date ?? ''),
+					String(d.basalBodyTemp ?? ''),
+					String(d.cervicalMucus ?? ''),
 					d.lhSurge ? 'Yes' : '',
-					d.bleedingFlow ?? '',
+					String(d.bleedingFlow ?? ''),
 					symptoms || '—',
-					d.notes ?? ''
-				]) {
-					const td = row.insertCell();
-					td.textContent = String(val);
+					String(d.notes ?? '')
+				];
+
+				for (let i = 0; i < columns.length; i++) {
+					const maxChars = Math.floor(columns[i].width / 4);
+					page.drawText(truncate(values[i], maxChars), {
+						x: columns[i].x + 3,
+						y: y - 8,
+						font: bodyFont,
+						size: bodySize,
+						color: black
+					});
 				}
+
+				// Row separator
+				page.drawLine({
+					start: { x: margin, y: y - rowHeight + 4 },
+					end: { x: margin + tableWidth, y: y - rowHeight + 4 },
+					color: lineColor,
+					thickness: 0.25
+				});
+
+				y -= rowHeight;
 			}
 
-			doc.body.appendChild(table);
-			printWindow.addEventListener('afterprint', () => printWindow.close());
-			printWindow.print();
-			flash(`PDF report ready (${decrypted.length} entries).`, 'success');
+			const bytes = await pdf.save();
+			downloadFile(
+				bytes,
+				'application/pdf',
+				`lavender-report-${new Date().toISOString().slice(0, 10)}.pdf`
+			);
+			flash(`Exported ${decrypted.length} entries as PDF.`, 'success');
 		} catch (err) {
 			flash(err instanceof Error ? err.message : 'Export failed.', 'error');
 		}
