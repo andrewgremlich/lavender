@@ -1,6 +1,6 @@
 # Lavender Feature Roadmap
 
-Lavender is a privacy-first fertility tracker with strong E2EE, cycle predictions, and web component UI. This roadmap covers planned features across three areas: analytics/insights, export/interoperability, and UX/engagement — phased by complexity and dependency.
+Lavender is a privacy-first fertility tracker with strong E2EE, cycle predictions, and a SvelteKit UI deployed on Cloudflare Workers. This roadmap covers planned features across three areas: analytics/insights, export/interoperability, and UX/engagement — phased by complexity and dependency.
 
 ---
 
@@ -73,9 +73,6 @@ I don't know if this would be valuable.
 - Language selector in settings, preference stored in `localStorage`
 - Start with English + 1-2 additional languages
 - Touches every component, so best done after other features stabilize
-
-### 11. Convert to SvelteKit Application
-- See [SVELTEKIT_MIGRATION.md](SVELTEKIT_MIGRATION.md) for full migration plan.
 
 ---
 

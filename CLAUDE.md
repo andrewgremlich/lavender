@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## SvelteKit Application
 
-This project was migrated from vanilla web components + Hono to SvelteKit. See `SVELTEKIT_MIGRATION.md` for the full migration history.
+SvelteKit app deployed on Cloudflare Workers. Migration from vanilla web components + Hono is complete — see `SVELTEKIT_MIGRATION.md` for history.
 
 Package manager is **pnpm**.
 
@@ -13,21 +13,23 @@ Package manager is **pnpm**.
 ```bash
 pnpm dev                 # Start Vite dev server with SvelteKit
 pnpm build               # Production build
-pnpm deploy              # Build and deploy to Cloudflare
+pnpm deploy              # Run tests, build, and deploy to Cloudflare
 pnpm preview             # Preview production build locally
 pnpm check               # svelte-kit sync + svelte-check type-checking
 pnpm lint                # ESLint + Prettier check
 pnpm format              # Prettier write
-pnpm test                # Run vitest once
+pnpm test                # Run vitest once (59 unit/component tests)
 pnpm test:watch          # Watch mode
+pnpm test:e2e            # Run Playwright e2e tests (requires preview server)
 pnpm seed                # Seed local database with sample cycle data
+pnpm db:user-count       # Print current user count from D1
 pnpm db:migrate:local    # Apply pending D1 migrations locally
 pnpm db:migrate:remote   # Apply pending D1 migrations to remote
 ```
 
 **Environment setup:** Copy `.dev.vars.example` to `.dev.vars` and set `JWT_SECRET` (32+ chars).
 
-## Architecture (target)
+## Architecture
 
 SvelteKit app deployed as a Cloudflare Worker via `@sveltejs/adapter-cloudflare`. D1 and KV bindings accessed through `platform.env`.
 
@@ -46,21 +48,35 @@ The core privacy design: **the server never sees plaintext health data**.
 - `/` — static marketing/landing page
 - `/app/*` — authenticated app (redirects to `/auth/login` if not logged in)
 - `/auth/login`, `/auth/register`, `/auth/recovery` — auth pages
-- `/api/*` — SvelteKit `+server.ts` route handlers (replacing Hono)
+- `/api/*` — SvelteKit `+server.ts` route handlers
+- `/info` — help/info page
 
 ### Server code (`$lib/server`)
 
-- Crypto: `hashPassword`, `generateSalt`, `generateId`, `timingSafeEqual`
-- Types: `Env`, `UserRow`, `HealthEntryRow`, `UserSettingsRow` (kept server-only to avoid leaking into client bundles)
-- `hooks.server.ts` handles auth, KV-backed rate limiting, security headers, CSP nonces
+- `crypto.ts`: `hashPassword`, `generateSalt`, `generateId`, `timingSafeEqual`
+- `types.ts`: `UserRow`, `HealthEntryRow`, `UserSettingsRow` (kept server-only to avoid leaking into client bundles)
+- `jwt.ts`: hand-rolled HS256 using Web Crypto (no external JWT library)
+- `db.ts`: `getPlatform(event)` helper that extracts D1 + JWT secret
+- `validation.ts`: password complexity and username validation
+- `hooks.server.ts`: auth (`event.locals.user`), KV-backed rate limiting, security headers. CSP uses **hash mode** (not nonce — incompatible with Cloudflare adapter's SPA prerendering)
 
 ### Client state
 
-Svelte 5 runes (`$state`, `$derived`, `$effect`). Sync engine and IndexedDB services (from legacy `src/client/services`) will be ported to `$lib/services` and bridged into reactive stores. Decryption happens in a reactive layer so components never touch crypto directly.
+Svelte 5 runes (`$state`, `$derived`, `$effect`).
+
+- `$lib/client/auth.svelte.ts` — reactive auth store (login/register/logout, JWT in sessionStorage)
+- `$lib/client/entries.svelte.ts` — reactive entries store; handles decryption and one-time legacy key migration. Components never touch crypto or IDB directly.
+- `$lib/client/sync.svelte.ts` — reactive sync status from the sync engine
+- `$lib/client/crypto.ts` — PBKDF2 key derivation, AES-GCM encrypt/decrypt, recovery code wrap/unwrap
+- `$lib/services/` — sync engine, IndexedDB wrapper, in-memory metrics store (event-driven, bridged into reactive stores)
 
 ### Database
 
-Cloudflare D1. Schema managed via migrations in `migrations/` (unchanged from legacy).
+Cloudflare D1. Schema managed via migrations in `migrations/`.
+
+Tables: `users`, `user_settings`, `health_entries`. User settings include `data_retention_days` (default 180) and `default_date_range` (default `'30'`, the dashboard date range selector default).
+
+Rate limiting uses a KV namespace (`RATE_LIMIT_KV`): 20 requests per 15-minute sliding window per IP, applied to `/api/*` only.
 
 ### Data Retention
 

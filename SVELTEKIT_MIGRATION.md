@@ -125,3 +125,9 @@ Phases are committed incrementally. The legacy codebase lives under `legacy/` fo
   - Removed `public/sw-template.js` and `public/styles/` from eslint ignores and prettierignore.
   - Updated `CLAUDE.md` to reflect completed migration status.
   - `check`, `lint`, `test` (59 tests), and `build` all green. Migration complete.
+
+## Post-Migration Upgrades
+
+- **Vite 5 → 8**, `@sveltejs/vite-plugin-svelte` 4 → 7, **Vitest 2 → 4** (Phase 1 had held these back for SvelteKit ecosystem compatibility; upgraded after migration stabilized)
+- **TypeScript 5.9 → 6.0.2** (Phase 1 downgraded from 6 to 5.9 for compatibility; upgraded back once SvelteKit 2.56 confirmed support)
+- Minor/patch bumps: `svelte`, `lucide`, `@cloudflare/workers-types`, `wrangler`
