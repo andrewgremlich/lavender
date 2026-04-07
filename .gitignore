@@ -5,3 +5,7 @@ build/
 .wrangler/
 .dev.vars
 backup/
+
+# Playwright
+playwright-report/
+test-results/

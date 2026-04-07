@@ -38,7 +38,7 @@ Convert Lavender from vanilla web components + Hono backend to a SvelteKit appli
 - Manage Chart.js instances with `onMount`/`onDestroy` or a Svelte action. Keep Chart.js.
 
 ## PWA & Service Worker
-- Instead of the custom Vite plugin (`vite-sw-plugin.ts`), use `@vite-pwa/sveltekit`. Ensure offline-first caching and background sync still work.
+- Use SvelteKit's built-in service worker support (`src/service-worker.ts` with `$service-worker` imports). Ensure offline-first caching and background sync still work.
 
 ## Testing & Tooling
 - Keep Vitest for unit tests. Add component testing with `@testing-library/svelte`.
@@ -109,9 +109,14 @@ Phases are committed incrementally. The legacy codebase lives under `legacy/` fo
   - Offline-first caching preserved: build + static assets are precached on install; navigations and other GETs use network-first with cache fallback; `/api/*` requests skip the cache entirely.
   - Background sync preserved: the `sync` event listener notifies clients via `postMessage({ type: 'TRIGGER_SYNC' })`, consumed by the sync engine.
   - `check`, `lint`, `test` (28 fertility tests), and `build` all green.
-- [ ] **Phase 8 — Testing**
-  - Component tests with `@testing-library/svelte`
-  - Playwright e2e
+- [x] **Phase 8 — Testing**
+  - Installed `@testing-library/svelte`, `@testing-library/jest-dom`, `jsdom` for component tests, and `@playwright/test` for e2e.
+  - `vitest.config.ts` updated: jsdom environment, `browser` resolve condition for Svelte 5 client-side rendering, `$app/*` module mocks, and a setup file that registers jest-dom matchers.
+  - Unit tests: `validation.test.ts` (9 cases — password complexity, username length), `units.test.ts` (6 — temperature conversions + round-trip), `indicators.test.ts` (7 — counting, labels, definition integrity), `jwt.test.ts` (6 — sign/verify, wrong secret, expired, malformed, tampered payload).
+  - Component test: `Icon.test.ts` (3 — renders SVG for known name, renders nothing for unknown, passes size prop).
+  - Playwright e2e: `e2e/landing.test.ts` (3 — landing page content, sign-in navigation, unauthenticated `/app` redirect to login).
+  - Scripts: `test` (vitest run), `test:e2e` (playwright test). Playwright configured for Chromium against `pnpm run preview` on port 4173.
+  - 59 unit/component tests + 3 e2e tests all green. `check`, `lint`, and `build` all green.
 - [ ] **Phase 9 — Final cleanup**
   - Delete `legacy/`
   - Remove any remaining legacy assets (`public/sw-template.js`, legacy `public/styles/*`)

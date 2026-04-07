@@ -13,3 +13,5 @@ public/sw-template.js
 scripts/
 ROADMAP.md
 SVELTEKIT_MIGRATION.md
+playwright-report/
+test-results/
