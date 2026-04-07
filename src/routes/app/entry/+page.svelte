@@ -214,16 +214,16 @@
 
 			<details>
 				<summary>Cervical Mucus</summary>
-				<div class="radio-group">
+				<div class="pill-group">
 					{#each MUCUS_OPTIONS as opt (opt.value)}
-						<label class="radio-option">
+						<label class="pill-option">
 							<input
 								type="radio"
 								name="cervicalMucus"
 								value={opt.value}
 								bind:group={form.cervicalMucus}
 							/>
-							<span class="radio-content">
+							<span class="pill-content">
 								<Icon name={opt.icon} />
 								{opt.label}
 							</span>
@@ -234,11 +234,11 @@
 
 			<details>
 				<summary>LH Surge</summary>
-				<div class="radio-group">
+				<div class="pill-group">
 					{#each LH_OPTIONS as opt (opt.value)}
-						<label class="radio-option">
+						<label class="pill-option">
 							<input type="radio" name="lhSurge" value={opt.value} bind:group={form.lhSurge} />
-							<span class="radio-content">
+							<span class="pill-content">
 								<Icon name={opt.icon} />
 								{opt.label}
 							</span>
@@ -249,9 +249,9 @@
 
 			<details>
 				<summary>Indicators</summary>
-				<div class="toggles">
+				<div class="pill-group">
 					{#each INDICATORS as ind (ind.key)}
-						<label class="toggle-item">
+						<label class="pill-option">
 							<input type="checkbox" bind:checked={form.indicators[ind.key]} />
 							<span>{ind.label}</span>
 						</label>
@@ -261,8 +261,8 @@
 
 			<details>
 				<summary>Period / Bleeding</summary>
-				<div class="radio-group row">
-					<label class="radio-option">
+				<div class="pill-group row">
+					<label class="pill-option">
 						<input
 							type="radio"
 							name="bleedingStatus"
@@ -271,7 +271,7 @@
 						/>
 						<span>None</span>
 					</label>
-					<label class="radio-option">
+					<label class="pill-option">
 						<input
 							type="radio"
 							name="bleedingStatus"
@@ -280,7 +280,7 @@
 						/>
 						<span>Started</span>
 					</label>
-					<label class="radio-option">
+					<label class="pill-option">
 						<input
 							type="radio"
 							name="bleedingStatus"
@@ -291,16 +291,16 @@
 					</label>
 				</div>
 				<label for="flow-section">Flow Intensity</label>
-				<div class="radio-group" id="flow-section">
+				<div class="pill-group" id="flow-section">
 					{#each FLOW_OPTIONS as opt (opt.value)}
-						<label class="radio-option">
+						<label class="pill-option">
 							<input
 								type="radio"
 								name="bleedingFlow"
 								value={opt.value}
 								bind:group={form.bleedingFlow}
 							/>
-							<span class="radio-content">
+							<span class="pill-content">
 								<Icon name={opt.icon} />
 								{opt.label}
 							</span>
@@ -390,6 +390,7 @@
 		border-radius: var(--radius-md);
 		font-size: var(--text-base);
 		width: 100%;
+		color-scheme: light dark;
 	}
 
 	input:focus,
@@ -449,29 +450,29 @@
 		color: var(--color-text-inverse);
 	}
 
-	.radio-group {
+	.pill-group {
 		display: flex;
 		flex-wrap: wrap;
 		gap: var(--space-sm);
 		margin-top: var(--space-sm);
 	}
-	.radio-group.row {
+	.pill-group.row {
 		flex-direction: row;
 	}
 
-	.radio-option {
+	.pill-option {
 		position: relative;
 		flex: 1 1 auto;
 		min-width: 80px;
 	}
 
-	.radio-option input {
+	.pill-option input {
 		position: absolute;
 		opacity: 0;
 		pointer-events: none;
 	}
 
-	.radio-option span {
+	.pill-option span {
 		display: flex;
 		align-items: center;
 		justify-content: center;
@@ -484,30 +485,14 @@
 		transition: all var(--transition-fast);
 	}
 
-	.radio-option input:checked + span {
+	.pill-option input:checked + span {
 		border-color: var(--color-primary);
 		background: var(--color-primary-alpha);
 		color: var(--color-primary);
 	}
 
-	.radio-content {
+	.pill-content {
 		flex-direction: row;
-	}
-
-	.toggles {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-xs);
-		margin-top: var(--space-sm);
-	}
-
-	.toggle-item {
-		display: flex;
-		align-items: center;
-		gap: var(--space-sm);
-		padding: var(--space-xs) 0;
-		font-weight: 400;
-		cursor: pointer;
 	}
 
 	.btn-submit {
