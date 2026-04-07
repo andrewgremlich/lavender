@@ -3,6 +3,7 @@
 	import { entriesStore } from '$lib/client/entries.svelte';
 	import Icon from '$lib/components/Icon.svelte';
 	import Button from '$lib/components/Button.svelte';
+	import Input from '$lib/components/Input.svelte';
 	import type { HealthEntryData } from '$lib/types';
 	import { INDICATORS } from '$lib/utils/indicators';
 	import { celsiusToFahrenheit, fahrenheitToCelsius, getUnitSystem } from '$lib/utils/units';
@@ -184,10 +185,7 @@
 		</div>
 	{:else}
 		<form onsubmit={handleSubmit}>
-			<div class="form-group">
-				<label for="entry-date">Date</label>
-				<input id="entry-date" type="date" bind:value={form.date} required />
-			</div>
+			<Input label="Date" id="entry-date" type="date" bind:value={form.date} required />
 
 			<details open>
 				<summary>Temperature</summary>
@@ -361,18 +359,11 @@
 		gap: var(--space-md);
 	}
 
-	.form-group {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-xs);
-	}
-
 	label {
 		font-size: var(--text-sm);
 		font-weight: 500;
 	}
 
-	input[type='date'],
 	input[type='number'],
 	textarea {
 		padding: 0.625rem 0.75rem;
@@ -385,7 +376,7 @@
 		color-scheme: light dark;
 	}
 
-	input:focus,
+	input[type='number']:focus,
 	textarea:focus {
 		outline: none;
 		border-color: var(--color-border-focus);

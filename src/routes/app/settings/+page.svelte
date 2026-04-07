@@ -14,6 +14,7 @@
 	import { metricsStore } from '$lib/services/metrics-store';
 	import { getUnitSystem, setUnitSystem, type UnitSystem } from '$lib/utils/units';
 	import Button from '$lib/components/Button.svelte';
+	import Input from '$lib/components/Input.svelte';
 
 	let unitSystem = $state<UnitSystem>(getUnitSystem());
 	let retentionDays = $state(180);
@@ -347,17 +348,15 @@
 		Changing your password will re-encrypt all your health data with a new key. This may take a
 		moment.
 	</p>
-	<label for="current-pw">Current password</label>
-	<input
+	<Input
+		label="Current password"
 		id="current-pw"
 		type="password"
 		autocomplete="current-password"
 		bind:value={currentPassword}
 	/>
-	<label for="new-pw">New password</label>
-	<input id="new-pw" type="password" autocomplete="new-password" bind:value={newPassword} />
-	<label for="confirm-pw">Confirm new password</label>
-	<input id="confirm-pw" type="password" autocomplete="new-password" bind:value={confirmPassword} />
+	<Input label="New password" id="new-pw" type="password" autocomplete="new-password" bind:value={newPassword} />
+	<Input label="Confirm new password" id="confirm-pw" type="password" autocomplete="new-password" bind:value={confirmPassword} />
 	<ul class="requirements">
 		<li class:met={reqs.length}>At least 12 characters</li>
 		<li class:met={reqs.number}>At least one number</li>
@@ -461,8 +460,7 @@
 		font-weight: 500;
 	}
 
-	select,
-	input[type='password'] {
+	select {
 		padding: 0.625rem 0.75rem;
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-md);
@@ -471,8 +469,7 @@
 		font-size: var(--text-base);
 	}
 
-	select:focus,
-	input:focus {
+	select:focus {
 		outline: none;
 		border-color: var(--color-border-focus);
 		box-shadow: 0 0 0 3px var(--color-primary-alpha);

@@ -3,6 +3,7 @@
 	import { page } from '$app/stores';
 	import { auth } from '$lib/client/auth.svelte';
 	import Button from '$lib/components/Button.svelte';
+	import Input from '$lib/components/Input.svelte';
 
 	// Two modes:
 	//  - ?setup=1 (post-login): user is already authenticated and just needs to
@@ -101,48 +102,40 @@
 		<h1>Recover account</h1>
 		<p>Enter your username, recovery code, and a new password.</p>
 		<form onsubmit={handleRecover}>
-			<label>
-				Username
-				<input
-					type="text"
-					autocomplete="username"
-					bind:value={username}
-					required
-					disabled={submitting}
-				/>
-			</label>
-			<label>
-				Recovery code
-				<input
-					type="text"
-					autocomplete="off"
-					spellcheck="false"
-					placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"
-					bind:value={recoveryCode}
-					required
-					disabled={submitting}
-				/>
-			</label>
-			<label>
-				New password
-				<input
-					type="password"
-					autocomplete="new-password"
-					bind:value={newPassword}
-					required
-					disabled={submitting}
-				/>
-			</label>
-			<label>
-				Confirm new password
-				<input
-					type="password"
-					autocomplete="new-password"
-					bind:value={confirm}
-					required
-					disabled={submitting}
-				/>
-			</label>
+			<Input
+				label="Username"
+				type="text"
+				autocomplete="username"
+				bind:value={username}
+				required
+				disabled={submitting}
+			/>
+			<Input
+				label="Recovery code"
+				type="text"
+				autocomplete="off"
+				spellcheck="false"
+				placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"
+				bind:value={recoveryCode}
+				required
+				disabled={submitting}
+			/>
+			<Input
+				label="New password"
+				type="password"
+				autocomplete="new-password"
+				bind:value={newPassword}
+				required
+				disabled={submitting}
+			/>
+			<Input
+				label="Confirm new password"
+				type="password"
+				autocomplete="new-password"
+				bind:value={confirm}
+				required
+				disabled={submitting}
+			/>
 			{#if error}
 				<p class="error" role="alert">{error}</p>
 			{/if}
@@ -173,26 +166,13 @@
 		flex-direction: column;
 		gap: 1rem;
 	}
-	label {
-		display: flex;
-		flex-direction: column;
-		font-size: 0.875rem;
-		gap: 0.35rem;
-	}
 	label.checkbox {
+		display: flex;
 		flex-direction: row;
 		align-items: center;
+		font-size: 0.875rem;
 		gap: 0.5rem;
 		margin: 1.25rem 0;
-	}
-	input[type='text'],
-	input[type='password'] {
-		font: inherit;
-		padding: 0.5rem 0.75rem;
-		border: 1px solid #ccc;
-		border-radius: 0.35rem;
-		color: #1e1b4b;
-		background: #fff;
 	}
 	.error {
 		margin: 0;

@@ -3,6 +3,7 @@
 	import { auth } from '$lib/client/auth.svelte';
 	import { deriveKeyFromPassword, deriveLegacyKey, storeKey, storeLegacyKey } from '$lib/client/crypto';
 	import Button from './Button.svelte';
+	import Input from './Input.svelte';
 	import type { Snippet } from 'svelte';
 
 	type Props = { children: Snippet };
@@ -67,16 +68,14 @@
 			<h2>Verify your identity</h2>
 			<p>For your security, please re-enter your password.</p>
 			<form onsubmit={handleSubmit}>
-				<label>
-					Password
-					<input
-						type="password"
-						autocomplete="current-password"
-						bind:value={password}
-						required
-						disabled={submitting}
-					/>
-				</label>
+				<Input
+					label="Password"
+					type="password"
+					autocomplete="current-password"
+					bind:value={password}
+					required
+					disabled={submitting}
+				/>
 				{#if error}
 					<p class="error" role="alert">{error}</p>
 				{/if}
@@ -123,29 +122,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-md);
-	}
-
-	label {
-		display: flex;
-		flex-direction: column;
-		font-size: var(--text-sm);
-		font-weight: 500;
-		gap: 0.35rem;
-	}
-
-	input[type='password'] {
-		font: inherit;
-		padding: 0.625rem 0.75rem;
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md);
-		background: var(--color-surface);
-		color: var(--color-text);
-	}
-
-	input:focus {
-		outline: none;
-		border-color: var(--color-border-focus);
-		box-shadow: 0 0 0 3px var(--color-primary-alpha);
 	}
 
 	.error {
