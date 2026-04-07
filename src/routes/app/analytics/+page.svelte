@@ -2,6 +2,7 @@
 	import Chart, { type TooltipItem } from 'chart.js/auto';
 	import { onDestroy } from 'svelte';
 	import { entriesStore } from '$lib/client/entries.svelte';
+	import Button from '$lib/components/Button.svelte';
 	import {
 		getCycleDetails,
 		getCycleSegments,
@@ -345,19 +346,20 @@
 	</div>
 {:else}
 	<div class="tab-bar">
-		<button
+		<Button
+			variant="ghost"
 			type="button"
-			class:active={tab === 'comparison'}
+			active={tab === 'comparison'}
 			onclick={() => switchTab('comparison')}
 		>
 			Cycle Comparison
-		</button>
-		<button type="button" class:active={tab === 'luteal'} onclick={() => switchTab('luteal')}>
+		</Button>
+		<Button variant="ghost" type="button" active={tab === 'luteal'} onclick={() => switchTab('luteal')}>
 			Luteal Trends
-		</button>
-		<button type="button" class:active={tab === 'accuracy'} onclick={() => switchTab('accuracy')}>
+		</Button>
+		<Button variant="ghost" type="button" active={tab === 'accuracy'} onclick={() => switchTab('accuracy')}>
 			Prediction Accuracy
-		</button>
+		</Button>
 	</div>
 
 	{#if tab === 'luteal'}
@@ -444,31 +446,32 @@
 				<div class="label">Available</div>
 			</div>
 		</div>
-		<button
+		<Button
+			variant="ghost"
 			type="button"
-			class="show-all"
 			onclick={clearSelection}
 			disabled={selectedIndices.size === 0}
 		>
 			Show all cycles
-		</button>
+		</Button>
 		<div class="chart-card tall">
 			<canvas bind:this={comparisonCanvas}></canvas>
 			<div class="cycle-legend">
 				{#each recentAligned as segment, i (segment.index)}
 					{@const color = CYCLE_COLORS[i % CYCLE_COLORS.length]}
 					{@const isActive = selectedIndices.has(segment.index)}
-					<button
+					<Button
+						variant="ghost"
 						type="button"
-						class="legend-btn"
-						class:active={isActive}
-						class:dimmed={selectedIndices.size > 0 && !isActive}
+						size="sm"
+						active={isActive}
+						class={selectedIndices.size > 0 && !isActive ? 'dimmed' : ''}
 						onclick={() => toggleCycle(segment.index)}
 						aria-pressed={isActive}
 					>
 						<span class="legend-dot" style="background:{color}"></span>
 						Cycle {segment.index + 1} ({segment.periodStart})
-					</button>
+					</Button>
 				{/each}
 			</div>
 			<p class="muted small">
@@ -499,18 +502,14 @@
 		border-bottom: 1px solid var(--color-border);
 	}
 
-	.tab-bar button {
-		padding: var(--space-sm) var(--space-md);
-		background: transparent;
-		border: none;
-		color: var(--color-text-muted);
-		cursor: pointer;
-		font-weight: 500;
+	.tab-bar :global(.btn) {
+		border-radius: 0;
 		border-bottom: 2px solid transparent;
+		color: var(--color-text-muted);
 		font-size: var(--text-sm);
 	}
 
-	.tab-bar button.active {
+	.tab-bar :global(.btn.active) {
 		color: var(--color-primary);
 		border-bottom-color: var(--color-primary);
 	}
@@ -602,26 +601,17 @@
 		margin-top: var(--space-md);
 	}
 
-	.legend-btn {
-		display: inline-flex;
-		align-items: center;
-		gap: var(--space-xs);
-		padding: var(--space-xs) var(--space-sm);
+	.cycle-legend :global(.btn) {
 		border: 1px solid var(--color-border);
-		background: var(--color-surface);
-		color: var(--color-text);
 		border-radius: var(--radius-full);
-		font-size: var(--text-xs);
-		cursor: pointer;
-		transition: all var(--transition-fast);
 	}
 
-	.legend-btn.active {
+	.cycle-legend :global(.btn.active) {
 		border-color: var(--color-primary);
 		background: var(--color-primary-alpha);
 	}
 
-	.legend-btn.dimmed {
+	:global(.btn.dimmed) {
 		opacity: 0.4;
 	}
 
@@ -630,21 +620,5 @@
 		width: 10px;
 		height: 10px;
 		border-radius: 50%;
-	}
-
-	.show-all {
-		margin-bottom: var(--space-md);
-		padding: var(--space-xs) var(--space-md);
-		background: transparent;
-		border: 1px solid var(--color-border);
-		color: var(--color-text);
-		border-radius: var(--radius-md);
-		cursor: pointer;
-		font-size: var(--text-sm);
-	}
-
-	.show-all:disabled {
-		opacity: 0.4;
-		cursor: not-allowed;
 	}
 </style>

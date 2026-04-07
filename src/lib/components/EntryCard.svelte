@@ -4,6 +4,7 @@
 	import { countIndicators, INDICATORS } from '$lib/utils/indicators';
 	import { celsiusToFahrenheit, getUnitSystem } from '$lib/utils/units';
 	import Icon from './Icon.svelte';
+	import Button from './Button.svelte';
 
 	type Props = { entry: HealthEntry };
 	let { entry }: Props = $props();
@@ -127,18 +128,18 @@
 				{/each}
 			{/if}
 		</div>
-		<button class="icon-btn" title="Edit entry" onclick={onEdit} aria-label="Edit">
+		<Button variant="icon" title="Edit entry" onclick={onEdit} aria-label="Edit">
 			<Icon name="pencil" size={16} />
-		</button>
-		<button
-			class="icon-btn danger"
+		</Button>
+		<Button
+			variant="icon-danger"
 			title="Delete entry"
 			onclick={onDelete}
 			disabled={deleting}
 			aria-label="Delete"
 		>
 			<Icon name="trash-2" size={16} />
-		</button>
+		</Button>
 	</header>
 	{#if expanded}
 		<div class="details">
@@ -216,35 +217,6 @@
 	.empty {
 		opacity: 0.5;
 		font-size: var(--text-xs);
-	}
-
-	.icon-btn {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		width: 32px;
-		height: 32px;
-		border: none;
-		background: transparent;
-		color: var(--color-text);
-		border-radius: var(--radius-full);
-		cursor: pointer;
-		transition: background-color var(--transition-fast);
-	}
-
-	.icon-btn:hover:not(:disabled) {
-		background: var(--color-primary-alpha);
-		color: var(--color-primary);
-	}
-
-	.icon-btn.danger:hover:not(:disabled) {
-		background: var(--color-error-bg);
-		color: var(--color-error);
-	}
-
-	.icon-btn:disabled {
-		opacity: 0.4;
-		cursor: not-allowed;
 	}
 
 	.details {

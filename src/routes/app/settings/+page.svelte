@@ -13,6 +13,7 @@
 	import { entriesStore } from '$lib/client/entries.svelte';
 	import { metricsStore } from '$lib/services/metrics-store';
 	import { getUnitSystem, setUnitSystem, type UnitSystem } from '$lib/utils/units';
+	import Button from '$lib/components/Button.svelte';
 
 	let unitSystem = $state<UnitSystem>(getUnitSystem());
 	let retentionDays = $state(180);
@@ -298,7 +299,7 @@
 
 <div class="header">
 	<h2>Settings</h2>
-	<button type="button" class="btn-outline" onclick={logout}>Log Out</button>
+	<Button variant="outline" type="button" onclick={logout}>Log Out</Button>
 </div>
 
 <section class="card">
@@ -308,7 +309,7 @@
 		<option value="metric">Metric (°C, kg, cm)</option>
 		<option value="us">US (°F, lb, in)</option>
 	</select>
-	<button type="button" class="btn-primary" onclick={saveUnits}>Save</button>
+	<Button type="button" onclick={saveUnits}>Save</Button>
 	{#if unitsMsg}
 		<div class="msg {unitsMsg.type}">{unitsMsg.text}</div>
 	{/if}
@@ -322,7 +323,7 @@
 		<option value={270}>9 months</option>
 		<option value={365}>1 year</option>
 	</select>
-	<button type="button" class="btn-primary" onclick={saveRetention}>Save</button>
+	<Button type="button" onclick={saveRetention}>Save</Button>
 	{#if retentionMsg}
 		<div class="msg {retentionMsg.type}">{retentionMsg.text}</div>
 	{/if}
@@ -332,8 +333,8 @@
 	<h3>Export Data</h3>
 	<p>Download all your health entries as a decrypted file for backup or analysis.</p>
 	<div class="export-actions">
-		<button type="button" class="btn-primary" onclick={exportJson}>Export JSON</button>
-		<button type="button" class="btn-primary" onclick={exportCsv}>Export CSV</button>
+		<Button type="button" onclick={exportJson}>Export JSON</Button>
+		<Button type="button" onclick={exportCsv}>Export CSV</Button>
 	</div>
 	{#if exportMsg}
 		<div class="msg {exportMsg.type}">{exportMsg.text}</div>
@@ -362,9 +363,9 @@
 		<li class:met={reqs.number}>At least one number</li>
 		<li class:met={reqs.special}>At least one special character</li>
 	</ul>
-	<button type="button" class="btn-primary" onclick={changePassword} disabled={changing}>
+	<Button type="button" onclick={changePassword} disabled={changing}>
 		{changing ? 'Re-encrypting data…' : 'Change Password'}
-	</button>
+	</Button>
 	{#if passwordMsg}
 		<div class="msg {passwordMsg.type}">{passwordMsg.text}</div>
 	{/if}
@@ -374,18 +375,18 @@
 	<h3>Danger Zone</h3>
 	<div class="danger-actions">
 		{#if !confirmDeleteData}
-			<button type="button" class="btn-danger-outline" onclick={() => (confirmDeleteData = true)}>
+			<Button variant="danger-outline" type="button" onclick={() => (confirmDeleteData = true)}>
 				Delete All Data
-			</button>
+			</Button>
 		{:else}
 			<div class="confirm">
 				<p>This will permanently delete all your health entries. This action cannot be undone.</p>
 				<div class="confirm-actions">
-					<button type="button" class="btn-danger" onclick={deleteAllData}
-						>Yes, Delete All Data</button
+					<Button variant="danger" type="button" onclick={deleteAllData}
+						>Yes, Delete All Data</Button
 					>
-					<button type="button" class="btn-outline" onclick={() => (confirmDeleteData = false)}
-						>Cancel</button
+					<Button variant="outline" type="button" onclick={() => (confirmDeleteData = false)}
+						>Cancel</Button
 					>
 				</div>
 			</div>
@@ -395,20 +396,20 @@
 		{/if}
 
 		{#if !confirmDeleteAccount}
-			<button type="button" class="btn-danger" onclick={() => (confirmDeleteAccount = true)}>
+			<Button variant="danger" type="button" onclick={() => (confirmDeleteAccount = true)}>
 				Delete Account
-			</button>
+			</Button>
 		{:else}
 			<div class="confirm">
 				<p>
 					This will permanently delete your account and all associated data. This cannot be undone.
 				</p>
 				<div class="confirm-actions">
-					<button type="button" class="btn-danger" onclick={deleteAccount}
-						>Yes, Delete My Account</button
+					<Button variant="danger" type="button" onclick={deleteAccount}
+						>Yes, Delete My Account</Button
 					>
-					<button type="button" class="btn-outline" onclick={() => (confirmDeleteAccount = false)}
-						>Cancel</button
+					<Button variant="outline" type="button" onclick={() => (confirmDeleteAccount = false)}
+						>Cancel</Button
 					>
 				</div>
 			</div>
@@ -498,48 +499,7 @@
 	.btn-outline,
 	.btn-danger,
 	.btn-danger-outline {
-		padding: 0.625rem 1.25rem;
-		border-radius: var(--radius-md);
-		font-size: var(--text-sm);
-		font-weight: 500;
-		cursor: pointer;
-		border: 1px solid transparent;
-		transition: all var(--transition-fast);
 		align-self: flex-start;
-	}
-
-	.btn-primary {
-		background: var(--color-primary);
-		color: var(--color-text-inverse);
-	}
-	.btn-primary:hover {
-		background: var(--color-primary-hover);
-	}
-
-	.btn-outline {
-		background: transparent;
-		color: var(--color-primary);
-		border-color: var(--color-primary);
-	}
-	.btn-outline:hover {
-		background: var(--color-primary-alpha);
-	}
-
-	.btn-danger {
-		background: var(--color-error);
-		color: white;
-	}
-	.btn-danger:hover {
-		background: #dc2626;
-	}
-
-	.btn-danger-outline {
-		background: transparent;
-		color: var(--color-error);
-		border-color: var(--color-error);
-	}
-	.btn-danger-outline:hover {
-		background: var(--color-error-bg);
 	}
 
 	.confirm {
@@ -574,10 +534,5 @@
 	.msg.error {
 		background: var(--color-error-bg);
 		color: var(--color-error);
-	}
-
-	button:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
 	}
 </style>

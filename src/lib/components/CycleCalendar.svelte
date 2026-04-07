@@ -1,5 +1,6 @@
 <script lang="ts">
 	import Icon from '$lib/components/Icon.svelte';
+	import Button from '$lib/components/Button.svelte';
 	import type { FertilityIndicators } from '$lib/utils/fertility';
 
 	type Props = {
@@ -99,9 +100,9 @@
 
 <div class="card" class:week-view={view === 'week'}>
 	<header class="header">
-		<button type="button" class="nav-btn" onclick={prev} aria-label="Previous">←</button>
+		<Button variant="ghost" type="button" onclick={prev} aria-label="Previous">←</Button>
 		<h3>{headerText}</h3>
-		<button type="button" class="nav-btn" onclick={next} aria-label="Next">→</button>
+		<Button variant="ghost" type="button" onclick={next} aria-label="Next">→</Button>
 	</header>
 
 	<div class="grid" role="grid">
@@ -166,18 +167,9 @@
 		margin: 0;
 	}
 
-	.nav-btn {
-		background: none;
-		border: none;
+	.header :global(.btn) {
 		color: var(--color-primary);
 		font-size: var(--text-lg);
-		padding: var(--space-xs) var(--space-sm);
-		cursor: pointer;
-		border-radius: var(--radius-md);
-	}
-
-	.nav-btn:hover {
-		background: var(--color-primary-alpha);
 	}
 
 	.grid {

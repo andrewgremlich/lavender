@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { auth } from '$lib/client/auth.svelte';
+	import Button from '$lib/components/Button.svelte';
 
 	let username = $state('');
 	let password = $state('');
@@ -65,17 +66,17 @@
 		</p>
 		<div class="code-wrapper">
 			<pre class="code">{recoveryCode}</pre>
-			<button type="button" class="copy-btn" onclick={copyCode}>
+			<Button variant="outline" size="sm" type="button" onclick={copyCode}>
 				{copied ? '✓ Copied' : 'Copy'}
-			</button>
+			</Button>
 		</div>
 		<label class="checkbox">
 			<input type="checkbox" bind:checked={acknowledged} />
 			I have saved my recovery code in a safe place.
 		</label>
-		<button type="button" disabled={!acknowledged} onclick={handleContinue}>
+		<Button type="button" disabled={!acknowledged} onclick={handleContinue}>
 			Continue to app
-		</button>
+		</Button>
 	{:else}
 		<h1>Create account</h1>
 		<form onsubmit={handleSubmit}>
@@ -117,9 +118,9 @@
 			{#if error}
 				<p class="error" role="alert">{error}</p>
 			{/if}
-			<button type="submit" disabled={submitting}>
+			<Button type="submit" disabled={submitting}>
 				{submitting ? 'Creating account…' : 'Create account'}
-			</button>
+			</Button>
 		</form>
 		<p class="links">
 			<a href="/auth/login">Already have an account?</a>
@@ -162,19 +163,6 @@
 		color: #1e1b4b;
 		background: #fff;
 	}
-	button {
-		font: inherit;
-		padding: 0.6rem 1rem;
-		border-radius: 0.35rem;
-		border: none;
-		background: #7c5cff;
-		color: #fff;
-		cursor: pointer;
-	}
-	button:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
 	.error {
 		margin: 0;
 		color: #b00020;
@@ -212,20 +200,6 @@
 		display: flex;
 		flex-direction: column;
 		gap: 0.5rem;
-	}
-	.copy-btn {
-		align-self: flex-end;
-		padding: 0.4rem 0.75rem;
-		font-size: 0.8125rem;
-		background: var(--color-surface, #f5f3ff);
-		color: var(--color-primary, #7c5cff);
-		border: 1px solid var(--color-border, #ddd);
-		border-radius: 0.35rem;
-		cursor: pointer;
-		transition: background 0.15s;
-	}
-	.copy-btn:hover {
-		background: var(--color-primary-alpha, rgba(124, 58, 237, 0.12));
 	}
 	.links {
 		margin-top: 1.5rem;

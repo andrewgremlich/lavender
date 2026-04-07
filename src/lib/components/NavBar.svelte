@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import Icon from './Icon.svelte';
+	import Button from './Button.svelte';
 	import { sync } from '$lib/client/sync.svelte';
 
 	let menuOpen = $state(false);
@@ -46,7 +47,8 @@
 		</a>
 	{/each}
 
-	<button
+	<Button
+		variant="ghost"
 		class="nav-item menu-toggle"
 		aria-label="Open menu"
 		aria-expanded={menuOpen}
@@ -54,7 +56,7 @@
 	>
 		<Icon name="menu" />
 		<span class="label">Menu</span>
-	</button>
+	</Button>
 </nav>
 
 {#if menuOpen}
@@ -136,7 +138,7 @@
 		display: none;
 	}
 
-	.menu-toggle {
+	.nav-bar :global(.menu-toggle) {
 		display: flex;
 	}
 
@@ -242,7 +244,7 @@
 			display: flex;
 		}
 
-		.menu-toggle {
+		.nav-bar :global(.menu-toggle) {
 			display: none;
 		}
 	}

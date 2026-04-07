@@ -5,6 +5,7 @@
 	import CycleCalendar from '$lib/components/CycleCalendar.svelte';
 	import EntryCard from '$lib/components/EntryCard.svelte';
 	import MetricChart from '$lib/components/MetricChart.svelte';
+	import Button from '$lib/components/Button.svelte';
 
 	type Range = '7' | '30' | 'all';
 
@@ -57,20 +58,15 @@
 	<div class="empty">
 		<h3>No Data Yet</h3>
 		<p>Start tracking your health metrics to see trends and insights.</p>
-		<button type="button" class="btn-primary" onclick={() => goto('/app/entry')}>
+		<Button type="button" onclick={() => goto('/app/entry')}>
 			Add Your First Entry
-		</button>
+		</Button>
 	</div>
 {:else}
 	<div class="range-selector">
-		<button type="button" class:active={range === '7'} onclick={() => selectRange('7')}>Week</button
-		>
-		<button type="button" class:active={range === '30'} onclick={() => selectRange('30')}
-			>30 Days</button
-		>
-		<button type="button" class:active={range === 'all'} onclick={() => selectRange('all')}
-			>All</button
-		>
+		<Button variant="ghost" type="button" active={range === '7'} onclick={() => selectRange('7')}>Week</Button>
+		<Button variant="ghost" type="button" active={range === '30'} onclick={() => selectRange('30')}>30 Days</Button>
+		<Button variant="ghost" type="button" active={range === 'all'} onclick={() => selectRange('all')}>All</Button>
 	</div>
 
 	<MetricChart entries={filtered} fertility={entriesStore.fertility} />
@@ -139,39 +135,17 @@
 		margin-bottom: var(--space-md);
 	}
 
-	.btn-primary {
-		background: var(--color-primary);
-		color: var(--color-text-inverse);
-		border: none;
-		padding: 0.625rem 1.25rem;
-		border-radius: var(--radius-md);
-		cursor: pointer;
-		font-weight: 500;
-	}
-
-	.btn-primary:hover {
-		background: var(--color-primary-hover);
-	}
-
 	.range-selector {
 		display: flex;
 		gap: var(--space-xs);
 		margin-bottom: var(--space-md);
 	}
 
-	.range-selector button {
+	.range-selector :global(.btn) {
 		flex: 1;
-		padding: var(--space-sm) var(--space-md);
-		border: 1px solid var(--color-border);
-		background: var(--color-surface);
-		color: var(--color-text);
-		border-radius: var(--radius-md);
-		cursor: pointer;
-		font-weight: 500;
-		transition: all var(--transition-fast);
 	}
 
-	.range-selector button.active {
+	.range-selector :global(.btn.active) {
 		background: var(--color-primary);
 		color: var(--color-text-inverse);
 		border-color: var(--color-primary);

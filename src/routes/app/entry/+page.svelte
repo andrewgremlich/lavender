@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { entriesStore } from '$lib/client/entries.svelte';
 	import Icon from '$lib/components/Icon.svelte';
+	import Button from '$lib/components/Button.svelte';
 	import type { HealthEntryData } from '$lib/types';
 	import { INDICATORS } from '$lib/utils/indicators';
 	import { celsiusToFahrenheit, fahrenheitToCelsius, getUnitSystem } from '$lib/utils/units';
@@ -176,9 +177,9 @@
 			{editId ? 'Entry updated successfully!' : 'Entry saved successfully!'}
 			<div class="success-actions">
 				{#if !editId}
-					<button type="button" onclick={addAnother}>Add Another</button>
+					<Button type="button" onclick={addAnother}>Add Another</Button>
 				{/if}
-				<button type="button" onclick={() => goto('/app')}>View Chart</button>
+				<Button type="button" onclick={() => goto('/app')}>View Chart</Button>
 			</div>
 		</div>
 	{:else}
@@ -315,10 +316,10 @@
 				></textarea>
 			</details>
 
-			<button type="submit" class="btn-submit" disabled={submitting}>
+			<Button type="submit" size="lg" disabled={submitting}>
 				<Icon name="save" />
 				{submitting ? 'Encrypting & saving…' : editId ? 'Update Entry' : 'Save Entry'}
-			</button>
+			</Button>
 		</form>
 	{/if}
 </div>
@@ -352,15 +353,6 @@
 		margin-top: var(--space-sm);
 		display: flex;
 		gap: var(--space-sm);
-	}
-
-	.success-actions button {
-		background: var(--color-primary);
-		color: var(--color-text-inverse);
-		border: none;
-		padding: var(--space-sm) var(--space-md);
-		border-radius: var(--radius-md);
-		cursor: pointer;
 	}
 
 	form {
@@ -493,29 +485,5 @@
 
 	.pill-content {
 		flex-direction: row;
-	}
-
-	.btn-submit {
-		display: inline-flex;
-		align-items: center;
-		justify-content: center;
-		gap: var(--space-sm);
-		padding: 0.75rem 1.5rem;
-		background: var(--color-primary);
-		color: var(--color-text-inverse);
-		border: none;
-		border-radius: var(--radius-md);
-		font-size: var(--text-base);
-		font-weight: 500;
-		cursor: pointer;
-	}
-
-	.btn-submit:hover:not(:disabled) {
-		background: var(--color-primary-hover);
-	}
-
-	.btn-submit:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
 	}
 </style>

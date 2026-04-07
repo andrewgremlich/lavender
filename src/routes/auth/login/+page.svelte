@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { auth } from '$lib/client/auth.svelte';
+	import Button from '$lib/components/Button.svelte';
 
 	let username = $state('');
 	let password = $state('');
@@ -57,9 +58,9 @@
 		{#if error}
 			<p class="error" role="alert">{error}</p>
 		{/if}
-		<button type="submit" disabled={submitting}>
+		<Button type="submit" disabled={submitting}>
 			{submitting ? 'Signing in…' : 'Sign in'}
-		</button>
+		</Button>
 	</form>
 	<p class="links">
 		<a href="/auth/register">Create an account</a>
@@ -95,19 +96,6 @@
 		border-radius: 0.35rem;
 		color: #1e1b4b;
 		background: #fff;
-	}
-	button {
-		font: inherit;
-		padding: 0.6rem 1rem;
-		border-radius: 0.35rem;
-		border: none;
-		background: #7c5cff;
-		color: #fff;
-		cursor: pointer;
-	}
-	button:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
 	}
 	.error {
 		margin: 0;
