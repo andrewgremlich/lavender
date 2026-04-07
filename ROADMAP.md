@@ -76,3 +76,22 @@ I don't know if this would be valuable.
 
 ### 11. Convert to SvelteKit Application
 - See [SVELTEKIT_MIGRATION.md](SVELTEKIT_MIGRATION.md) for full migration plan.
+
+---
+
+## Phase 5: Marketing & Growth
+
+### 12. Landing Page (`/`) — SEO + Live Subscriber Count + Feature Requests
+- Rebuild the `/` route as a proper marketing landing page with SEO meta tags (title, description, Open Graph, Twitter Card, canonical URL, structured data via JSON-LD)
+- Add a `subscribers` table in D1 (`id`, `email`, `created_at`) with a new migration
+- Add a `feature_requests` table in D1 (`id`, `title`, `description`, `votes`, `created_at`)
+- Create `GET /api/subscribers` endpoint returning current subscriber count
+- Create `POST /api/subscribers` endpoint for email signup (validates email, deduplicates)
+- Create `GET /api/feature-requests` endpoint returning requests sorted by votes
+- Create `POST /api/feature-requests` endpoint for submitting new requests
+- Create `POST /api/feature-requests/[id]/vote` endpoint for upvoting
+- Landing page displays a live subscriber count with a "free spots remaining" counter (e.g. "47 of 500 spots claimed")
+- Email signup form on the page that updates the count in real time after submission
+- Feature request section: list of community requests with vote counts, plus a form to submit new ones
+- Server-side render the page via `+page.server.ts` `load` function so subscriber count and feature requests are in the initial HTML (SEO-friendly)
+- All data endpoints are public (no auth required) — feature requests and subscriber count are non-sensitive
