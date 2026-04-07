@@ -203,3 +203,16 @@
 	color: var(--color-text, #6b7280);
 	text-align: center;
 }
+
+/* Week view: taller cells with more breathing room */
+.week-view .day-cell.week-cell {
+	min-height: 4rem;
+	padding: 0.5rem 0.25rem;
+	font-size: 0.9375rem;
+}
+.week-view .day-cell.week-cell .day-number {
+	font-size: 1rem;
+}
+.week-view .day-header {
+	font-size: 0.75rem;
+}

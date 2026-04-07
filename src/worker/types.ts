@@ -27,5 +27,6 @@ export interface HealthEntryRow {
 export interface UserSettingsRow {
 	user_id: string;
 	data_retention_days: number;
+	default_date_range: string;
 	updated_at: string;
 }

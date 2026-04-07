@@ -140,11 +140,11 @@ export const api = {
 			request<{ message: string }>("/metrics", { method: "DELETE" }),
 	},
 	settings: {
-		get: () => request<{ dataRetentionDays: number }>("/settings"),
-		update: (dataRetentionDays: number) =>
-			request<{ dataRetentionDays: number }>("/settings", {
+		get: () => request<{ dataRetentionDays: number; defaultDateRange: string }>("/settings"),
+		update: (patch: { dataRetentionDays?: number; defaultDateRange?: string }) =>
+			request<{ dataRetentionDays: number; defaultDateRange: string }>("/settings", {
 				method: "PUT",
-				body: JSON.stringify({ dataRetentionDays }),
+				body: JSON.stringify(patch),
 			}),
 	},
 };

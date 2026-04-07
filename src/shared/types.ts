@@ -28,6 +28,7 @@ export interface EncryptedEntry {
 
 export interface UserSettings {
 	dataRetentionDays: number;
+	defaultDateRange: "7" | "30" | "all";
 }
 
 export interface AuthResponse {

@@ -3,11 +3,13 @@ import type { FertilityIndicators } from "../utils/fertility";
 interface CycleCalendarData {
 	fertility: FertilityIndicators;
 	currentMonth: Date;
+	view?: "week" | "month";
 }
 
 export class CycleCalendar extends HTMLElement {
 	private shadow: ShadowRoot;
 	private currentMonth: Date = new Date();
+	private calendarView: "week" | "month" = "month";
 	private fertility: FertilityIndicators = {
 		ovulationDays: new Set(),
 		fertileWindowDays: new Set(),
@@ -32,10 +34,25 @@ export class CycleCalendar extends HTMLElement {
 	public setData(data: CycleCalendarData) {
 		this.fertility = data.fertility;
 		this.currentMonth = data.currentMonth;
+		this.calendarView = data.view ?? "month";
 		this.render();
 	}
 
+	private getWeekStart(date: Date): Date {
+		const d = new Date(date);
+		d.setDate(d.getDate() - d.getDay());
+		return d;
+	}
+
 	private render() {
+		if (this.calendarView === "week") {
+			this.renderWeekView();
+		} else {
+			this.renderMonthView();
+		}
+	}
+
+	private renderMonthView() {
 		const year = this.currentMonth.getFullYear();
 		const month = this.currentMonth.getMonth();
 
@@ -55,7 +72,6 @@ export class CycleCalendar extends HTMLElement {
 			.map((d) => `<div class="day-header">${d}</div>`)
 			.join("");
 
-		// Empty cells before first day
 		for (let i = 0; i < firstDay; i++) {
 			calendarCells += '<div class="day-cell empty"></div>';
 		}
@@ -64,7 +80,6 @@ export class CycleCalendar extends HTMLElement {
 			const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 			const classes = this.getDayClasses(dateStr, todayStr);
 			const dots = this.getDayDots(dateStr);
-
 			const tooltip = this.getDayTooltip(dateStr);
 			calendarCells += `<div class="day-cell ${classes.join(" ")}"${tooltip ? ` data-tooltip="${tooltip}"` : ""}>
 				<span class="day-number">${day}</span>
@@ -72,6 +87,48 @@ export class CycleCalendar extends HTMLElement {
 			</div>`;
 		}
 
+		this.shadow.innerHTML = this.buildShell(monthName, calendarCells, "month");
+		this.attachNavListeners("month", year, month);
+	}
+
+	private renderWeekView() {
+		const weekStart = this.getWeekStart(this.currentMonth);
+		const weekEnd = new Date(weekStart);
+		weekEnd.setDate(weekStart.getDate() + 6);
+
+		const fmt = (d: Date) =>
+			d.toLocaleString("default", { month: "short", day: "numeric" });
+		const headerText = `${fmt(weekStart)} – ${fmt(weekEnd)}, ${weekEnd.getFullYear()}`;
+
+		const todayStr = new Date().toISOString().split("T")[0];
+		const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+		let calendarCells = dayNames
+			.map((d) => `<div class="day-header">${d}</div>`)
+			.join("");
+
+		for (let i = 0; i < 7; i++) {
+			const day = new Date(weekStart);
+			day.setDate(weekStart.getDate() + i);
+			const dateStr = day.toISOString().split("T")[0];
+			const classes = this.getDayClasses(dateStr, todayStr);
+			const dots = this.getDayDots(dateStr);
+			const tooltip = this.getDayTooltip(dateStr);
+			calendarCells += `<div class="day-cell week-cell ${classes.join(" ")}"${tooltip ? ` data-tooltip="${tooltip}"` : ""}>
+				<span class="day-number">${day.getDate()}</span>
+				${dots ? `<div class="day-dots">${dots}</div>` : ""}
+			</div>`;
+		}
+
+		this.shadow.innerHTML = this.buildShell(headerText, calendarCells, "week");
+		this.attachNavListeners("week", 0, 0, weekStart);
+	}
+
+	private buildShell(
+		headerText: string,
+		calendarCells: string,
+		view: "week" | "month",
+	): string {
 		const variabilityNote =
 			this.fertility.cycleVariability != null &&
 			this.fertility.cycleVariability > 2
@@ -81,13 +138,13 @@ export class CycleCalendar extends HTMLElement {
 			? `<div class="cycle-info">Average cycle: ${this.fertility.averageCycleLength} days${variabilityNote}</div>`
 			: "";
 
-		this.shadow.innerHTML = `
+		return `
 			<link rel="stylesheet" href="/styles/main.css">
 			<link rel="stylesheet" href="/styles/cycle-calendar.css">
-			<div class="calendar-card">
+			<div class="calendar-card${view === "week" ? " week-view" : ""}">
 				<div class="calendar-header">
 					<button class="nav-btn" id="prev-month">&larr;</button>
-					<h3>${monthName}</h3>
+					<h3>${headerText}</h3>
 					<button class="nav-btn" id="next-month">&rarr;</button>
 				</div>
 				<div class="calendar-grid">
@@ -110,14 +167,33 @@ export class CycleCalendar extends HTMLElement {
 				${cycleInfo}
 			</div>
 		`;
+	}
 
+	private attachNavListeners(
+		view: "week" | "month",
+		year: number,
+		month: number,
+		weekStart?: Date,
+	) {
 		this.shadow.querySelector("#prev-month")?.addEventListener("click", () => {
-			this.currentMonth = new Date(year, month - 1, 1);
+			if (view === "week" && weekStart) {
+				const prev = new Date(weekStart);
+				prev.setDate(weekStart.getDate() - 7);
+				this.currentMonth = prev;
+			} else {
+				this.currentMonth = new Date(year, month - 1, 1);
+			}
 			this.render();
 		});
 
 		this.shadow.querySelector("#next-month")?.addEventListener("click", () => {
-			this.currentMonth = new Date(year, month + 1, 1);
+			if (view === "week" && weekStart) {
+				const next = new Date(weekStart);
+				next.setDate(weekStart.getDate() + 7);
+				this.currentMonth = next;
+			} else {
+				this.currentMonth = new Date(year, month + 1, 1);
+			}
 			this.render();
 		});
 	}
@@ -127,7 +203,6 @@ export class CycleCalendar extends HTMLElement {
 
 		if (dateStr === todayStr) classes.push("today");
 
-		// Actual data takes priority over predictions
 		if (this.fertility.periodDays.has(dateStr)) {
 			classes.push("period");
 		} else if (this.fertility.ovulationDays.has(dateStr)) {
@@ -150,8 +225,7 @@ export class CycleCalendar extends HTMLElement {
 		const f = this.fertility;
 
 		if (f.periodDays.has(dateStr)) labels.push("Period");
-		else if (f.predictedPeriodDays.has(dateStr))
-			labels.push("Predicted Period");
+		else if (f.predictedPeriodDays.has(dateStr)) labels.push("Predicted Period");
 
 		if (f.ovulationDays.has(dateStr)) labels.push("Ovulation");
 		else if (f.predictedOvulationDays.has(dateStr))
