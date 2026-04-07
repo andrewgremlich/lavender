@@ -1,0 +1,15 @@
+legacy/
+.svelte-kit/
+build/
+node_modules/
+.wrangler/
+dist/
+pnpm-lock.yaml
+pnpm-workspace.yaml
+
+# Legacy assets awaiting migration
+public/styles/
+public/sw-template.js
+scripts/
+ROADMAP.md
+SVELTEKIT_MIGRATION.md

@@ -45,13 +45,46 @@ Convert Lavender from vanilla web components + Hono backend to a SvelteKit appli
 - Add Playwright for e2e.
 - Migrate from Biome to eslint-plugin-svelte. ESLint should also handle formatting.
 
-## Suggested Migration Order
-1. Scaffold SvelteKit project with `@sveltejs/adapter-cloudflare`
-2. Migrate API routes (replace Hono `+server.ts` files) and server-side crypto/types
-3. Set up `hooks.server.ts` (auth, rate limiting, security headers, CSP nonces)
-4. Migrate auth flow (login/register/recovery pages, auth stores)
-5. Migrate app components (dashboard, entry form, settings, analytics, nav)
-6. Wire up reactive stores (sync engine bridge, decryption layer)
-7. PWA/service worker (`@vite-pwa/sveltekit`)
-8. Testing (Vitest components, Playwright e2e)
-9. Linting migration (Biome → ESLint)
+## Migration Order & Progress
+
+Phases are committed incrementally. The legacy codebase lives under `legacy/` for reference and will be deleted in the final cleanup phase.
+
+- [x] **Phase 1 — Scaffold SvelteKit + tooling swap**
+  - SvelteKit 2.56 with `@sveltejs/adapter-cloudflare` 7.x, Svelte 5.55, Vite 5.4
+  - Moved existing `src/`, `index.html`, `vite.config.ts`, `vite-sw-plugin.ts`, `biome.json`, `tsconfig.json`, `vitest.config.ts` to `legacy/` (git renames, history preserved)
+  - Route stubs: `/` (landing placeholder), `/app`, `/auth/{login,register,recovery}`
+  - Replaced Biome with ESLint 9 flat config + `eslint-plugin-svelte` + Prettier (linting migration done early per user preference)
+  - Vitest config includes `legacy/src/**/*.test.ts` so the 28 fertility tests remain green throughout the migration
+  - `wrangler.toml`: `main` → `.svelte-kit/cloudflare/_worker.js`, added `assets.directory` and `nodejs_compat` flag, D1 binding `lavender_db` unchanged
+  - TypeScript downgraded 6.0.2 → 5.9 and Vite 8 → 5.4 to match SvelteKit ecosystem
+  - `check`, `lint`, `test`, and `build` all green
+- [ ] **Phase 2 — API routes + server crypto/types**
+  - Port `/api/auth`, `/api/metrics`, `/api/settings` from Hono to SvelteKit `+server.ts`
+  - Move `src/worker/crypto.ts` → `$lib/server/crypto.ts`
+  - Move `Env`, `UserRow`, `HealthEntryRow`, `UserSettingsRow` → `$lib/server/types.ts`
+  - Remove `hono` dependency
+- [ ] **Phase 3 — `hooks.server.ts`**
+  - Auth (JWT verification), security headers, CSP nonces
+  - **KV-backed rate limiting** (replacing the in-memory Map). Local-only KV namespace with placeholder id in `wrangler.toml` for now; real namespace must be created before remote deploy.
+- [ ] **Phase 4 — Auth flow**
+  - `/auth/login`, `/auth/register`, `/auth/recovery` pages
+  - Auth stores using Svelte 5 runes
+  - `/app` layout redirect when unauthenticated
+- [ ] **Phase 5 — App pages & components**
+  - Dashboard, entry form, settings, analytics, nav, info, calendar, entry card
+  - Componentize reusable primitives opportunistically as duplication emerges (not up front)
+  - Component-scoped CSS using Svelte scoped styles (no shadow DOM); shared theme via CSS custom properties
+- [ ] **Phase 6 — Reactive stores**
+  - Port sync engine and IndexedDB services to `$lib/services`
+  - Bridge their events into reactive runes/stores
+  - Reactive decryption layer so components never touch crypto directly
+- [ ] **Phase 7 — PWA**
+  - `@vite-pwa/sveltekit` replacing custom `vite-sw-plugin.ts`
+  - Preserve offline-first caching and background sync
+- [ ] **Phase 8 — Testing**
+  - Component tests with `@testing-library/svelte`
+  - Playwright e2e
+- [ ] **Phase 9 — Final cleanup**
+  - Delete `legacy/`
+  - Remove any remaining legacy assets (`public/sw-template.js`, legacy `public/styles/*`)
+  - Final dependency audit
