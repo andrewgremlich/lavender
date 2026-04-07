@@ -258,24 +258,6 @@ class MetricChart extends HTMLElement {
 		});
 
 		const filtered = this.getFilteredEntries();
-		const filteredFertility = calculateFertilityIndicators(
-			filtered.map(toFertilityEntry),
-		);
-		const calendarFertility = {
-			// Simple observations filtered by range
-			periodDays: filteredFertility.periodDays,
-			cmFertileDays: filteredFertility.cmFertileDays,
-			// BBT/LH-derived fields need multi-day rolling context — always full history
-			ovulationDays: this.fertility.ovulationDays,
-			fertileWindowDays: this.fertility.fertileWindowDays,
-			// Predictions always from full history
-			predictedPeriodDays: this.fertility.predictedPeriodDays,
-			predictedOvulationDays: this.fertility.predictedOvulationDays,
-			predictedFertileDays: this.fertility.predictedFertileDays,
-			averageCycleLength: this.fertility.averageCycleLength,
-			cycleVariability: this.fertility.cycleVariability,
-		};
-
 		this.renderChart(filtered);
 		this.renderRecentEntries(filtered);
 
@@ -284,7 +266,7 @@ class MetricChart extends HTMLElement {
 		) as CycleCalendar | null;
 		if (calendarEl) {
 			calendarEl.setData({
-				fertility: calendarFertility,
+				fertility: this.fertility,
 				currentMonth: new Date(),
 				view: this.selectedRange === "7" ? "week" : "month",
 			});
