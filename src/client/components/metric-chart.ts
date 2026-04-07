@@ -66,7 +66,8 @@ class MetricChart extends HTMLElement {
 		averageCycleLength: null,
 		cycleVariability: null,
 	};
-	private selectedRange: DateRange = "30";
+	private selectedRange: DateRange =
+		(localStorage.getItem("lavender_date_range") as DateRange) ?? "30";
 
 	constructor() {
 		super();
@@ -253,6 +254,7 @@ class MetricChart extends HTMLElement {
 		this.shadow.querySelectorAll(".range-btn").forEach((btn) => {
 			btn.addEventListener("click", () => {
 				this.selectedRange = (btn as HTMLElement).dataset.range as DateRange;
+				localStorage.setItem("lavender_date_range", this.selectedRange);
 				this.renderDashboard(container);
 			});
 		});
