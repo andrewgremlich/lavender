@@ -27,6 +27,18 @@ export default ts.config(
 		}
 	},
 	{
+		files: ['**/*.svelte.ts', '**/*.svelte.js'],
+		languageOptions: {
+			parser: ts.parser
+		}
+	},
+	{
+		rules: {
+			'svelte/no-navigation-without-resolve': 'off',
+			'svelte/prefer-svelte-reactivity': 'off'
+		}
+	},
+	{
 		ignores: ['.svelte-kit/**', 'build/**', 'node_modules/**', '.wrangler/**', 'dist/**']
 	}
 );
