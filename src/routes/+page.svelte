@@ -4,7 +4,10 @@
 
 <main>
 	<h1>Lavender</h1>
-	<p>Private, end-to-end encrypted fertility tracking.</p>
+	<p>
+		A gentle companion for your personal wellness journey. Track, reflect, and bloom at your own
+		rhythm.
+	</p>
 	<a href="/auth/login">Sign in</a>
 </main>
 
