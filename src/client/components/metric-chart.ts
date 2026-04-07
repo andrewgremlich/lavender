@@ -258,6 +258,10 @@ class MetricChart extends HTMLElement {
 		});
 
 		const filtered = this.getFilteredEntries();
+		const filteredFertility = calculateFertilityIndicators(
+			filtered.map(toFertilityEntry),
+		);
+
 		this.renderChart(filtered);
 		this.renderRecentEntries(filtered);
 
@@ -266,7 +270,7 @@ class MetricChart extends HTMLElement {
 		) as CycleCalendar | null;
 		if (calendarEl) {
 			calendarEl.setData({
-				fertility: this.fertility,
+				fertility: filteredFertility,
 				currentMonth: new Date(),
 				view: this.selectedRange === "7" ? "week" : "month",
 			});
