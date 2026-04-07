@@ -1,9 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { auth } from '$lib/client/auth.svelte';
-	import { onMount } from 'svelte';
 
-	onMount(() => {
+	$effect(() => {
 		if (auth.loggedIn) goto('/app', { replaceState: true });
 	});
 </script>

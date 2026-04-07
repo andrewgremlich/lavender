@@ -72,34 +72,38 @@ export async function decrypt(
 	return new TextDecoder().decode(decrypted);
 }
 
-// --- Session storage (never localStorage for security) ---
+// --- Key storage ---
+// Stored in localStorage so sessions survive across tabs and refreshes.
+// Both storages are equally accessible to same-origin JS; the real security
+// boundary is that data is encrypted client-side and the server never sees
+// plaintext.
 
 const EK_KEY = 'lavender_ek';
 const EK_LEGACY_KEY = 'lavender_ek_legacy';
 
 export function storeKey(base64Key: string): void {
-	sessionStorage.setItem(EK_KEY, base64Key);
+	localStorage.setItem(EK_KEY, base64Key);
 }
 
 export function getStoredKey(): string | null {
-	return sessionStorage.getItem(EK_KEY);
+	return localStorage.getItem(EK_KEY);
 }
 
 export function clearStoredKey(): void {
-	sessionStorage.removeItem(EK_KEY);
-	sessionStorage.removeItem(EK_LEGACY_KEY);
+	localStorage.removeItem(EK_KEY);
+	localStorage.removeItem(EK_LEGACY_KEY);
 }
 
 export function storeLegacyKey(base64Key: string): void {
-	sessionStorage.setItem(EK_LEGACY_KEY, base64Key);
+	localStorage.setItem(EK_LEGACY_KEY, base64Key);
 }
 
 export function getLegacyKey(): string | null {
-	return sessionStorage.getItem(EK_LEGACY_KEY);
+	return localStorage.getItem(EK_LEGACY_KEY);
 }
 
 export function clearLegacyKey(): void {
-	sessionStorage.removeItem(EK_LEGACY_KEY);
+	localStorage.removeItem(EK_LEGACY_KEY);
 }
 
 // --- Recovery code helpers ---
