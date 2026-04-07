@@ -202,24 +202,31 @@
 	}
 
 	.day-cell.period {
-		background: #fee2e2;
-		color: #991b1b;
+		background: var(--cal-period-bg, #fee2e2);
+		color: var(--cal-period-text, #991b1b);
 	}
 
 	.day-cell.fertile {
-		background: #ecfdf5;
-		color: #065f46;
+		background: var(--cal-fertile-bg, #ecfdf5);
+		color: var(--cal-fertile-text, #065f46);
 	}
 
 	.day-cell.ovulation {
-		background: #ede9fe;
-		color: #5b21b6;
+		background: var(--cal-ovulation-bg, #ede9fe);
+		color: var(--cal-ovulation-text, #5b21b6);
 	}
 
 	.day-cell.predicted-period,
 	.day-cell.predicted-ovulation,
 	.day-cell.predicted-fertile {
-		background: repeating-linear-gradient(45deg, #fee2e2, #fee2e2 3px, #fecaca 3px, #fecaca 6px);
+		background: repeating-linear-gradient(
+			45deg,
+			var(--cal-period-bg, #fee2e2),
+			var(--cal-period-bg, #fee2e2) 3px,
+			var(--cal-predicted-stripe, #fecaca) 3px,
+			var(--cal-predicted-stripe, #fecaca) 6px
+		);
+		color: var(--cal-period-text, #991b1b);
 		opacity: 0.7;
 	}
 
@@ -250,16 +257,22 @@
 	}
 
 	.swatch.period {
-		background: #fee2e2;
+		background: var(--cal-period-bg, #fee2e2);
 	}
 	.swatch.fertile {
-		background: #ecfdf5;
+		background: var(--cal-fertile-bg, #ecfdf5);
 	}
 	.swatch.ovulation {
-		background: #ede9fe;
+		background: var(--cal-ovulation-bg, #ede9fe);
 	}
 	.swatch.predicted {
-		background: repeating-linear-gradient(45deg, #fee2e2, #fee2e2 3px, #fecaca 3px, #fecaca 6px);
+		background: repeating-linear-gradient(
+			45deg,
+			var(--cal-period-bg, #fee2e2),
+			var(--cal-period-bg, #fee2e2) 3px,
+			var(--cal-predicted-stripe, #fecaca) 3px,
+			var(--cal-predicted-stripe, #fecaca) 6px
+		);
 	}
 
 	.cycle-info {

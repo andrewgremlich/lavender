@@ -56,6 +56,14 @@
 	--shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
 	--shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
 
+	--cal-period-bg: #fee2e2;
+	--cal-period-text: #991b1b;
+	--cal-fertile-bg: #ecfdf5;
+	--cal-fertile-text: #065f46;
+	--cal-ovulation-bg: #ede9fe;
+	--cal-ovulation-text: #5b21b6;
+	--cal-predicted-stripe: #fecaca;
+
 	--transition-fast: 150ms ease;
 	--transition-base: 250ms ease;
 
@@ -88,6 +96,14 @@
 		--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
 		--shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
 		--shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+
+		--cal-period-bg: #7f1d1d;
+		--cal-period-text: #fecaca;
+		--cal-fertile-bg: #064e3b;
+		--cal-fertile-text: #a7f3d0;
+		--cal-ovulation-bg: #4c1d95;
+		--cal-ovulation-text: #ddd6fe;
+		--cal-predicted-stripe: #991b1b;
 	}
 }
 
@@ -183,5 +199,4 @@ p {
 
 ::selection {
 	background-color: var(--color-primary-alpha);
-	color: var(--color-text);
 }
