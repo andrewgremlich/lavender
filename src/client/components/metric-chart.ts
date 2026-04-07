@@ -28,7 +28,7 @@ import { celsiusToFahrenheit, getUnitSystem } from "../utils/units";
 import type { CycleCalendar } from "./cycle-calendar";
 
 type HealthEntry = HealthEntryData & { id: string };
-type DateRange = "30" | "90" | "180" | "365" | "all";
+type DateRange = "7" | "30" | "90" | "180" | "365" | "all";
 
 const LH_LABELS: Record<number, string> = {
 	0: "None",
@@ -221,6 +221,7 @@ class MetricChart extends HTMLElement {
 	private renderDashboard(container: HTMLElement) {
 		container.innerHTML = `
       <div class="range-selector">
+        <button class="range-btn ${this.selectedRange === "7" ? "active" : ""}" data-range="7">Week</button>
         <button class="range-btn ${this.selectedRange === "30" ? "active" : ""}" data-range="30">30 Days</button>
         <button class="range-btn ${this.selectedRange === "90" ? "active" : ""}" data-range="90">3 Months</button>
         <button class="range-btn ${this.selectedRange === "180" ? "active" : ""}" data-range="180">6 Months</button>
@@ -267,6 +268,7 @@ class MetricChart extends HTMLElement {
 			calendarEl.setData({
 				fertility: this.fertility,
 				currentMonth: new Date(),
+				view: this.selectedRange === "7" ? "week" : "month",
 			});
 		}
 	}
