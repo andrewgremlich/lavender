@@ -10,6 +10,7 @@
 	let msg = $state<{ text: string; type: 'success' | 'error' } | null>(null);
 	let importing = $state(false);
 	let fileInput = $state<HTMLInputElement | null>(null);
+	let fileName = $state('');
 
 	function flash(text: string, type: 'success' | 'error') {
 		msg = { text, type };
@@ -138,19 +139,28 @@
 		} finally {
 			importing = false;
 			if (fileInput) fileInput.value = '';
+			fileName = '';
 		}
 	}
 </script>
 
 <SettingsCard title="Import Data">
 	<p>Restore entries from a previously exported Lavender JSON or CSV file.</p>
-	<input
-		type="file"
-		accept=".json,.csv"
-		bind:this={fileInput}
-		class="file-input"
-		aria-label="Select a JSON or CSV file to import"
-	/>
+	<div class="file-picker">
+		<input
+			type="file"
+			accept=".json,.csv"
+			bind:this={fileInput}
+			onchange={() => (fileName = fileInput?.files?.[0]?.name ?? '')}
+			class="file-input-hidden"
+			id="import-file"
+			aria-label="Select a JSON or CSV file to import"
+		/>
+		<label for="import-file" class="file-label">
+			Choose file
+		</label>
+		<span class="file-name">{fileName || 'No file selected'}</span>
+	</div>
 	<Button type="button" onclick={handleImport} disabled={importing}>
 		{importing ? 'Importing…' : 'Import'}
 	</Button>
@@ -158,12 +168,56 @@
 </SettingsCard>
 
 <style>
-	.file-input {
+	.file-input-hidden {
+		position: absolute;
+		width: 1px;
+		height: 1px;
+		padding: 0;
+		margin: -1px;
+		overflow: hidden;
+		clip: rect(0, 0, 0, 0);
+		white-space: nowrap;
+		border: 0;
+	}
+
+	.file-picker {
+		display: flex;
+		align-items: center;
+		gap: var(--space-sm);
+	}
+
+	.file-label {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		padding: 0.625rem 1.25rem;
+		font-family: inherit;
 		font-size: var(--text-sm);
-		padding: var(--space-sm);
-		border: 1px solid var(--color-border);
+		font-weight: 500;
+		color: var(--color-primary);
+		background: transparent;
+		border: 1px solid var(--color-primary);
 		border-radius: var(--radius-md);
-		background: var(--color-surface);
-		color: var(--color-text);
+		cursor: pointer;
+		transition: all var(--transition-fast);
+		white-space: nowrap;
+	}
+
+	.file-label:hover {
+		background: var(--color-primary-alpha);
+	}
+
+	.file-input-hidden:focus-visible + .file-label {
+		outline: 2px solid var(--color-primary);
+		outline-offset: 2px;
+	}
+
+	.file-name {
+		font-size: var(--text-sm);
+		color: var(--color-text-muted);
+		overflow: hidden;
+		text-overflow: ellipsis;
+		white-space: nowrap;
+		max-width: 200px;
 	}
 </style>

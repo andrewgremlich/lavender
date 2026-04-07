@@ -18,7 +18,7 @@
 		A gentle companion for your personal wellness journey. Track, reflect, and bloom at your own
 		rhythm. <a href="/info">About Lavender</a>
 	</Text>
-	<p><a href="/auth/login">Sign in</a></p>
+	<a href="/auth/login" class="cta">Sign in</a>
 </main>
 
 <style>
@@ -30,5 +30,23 @@
 	}
 	a {
 		color: #7a5cbf;
+	}
+	.cta {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		margin-top: var(--space-lg);
+		padding: 0.75rem 2rem;
+		font-size: var(--text-lg);
+		font-weight: 500;
+		color: var(--color-text-inverse);
+		background: var(--color-primary);
+		border-radius: var(--radius-md);
+		transition: background var(--transition-fast);
+		text-decoration: none;
+	}
+	.cta:hover {
+		background: var(--color-primary-hover);
+		color: var(--color-text-inverse);
 	}
 </style>
