@@ -4,6 +4,7 @@
 	import { entriesStore } from '$lib/client/entries.svelte';
 	import { syncEngine } from '$lib/services/sync-engine';
 	import NavBar from '$lib/components/NavBar.svelte';
+	import PasswordGate from '$lib/components/PasswordGate.svelte';
 
 	let { children } = $props();
 
@@ -27,12 +28,14 @@
 </script>
 
 {#if auth.loggedIn}
-	<div class="app-shell">
-		<NavBar />
-		<main class="content">
-			{@render children()}
-		</main>
-	</div>
+	<PasswordGate>
+		<div class="app-shell">
+			<NavBar />
+			<main class="content">
+				{@render children()}
+			</main>
+		</div>
+	</PasswordGate>
 {/if}
 
 <style>

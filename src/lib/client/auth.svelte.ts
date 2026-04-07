@@ -21,13 +21,19 @@ import {
 	wrapEncryptionKey
 } from './crypto';
 
+const VERIFY_KEY = 'lavender_last_verified';
+
+function markVerified(): void {
+	localStorage.setItem(VERIFY_KEY, String(Date.now()));
+}
+
 interface AuthState {
 	username: string | null;
 	loggedIn: boolean;
 }
 
 function readInitial(): AuthState {
-	if (typeof sessionStorage === 'undefined') {
+	if (typeof localStorage === 'undefined') {
 		return { username: null, loggedIn: false };
 	}
 	const token = getToken();
@@ -50,6 +56,14 @@ function readInitial(): AuthState {
 }
 
 const state = $state<AuthState>(readInitial());
+
+// During SSR, sessionStorage is unavailable so state initializes as logged-out.
+// Re-check on the client after hydration to pick up the persisted token.
+if (globalThis.window !== undefined) {
+	const clientState = readInitial();
+	state.username = clientState.username;
+	state.loggedIn = clientState.loggedIn;
+}
 
 export const auth = {
 	get username() {
@@ -84,6 +98,7 @@ export const auth = {
 		storeKey(encryptionKey);
 		state.username = result.username;
 		state.loggedIn = true;
+		markVerified();
 		return recoveryCode;
 	},
 
@@ -100,6 +115,7 @@ export const auth = {
 		storeLegacyKey(legacyKey);
 		state.username = result.username;
 		state.loggedIn = true;
+		markVerified();
 		return result.hasRecovery;
 	},
 
@@ -183,12 +199,14 @@ export const auth = {
 		storeLegacyKey(legacyKey);
 		state.username = result.username;
 		state.loggedIn = true;
+		markVerified();
 		return newRecoveryCode;
 	},
 
 	logout(): void {
 		clearToken();
 		clearStoredKey();
+		localStorage.removeItem(VERIFY_KEY);
 		state.username = null;
 		state.loggedIn = false;
 	}
