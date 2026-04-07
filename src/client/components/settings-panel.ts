@@ -151,7 +151,7 @@ class SettingsPanel extends HTMLElement {
 					"#retention-msg",
 				) as HTMLElement;
 				try {
-					await api.settings.update(Number.parseInt(select.value, 10));
+					await api.settings.update({ dataRetentionDays: Number.parseInt(select.value, 10) });
 					this.showMessage(msgEl, "Retention period saved.", "success");
 				} catch (err: unknown) {
 					const message =

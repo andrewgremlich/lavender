@@ -66,8 +66,7 @@ class MetricChart extends HTMLElement {
 		averageCycleLength: null,
 		cycleVariability: null,
 	};
-	private selectedRange: DateRange =
-		(localStorage.getItem("lavender_date_range") as DateRange) ?? "30";
+	private selectedRange: DateRange = "30";
 
 	constructor() {
 		super();
@@ -108,6 +107,16 @@ class MetricChart extends HTMLElement {
 
 		try {
 			const storedKey = getStoredKey();
+
+			// Restore saved range preference before rendering
+			try {
+				const userSettings = await api.settings.get();
+				if (userSettings.defaultDateRange) {
+					this.selectedRange = userSettings.defaultDateRange as DateRange;
+				}
+			} catch {
+				// Fall back to default if settings unavailable
+			}
 			if (!storedKey) {
 				content.innerHTML =
 					'<div class="error-msg">Encryption key not found. Please log in again.</div>';
@@ -254,7 +263,7 @@ class MetricChart extends HTMLElement {
 		this.shadow.querySelectorAll(".range-btn").forEach((btn) => {
 			btn.addEventListener("click", () => {
 				this.selectedRange = (btn as HTMLElement).dataset.range as DateRange;
-				localStorage.setItem("lavender_date_range", this.selectedRange);
+				api.settings.update({ defaultDateRange: this.selectedRange }).catch(() => {});
 				this.renderDashboard(container);
 			});
 		});
