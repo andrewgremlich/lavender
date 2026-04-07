@@ -6,7 +6,7 @@ Lavender is a privacy-first fertility tracker with strong E2EE, cycle prediction
 
 ## Phase 1: Quick Wins (low complexity, high value)
 
-### 1. CSV Export
+### 1. CSV Export ✅
 - Add a "Download CSV" button next to existing JSON export
 - Decrypt entries client-side (already done for JSON export), then serialize to CSV columns matching `HealthEntryData` fields
 - Pure frontend change
@@ -17,7 +17,7 @@ Lavender is a privacy-first fertility tracker with strong E2EE, cycle prediction
 - Reuse existing decrypted entry data and cycle detection from fertility utils
 - Could use Chart.js matrix plugin or a custom canvas/HTML table
 
-### 3. Prediction Accuracy Tracking
+### 3. Prediction Accuracy Tracking ✅
 - Compare past predictions against observed actuals (period start dates, ovulation dates)
 - Calculate accuracy % and trend over time
 - Pure client-side — predictions are already generated, just need retroactive comparison against recorded data
@@ -26,17 +26,17 @@ Lavender is a privacy-first fertility tracker with strong E2EE, cycle prediction
 
 ## Phase 2: Medium Complexity
 
-### 4. Cycle Comparison View
+### 4. Cycle Comparison View ✅
 - Align multiple cycles by ovulation day (Day 0), overlay BBT curves and symptom indicators
 - Chart.js multi-dataset line chart with cycle selector
 - Builds on existing cycle segmentation logic
 
-### 5. Luteal Phase Trends
+### 5. Luteal Phase Trends ✅
 - Extract luteal phase length per cycle (ovulation to next period start)
 - Plot over time as a trend line
 - Flag if consistently <10 days or shortening (potential hormonal concern)
 
-### 6. PDF Reports
+### 6. PDF Reports ✅
 - Generate a printable cycle summary (last 1–3 cycles) with BBT chart, key dates, symptom summary
 - Options: `jsPDF` library, or render HTML and use `window.print()` with print-specific CSS
 - PDF generated entirely client-side from decrypted data (preserves E2EE)

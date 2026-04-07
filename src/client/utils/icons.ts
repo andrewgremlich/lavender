@@ -14,6 +14,7 @@ import {
 	Minus,
 	Save,
 	Settings,
+	TrendingUp,
 } from "lucide";
 
 const ICON_MAP: Record<string, IconNode> = {
@@ -30,6 +31,7 @@ const ICON_MAP: Record<string, IconNode> = {
 	minus: Minus,
 	save: Save,
 	settings: Settings,
+	"trending-up": TrendingUp,
 };
 
 /**

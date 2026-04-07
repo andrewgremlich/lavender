@@ -68,6 +68,11 @@ class NavBar extends HTMLElement {
           <span class="nav-label">Add Entry</span>
         </button>
 
+        <button class="nav-item ${route === "/analytics" ? "active" : ""}" data-route="/analytics">
+          <span class="icon" data-icon="trending-up"></span>
+          <span class="nav-label">Analytics</span>
+        </button>
+
         <button class="nav-item ${route === "/settings" ? "active" : ""}" data-route="/settings">
           <span class="icon" data-icon="settings"></span>
           <span class="nav-label">Settings</span>
