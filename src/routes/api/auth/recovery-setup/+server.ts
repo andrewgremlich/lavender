@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { requireAuth } from '$lib/server/auth';
+import { requireUser } from '$lib/server/auth';
 import { getPlatform } from '$lib/server/db';
 
 interface RecoverySetupBody {
@@ -11,8 +11,8 @@ interface RecoverySetupBody {
 }
 
 export const POST: RequestHandler = async (event) => {
-	const { db, jwtSecret } = getPlatform(event);
-	const authResult = await requireAuth(event, jwtSecret);
+	const { db } = getPlatform(event);
+	const authResult = requireUser(event);
 	if (authResult instanceof Response) return authResult;
 	const { userId } = authResult;
 

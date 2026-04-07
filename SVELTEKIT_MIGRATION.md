@@ -69,9 +69,13 @@ Phases are committed incrementally. The legacy codebase lives under `legacy/` fo
   - `$lib/types.ts` — client-safe shared types (`HealthEntryData`, `EncryptedEntry`, `UserSettings`, `AuthResponse`, `ApiError`)
   - **Dropped**: `/api/cleanup` endpoint. It required auth but allowed any authenticated user to delete expired entries across all users' data, with no known client caller. Per-user expiry already happens on every `GET /api/metrics`. If a global cleanup job is needed later, it should be a Cloudflare cron trigger, not an HTTP endpoint.
   - **Deferred to Phase 3**: CORS, security headers, rate limiting, and hoisting auth into hooks
-- [ ] **Phase 3 — `hooks.server.ts`**
-  - Auth (JWT verification), security headers, CSP nonces
-  - **KV-backed rate limiting** (replacing the in-memory Map). Local-only KV namespace with placeholder id in `wrangler.toml` for now; real namespace must be created before remote deploy.
+- [x] **Phase 3 — `hooks.server.ts`**
+  - `handleAuth` verifies `Authorization: Bearer <jwt>` and populates `event.locals.user`. Protected `+server.ts` routes now use `requireUser(event)` (synchronous, reads `event.locals.user`) instead of `requireAuth(event, jwtSecret)`. The helper still returns a 401 `Response` on failure — kept the same shape so migration of the route handlers stayed mechanical.
+  - `handleSecurityHeaders` sets `X-Frame-Options`, `X-Content-Type-Options`, HSTS, `Referrer-Policy`. CSP is delegated to SvelteKit's built-in `kit.csp` config, not set manually.
+  - **CSP mode: `hash`, not `nonce`.** `nonce` mode is incompatible with prerendering, and the Cloudflare adapter's SPA fallback page (`not_found_handling = "single-page-application"`) is prerendered — `nonce` mode breaks the build with "Cannot use prerendering if config.kit.csp.mode === 'nonce'". `hash` mode gives equivalent protection for inline hydration scripts with no runtime cost.
+  - `handleRateLimit` replaces the legacy in-memory Map with a KV-backed sliding window: 20 requests per 15 minutes per `cf-connecting-ip`, applied only to `/api/*`. State is a JSON blob `{count, reset}` with `expirationTtl` set to the remaining window. If `RATE_LIMIT_KV` isn't bound (e.g. running under `vite preview` without workerd), limiting is skipped rather than failing closed.
+  - `wrangler.toml` has a placeholder KV id. **Before `pnpm deploy`**, run `wrangler kv namespace create RATE_LIMIT_KV` and substitute the real id.
+  - **Dropped**: the `/api/cleanup` route wasn't ported in Phase 2, and the legacy global JWT-secret-length check is now centralized in `getPlatform()`.
 - [ ] **Phase 4 — Auth flow**
   - `/auth/login`, `/auth/register`, `/auth/recovery` pages
   - Auth stores using Svelte 5 runes

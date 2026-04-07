@@ -1,14 +1,14 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { requireAuth } from '$lib/server/auth';
+import { requireUser } from '$lib/server/auth';
 import { getPlatform } from '$lib/server/db';
 
 const MAX_ENCRYPTED_DATA = 100000;
 const MAX_IV = 100;
 
 export const PUT: RequestHandler = async (event) => {
-	const { db, jwtSecret } = getPlatform(event);
-	const authResult = await requireAuth(event, jwtSecret);
+	const { db } = getPlatform(event);
+	const authResult = requireUser(event);
 	if (authResult instanceof Response) return authResult;
 	const { userId } = authResult;
 
@@ -43,8 +43,8 @@ export const PUT: RequestHandler = async (event) => {
 };
 
 export const DELETE: RequestHandler = async (event) => {
-	const { db, jwtSecret } = getPlatform(event);
-	const authResult = await requireAuth(event, jwtSecret);
+	const { db } = getPlatform(event);
+	const authResult = requireUser(event);
 	if (authResult instanceof Response) return authResult;
 	const { userId } = authResult;
 
