@@ -68,8 +68,8 @@ I don't know if this would be valuable.
 ## Phase 4: Large Effort
 
 ### 10. Multi-language (i18n)
-- Extract all user-facing strings into translation files (JSON per locale)
-- Lightweight i18n utility (simple key lookup with fallback)
+- Use [`svelte-i18n`](https://github.com/kaisermann/svelte-i18n) — Svelte-native, store-based, works with Svelte 5
+- Extract all user-facing strings into JSON locale files (e.g. `src/lib/i18n/en.json`)
 - Language selector in settings, preference stored in `localStorage`
 - Start with English + 1-2 additional languages
 - Touches every component, so best done after other features stabilize
