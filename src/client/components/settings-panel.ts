@@ -81,8 +81,11 @@ class SettingsPanel extends HTMLElement {
       <!-- Export Data -->
       <div class="settings-card">
         <h3>Export Data</h3>
-        <p>Download all your health entries as a decrypted JSON file for backup.</p>
-        <button class="btn btn-primary btn-full" id="export-data-btn">Export All Data</button>
+        <p>Download all your health entries as a decrypted file for backup or analysis.</p>
+        <div class="export-actions">
+          <button class="btn btn-primary" id="export-data-btn">Export JSON</button>
+          <button class="btn btn-primary" id="export-csv-btn">Export CSV</button>
+        </div>
         <div class="message" id="export-msg"></div>
       </div>
 
@@ -172,6 +175,11 @@ class SettingsPanel extends HTMLElement {
 		this.shadow
 			.querySelector("#export-data-btn")
 			?.addEventListener("click", () => this.exportData());
+
+		// Export CSV
+		this.shadow
+			.querySelector("#export-csv-btn")
+			?.addEventListener("click", () => this.exportCsv());
 
 		// Delete all data
 		this.setupConfirmAction("delete-data", async () => {
@@ -401,6 +409,111 @@ class SettingsPanel extends HTMLElement {
 		} finally {
 			btn.disabled = false;
 			btn.textContent = "Export All Data";
+		}
+	}
+
+	private async exportCsv() {
+		const msgEl = this.shadow.querySelector("#export-msg") as HTMLElement;
+		const btn = this.shadow.querySelector(
+			"#export-csv-btn",
+		) as HTMLButtonElement;
+
+		const storedKey = getStoredKey();
+		if (!storedKey) {
+			this.showMessage(
+				msgEl,
+				"Encryption key not found. Please log in again.",
+				"error",
+			);
+			return;
+		}
+
+		btn.disabled = true;
+		btn.textContent = "Exporting…";
+
+		try {
+			const entries = await api.metrics.getAll();
+			const key = await importKey(storedKey);
+
+			const decryptedEntries = await Promise.all(
+				entries.map(async (entry) => {
+					const plaintext = await decrypt(entry.encryptedData, entry.iv, key);
+					return {
+						id: entry.id,
+						createdAt: entry.createdAt,
+						expiresAt: entry.expiresAt,
+						data: JSON.parse(plaintext) as Record<string, unknown>,
+					};
+				}),
+			);
+
+			const csvHeaders = [
+				"id",
+				"createdAt",
+				"expiresAt",
+				"date",
+				"basalBodyTemp",
+				"cervicalMucus",
+				"lhSurge",
+				"appetiteChange",
+				"moodChange",
+				"increasedSexDrive",
+				"breastTenderness",
+				"mildSpotting",
+				"heightenedSmell",
+				"cervixChanges",
+				"fluidRetention",
+				"cramping",
+				"bleedingStart",
+				"bleedingEnd",
+				"bleedingFlow",
+				"notes",
+			];
+
+			const csvRows = decryptedEntries.map((entry) => {
+				return csvHeaders
+					.map((header) => {
+						let value: unknown;
+						if (
+							header === "id" ||
+							header === "createdAt" ||
+							header === "expiresAt"
+						) {
+							value = entry[header as keyof typeof entry];
+						} else {
+							value = entry.data[header];
+						}
+						if (value === undefined || value === null) return "";
+						const str = String(value);
+						// Escape fields containing commas, quotes, or newlines
+						if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+							return `"${str.replace(/"/g, '""')}"`;
+						}
+						return str;
+					})
+					.join(",");
+			});
+
+			const csv = [csvHeaders.join(","), ...csvRows].join("\n");
+			const blob = new Blob([csv], { type: "text/csv" });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = `lavender-export-${new Date().toISOString().slice(0, 10)}.csv`;
+			a.click();
+			URL.revokeObjectURL(url);
+
+			this.showMessage(
+				msgEl,
+				`Exported ${decryptedEntries.length} entries as CSV.`,
+				"success",
+			);
+		} catch (err: unknown) {
+			const message = err instanceof Error ? err.message : "Export failed.";
+			this.showMessage(msgEl, message, "error");
+		} finally {
+			btn.disabled = false;
+			btn.textContent = "Export CSV";
 		}
 	}
 
