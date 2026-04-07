@@ -1,0 +1,13 @@
+.svelte-kit/
+build/
+node_modules/
+.wrangler/
+dist/
+pnpm-lock.yaml
+pnpm-workspace.yaml
+
+scripts/
+ROADMAP.md
+SVELTEKIT_MIGRATION.md
+playwright-report/
+test-results/

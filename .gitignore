@@ -1,5 +1,11 @@
 node_modules/
 dist/
+build/
+.svelte-kit/
 .wrangler/
 .dev.vars
 backup/
+
+# Playwright
+playwright-report/
+test-results/

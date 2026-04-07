@@ -1,0 +1,181 @@
+/* Global theme: CSS custom properties and app-level base styles.
+   Reset rules live in reset.css (imported before this file).
+   Component-specific styles live in Svelte scoped <style> blocks. */
+
+:root {
+	--color-primary: #936bf2;
+	--color-primary-dark: #695999;
+	--color-secondary: #f2ae6b;
+	--color-tertiary: #7af589;
+
+	--color-primary-light: #a78bfa;
+	--color-primary-hover: #6d28d9;
+	--color-primary-alpha: rgba(124, 58, 237, 0.12);
+
+	--color-bg: #faf5ff;
+	--color-surface: #ffffff;
+	--color-surface-raised: #ffffff;
+	--color-text: #1e1b4b;
+	--color-text-muted: #6b7280;
+	--color-text-inverse: #ffffff;
+	--color-border: #e5e7eb;
+	--color-border-focus: #a78bfa;
+
+	--color-success: #10b981;
+	--color-success-bg: #ecfdf5;
+	--color-warning: #f59e0b;
+	--color-warning-bg: #fffbeb;
+	--color-error: #ef4444;
+	--color-error-bg: #fef2f2;
+
+	--space-xs: 0.25rem;
+	--space-sm: 0.5rem;
+	--space-md: 1rem;
+	--space-lg: 1.5rem;
+	--space-xl: 2rem;
+	--space-2xl: 3rem;
+
+	--font-sans:
+		-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+	--font-mono: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+	--text-xs: 0.75rem;
+	--text-sm: 0.875rem;
+	--text-base: 1rem;
+	--text-lg: 1.125rem;
+	--text-xl: 1.25rem;
+	--text-2xl: 1.5rem;
+	--text-3xl: 1.875rem;
+	--line-height: 1.6;
+
+	--radius-sm: 0.375rem;
+	--radius-md: 0.5rem;
+	--radius-lg: 0.75rem;
+	--radius-xl: 1rem;
+	--radius-full: 9999px;
+
+	--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+	--shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.07), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+	--shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.08), 0 4px 6px -4px rgba(0, 0, 0, 0.04);
+
+	--cal-period-bg: #fee2e2;
+	--cal-period-text: #991b1b;
+	--cal-fertile-bg: #ecfdf5;
+	--cal-fertile-text: #065f46;
+	--cal-ovulation-bg: #ede9fe;
+	--cal-ovulation-text: #5b21b6;
+	--cal-predicted-stripe: #fecaca;
+
+	--transition-fast: 150ms ease;
+	--transition-base: 250ms ease;
+
+	--nav-height: 3.5rem;
+	--sidebar-width: 240px;
+	--content-max-width: 960px;
+}
+
+@media (prefers-color-scheme: dark) {
+	:root {
+		--color-primary: #a78bfa;
+		--color-primary-light: #c4b5fd;
+		--color-primary-dark: #7c3aed;
+		--color-primary-hover: #8b5cf6;
+		--color-primary-alpha: rgba(167, 139, 250, 0.15);
+
+		--color-bg: #0f0a1a;
+		--color-surface: #1a1128;
+		--color-surface-raised: #231836;
+		--color-text: #ede9fe;
+		--color-text-muted: #a9a1c8;
+		--color-text-inverse: #0f0a1a;
+		--color-border: #312548;
+		--color-border-focus: #8b5cf6;
+
+		--color-success-bg: #064e3b;
+		--color-warning-bg: #78350f;
+		--color-error-bg: #7f1d1d;
+
+		--shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+		--shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4), 0 2px 4px -2px rgba(0, 0, 0, 0.3);
+		--shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5), 0 4px 6px -4px rgba(0, 0, 0, 0.3);
+
+		--cal-period-bg: #7f1d1d;
+		--cal-period-text: #fecaca;
+		--cal-fertile-bg: #064e3b;
+		--cal-fertile-text: #a7f3d0;
+		--cal-ovulation-bg: #4c1d95;
+		--cal-ovulation-text: #ddd6fe;
+		--cal-predicted-stripe: #991b1b;
+	}
+}
+
+html {
+	font-size: 16px;
+	-webkit-text-size-adjust: 100%;
+	-webkit-tap-highlight-color: transparent;
+}
+
+body {
+	font-family: var(--font-sans);
+	font-size: var(--text-base);
+	line-height: var(--line-height);
+	color: var(--color-text);
+	background-color: var(--color-bg);
+	min-height: 100vh;
+	-moz-osx-font-smoothing: grayscale;
+}
+
+a {
+	color: var(--color-primary);
+	text-decoration: none;
+	transition: color var(--transition-fast);
+}
+
+a:hover {
+	color: var(--color-primary-dark);
+}
+
+ul,
+ol {
+	list-style: none;
+	padding: 0;
+}
+
+input,
+button,
+textarea,
+select {
+	color: inherit;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+	font-weight: 600;
+	line-height: 1.3;
+	color: var(--color-text);
+}
+
+h1 {
+	font-size: var(--text-3xl);
+}
+h2 {
+	font-size: var(--text-2xl);
+}
+h3 {
+	font-size: var(--text-xl);
+}
+h4 {
+	font-size: var(--text-lg);
+}
+
+:focus-visible {
+	outline: 2px solid var(--color-primary);
+	outline-offset: 2px;
+}
+
+::selection {
+	background-color: var(--color-primary-alpha);
+}

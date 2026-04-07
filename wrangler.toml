@@ -1,15 +1,21 @@
 name = "lavender"
-main = "src/worker/index.ts"
+main = ".svelte-kit/cloudflare/_worker.js"
 compatibility_date = "2025-01-01"
+compatibility_flags = ["nodejs_compat"]
 
 [observability]
 enabled = true
 
 [assets]
+directory = ".svelte-kit/cloudflare"
+binding = "ASSETS"
 not_found_handling = "single-page-application"
-
 
 [[d1_databases]]
 binding = "lavender_db"
 database_name = "lavender-db"
 database_id = "bbc77a7e-325b-4426-8e96-7fffe2941ea7"
+
+[[kv_namespaces]]
+binding = "lavender_rate_limit"
+id = "f8c9ac47bdb04e59a42bbd7ca7370ffa"
