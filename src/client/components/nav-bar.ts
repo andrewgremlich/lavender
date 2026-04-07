@@ -1,5 +1,4 @@
 import { currentRoute, navigate } from "../router";
-import { logout } from "../services/auth";
 import { metricsStore } from "../services/metrics-store";
 import type { SyncStatus } from "../services/sync-engine";
 import { renderIcons } from "../utils/icons";
@@ -68,48 +67,92 @@ class NavBar extends HTMLElement {
           <span class="nav-label">Add Entry</span>
         </button>
 
-        <button class="nav-item ${route === "/analytics" ? "active" : ""}" data-route="/analytics">
+        <button class="nav-item nav-item--desktop ${route === "/analytics" ? "active" : ""}" data-route="/analytics">
           <span class="icon" data-icon="trending-up"></span>
           <span class="nav-label">Analytics</span>
         </button>
 
-        <button class="nav-item ${route === "/settings" ? "active" : ""}" data-route="/settings">
-          <span class="icon" data-icon="settings"></span>
-          <span class="nav-label">Settings</span>
+        <button class="nav-item nav-item--menu" id="menu-toggle" aria-label="Open menu" aria-expanded="false">
+          <span class="icon" data-icon="menu"></span>
+          <span class="nav-label">Menu</span>
         </button>
 
         <div class="nav-spacer"></div>
 
-        <button class="nav-item ${route === "/info" ? "active" : ""}" data-route="/info">
+        <button class="nav-item nav-item--desktop ${route === "/settings" ? "active" : ""}" data-route="/settings">
+          <span class="icon" data-icon="settings"></span>
+          <span class="nav-label">Settings</span>
+        </button>
+
+        <button class="nav-item nav-item--desktop ${route === "/info" ? "active" : ""}" data-route="/info">
           <span class="icon" data-icon="info"></span>
           <span class="nav-label">Info</span>
         </button>
-
-        <button class="nav-item logout" id="logout-btn">
-          <span class="icon" data-icon="log-out"></span>
-          <span class="nav-label">Log Out</span>
-        </button>
       </nav>
+
+      <div class="menu-overlay" id="menu-overlay" hidden>
+        <div class="menu-sheet" role="dialog" aria-label="Menu">
+          <button class="menu-item ${route === "/analytics" ? "active" : ""}" data-route="/analytics">
+            <span class="icon" data-icon="trending-up"></span>
+            <span>Analytics</span>
+          </button>
+          <button class="menu-item ${route === "/settings" ? "active" : ""}" data-route="/settings">
+            <span class="icon" data-icon="settings"></span>
+            <span>Settings</span>
+          </button>
+          <button class="menu-item ${route === "/info" ? "active" : ""}" data-route="/info">
+            <span class="icon" data-icon="info"></span>
+            <span>Info</span>
+          </button>
+        </div>
+      </div>
     `;
 
 		renderIcons(this.shadow);
 	}
 
 	private setupListeners() {
-		this.shadow.querySelectorAll(".nav-item[data-route]").forEach((btn) => {
+		this.shadow.querySelectorAll("[data-route]").forEach((btn) => {
 			btn.addEventListener("click", () => {
 				const route = (btn as HTMLElement).dataset.route;
-				if (route) navigate(route);
+				if (route) {
+					navigate(route);
+					this.closeMenu();
+				}
 			});
 		});
 
-		this.shadow
-			.querySelector("#logout-btn")
-			?.addEventListener("click", async () => {
-				await metricsStore.clearCache();
-				logout();
-				window.dispatchEvent(new CustomEvent("user-logout"));
-			});
+		const toggle = this.shadow.querySelector(
+			"#menu-toggle",
+		) as HTMLButtonElement | null;
+		const overlay = this.shadow.querySelector(
+			"#menu-overlay",
+		) as HTMLElement | null;
+		toggle?.addEventListener("click", () => {
+			if (!overlay) return;
+			const isOpen = !overlay.hasAttribute("hidden");
+			if (isOpen) this.closeMenu();
+			else this.openMenu();
+		});
+		overlay?.addEventListener("click", (e) => {
+			if (e.target === overlay) this.closeMenu();
+		});
+	}
+
+	private openMenu() {
+		const overlay = this.shadow.querySelector("#menu-overlay") as HTMLElement;
+		const toggle = this.shadow.querySelector("#menu-toggle") as HTMLElement;
+		overlay?.removeAttribute("hidden");
+		toggle?.setAttribute("aria-expanded", "true");
+		toggle?.classList.add("active");
+	}
+
+	private closeMenu() {
+		const overlay = this.shadow.querySelector("#menu-overlay") as HTMLElement;
+		const toggle = this.shadow.querySelector("#menu-toggle") as HTMLElement;
+		overlay?.setAttribute("hidden", "");
+		toggle?.setAttribute("aria-expanded", "false");
+		toggle?.classList.remove("active");
 	}
 
 	private updateActiveState() {

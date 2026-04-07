@@ -47,7 +47,10 @@ class SettingsPanel extends HTMLElement {
       <link rel="stylesheet" href="/styles/main.css">
       <link rel="stylesheet" href="/styles/settings-panel.css">
 
-      <h2>Settings</h2>
+      <div class="settings-header">
+        <h2>Settings</h2>
+        <button class="btn btn-outline" id="logout-btn">Log Out</button>
+      </div>
 
       <!-- Units -->
       <div class="settings-card">
@@ -128,6 +131,15 @@ class SettingsPanel extends HTMLElement {
 	}
 
 	private setupListeners() {
+		// Logout
+		this.shadow
+			.querySelector("#logout-btn")
+			?.addEventListener("click", async () => {
+				await metricsStore.clearCache();
+				logout();
+				window.dispatchEvent(new CustomEvent("user-logout"));
+			});
+
 		// Save units
 		this.shadow
 			.querySelector("#save-units-btn")

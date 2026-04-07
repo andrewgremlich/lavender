@@ -11,7 +11,10 @@ Lavender is a privacy-first fertility tracker with strong E2EE, cycle prediction
 - Decrypt entries client-side (already done for JSON export), then serialize to CSV columns matching `HealthEntryData` fields
 - Pure frontend change
 
-### 2. Symptom Heatmap
+### 2. Symptom Heatmap ❌ 
+
+I don't know if this would be valuable.
+
 - Grid visualization — X axis = cycle day (1–35), Y axis = each symptom
 - Color intensity = frequency across all recorded cycles
 - Reuse existing decrypted entry data and cycle detection from fertility utils

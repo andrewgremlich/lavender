@@ -3,7 +3,6 @@ import type { TooltipItem } from "chart.js";
 import Chart from "chart.js/auto";
 
 import { decrypt, getStoredKey, importKey } from "../crypto/encryption";
-import { api } from "../services/api";
 import { metricsStore } from "../services/metrics-store";
 import { refreshFromServer } from "../services/sync-engine";
 import {
@@ -29,8 +28,9 @@ const CYCLE_COLORS = [
 class AnalyticsPanel extends HTMLElement {
 	private shadow: ShadowRoot;
 	private entries: HealthEntry[] = [];
-	private activeTab: Tab = "luteal";
+	private activeTab: Tab = "comparison";
 	private charts: Chart[] = [];
+	private selectedCycleIndices: Set<number> = new Set();
 
 	constructor() {
 		super();
@@ -49,6 +49,16 @@ class AnalyticsPanel extends HTMLElement {
 	private destroyCharts() {
 		for (const c of this.charts) c.destroy();
 		this.charts = [];
+	}
+
+	private getChartTextColor(): string {
+		const value = getComputedStyle(this).getPropertyValue("--color-text").trim();
+		return value || "#1e1b4b";
+	}
+
+	private getChartGridColor(): string {
+		const value = getComputedStyle(this).getPropertyValue("--color-border").trim();
+		return value || "rgba(0,0,0,0.08)";
 	}
 
 	private renderShell() {
@@ -134,9 +144,9 @@ class AnalyticsPanel extends HTMLElement {
 	private renderPanel(content: HTMLElement) {
 		content.innerHTML = `
       <div class="tab-bar">
+        <button class="tab-btn ${this.activeTab === "comparison" ? "active" : ""}" data-tab="comparison">Cycle Comparison</button>
         <button class="tab-btn ${this.activeTab === "luteal" ? "active" : ""}" data-tab="luteal">Luteal Trends</button>
         <button class="tab-btn ${this.activeTab === "accuracy" ? "active" : ""}" data-tab="accuracy">Prediction Accuracy</button>
-        <button class="tab-btn ${this.activeTab === "comparison" ? "active" : ""}" data-tab="comparison">Cycle Comparison</button>
       </div>
       <div id="tab-content"></div>
     `;
@@ -144,6 +154,7 @@ class AnalyticsPanel extends HTMLElement {
 		content.querySelectorAll(".tab-btn").forEach((btn) => {
 			btn.addEventListener("click", () => {
 				this.activeTab = (btn as HTMLElement).dataset.tab as Tab;
+				this.selectedCycleIndices.clear();
 				this.renderPanel(content);
 			});
 		});
@@ -227,6 +238,8 @@ class AnalyticsPanel extends HTMLElement {
 		const labels = withLuteal.map((c) => c.periodStart);
 		const refLine10 = Array(labels.length).fill(10);
 		const refLine12 = Array(labels.length).fill(12);
+		const textColor = this.getChartTextColor();
+		const gridColor = this.getChartGridColor();
 
 		const chart = new Chart(canvas, {
 			data: {
@@ -277,15 +290,16 @@ class AnalyticsPanel extends HTMLElement {
 							maxRotation: 45,
 							maxTicksLimit: 12,
 							font: { size: 11 },
-							color: "#fff",
+							color: textColor,
 						},
 						grid: { display: false },
 					},
 					y: {
-						title: { display: true, text: "Days", color: "#fff" },
+						title: { display: true, text: "Days", color: textColor },
 						min: 0,
 						max: 20,
-						ticks: { stepSize: 2, font: { size: 11 }, color: "#fff" },
+						ticks: { stepSize: 2, font: { size: 11 }, color: textColor },
+						grid: { color: gridColor },
 					},
 				},
 				plugins: {
@@ -361,6 +375,8 @@ class AnalyticsPanel extends HTMLElement {
 			"#accuracy-chart",
 		) as HTMLCanvasElement;
 		const labels = records.map((r) => r.periodStart);
+		const textColor = this.getChartTextColor();
+		const gridColor = this.getChartGridColor();
 
 		const chart = new Chart(canvas, {
 			type: "bar",
@@ -397,13 +413,14 @@ class AnalyticsPanel extends HTMLElement {
 							maxRotation: 45,
 							maxTicksLimit: 12,
 							font: { size: 11 },
-							color: "#fff",
+							color: textColor,
 						},
 						grid: { display: false },
 					},
 					y: {
-						title: { display: true, text: "Error (days)", color: "#fff" },
-						ticks: { font: { size: 11 }, color: "#fff" },
+						title: { display: true, text: "Error (days)", color: textColor },
+						ticks: { font: { size: 11 }, color: textColor },
+						grid: { color: gridColor },
 					},
 				},
 				plugins: {
@@ -455,6 +472,17 @@ class AnalyticsPanel extends HTMLElement {
 		// Show last 5 aligned cycles
 		const recent = aligned.slice(-5);
 
+		// Drop any selections that are no longer in `recent` (e.g. data changed)
+		const recentIndices = new Set(recent.map((s) => s.index));
+		for (const idx of this.selectedCycleIndices) {
+			if (!recentIndices.has(idx)) this.selectedCycleIndices.delete(idx);
+		}
+
+		const hasFilter = this.selectedCycleIndices.size > 0;
+		const visible = hasFilter
+			? recent.filter((s) => this.selectedCycleIndices.has(s.index))
+			: recent;
+
 		// Build day offset range (-20 to +20)
 		const MIN_OFFSET = -20;
 		const MAX_OFFSET = 20;
@@ -464,35 +492,61 @@ class AnalyticsPanel extends HTMLElement {
 		container.innerHTML = `
       <div class="stats-row">
         <div class="stat-card">
-          <div class="stat-value">${recent.length}</div>
+          <div class="stat-value">${visible.length}</div>
           <div class="stat-label">Cycles Shown</div>
         </div>
         <div class="stat-card">
-          <div class="stat-value">${recent.filter((s) => s.ovulationDay).length}</div>
+          <div class="stat-value">${visible.filter((s) => s.ovulationDay).length}</div>
           <div class="stat-label">With Ovulation</div>
         </div>
       </div>
+      <button type="button" class="show-all-btn" id="show-all-cycles" ${hasFilter ? "" : "disabled"}>Show all cycles</button>
       <div class="chart-card">
         <div class="chart-container tall">
           <canvas id="comparison-chart"></canvas>
         </div>
-        <div class="chart-legend-row wrap">
+        <div class="chart-legend-row wrap" role="group" aria-label="Toggle cycles">
           ${recent
-						.map(
-							(s, i) =>
-								`<span class="legend-item"><span class="legend-dot" style="background:${CYCLE_COLORS[i % CYCLE_COLORS.length]}"></span> Cycle ${s.index + 1} (${s.periodStart})</span>`,
-						)
+						.map((s, i) => {
+							const color = CYCLE_COLORS[i % CYCLE_COLORS.length];
+							const isActive = this.selectedCycleIndices.has(s.index);
+							const isDimmed = hasFilter && !isActive;
+							return `<button type="button" class="legend-item legend-btn ${isActive ? "active" : ""} ${isDimmed ? "dimmed" : ""}" data-cycle-index="${s.index}" aria-pressed="${isActive}" style="--cycle-color:${color}"><span class="legend-dot" style="background:${color}"></span> Cycle ${s.index + 1} (${s.periodStart})</button>`;
+						})
 						.join("")}
         </div>
-        <p class="chart-note">Day 0 = ovulation day. Negative days = before ovulation (follicular). Positive = after (luteal).</p>
+        <p class="chart-note">Day 0 = ovulation day. Negative days = before ovulation (follicular). Positive = after (luteal). Click cycles in the legend to select one or more to compare.</p>
       </div>
     `;
+
+		container.querySelectorAll(".legend-btn").forEach((btn) => {
+			btn.addEventListener("click", () => {
+				const idx = Number((btn as HTMLElement).dataset.cycleIndex);
+				if (this.selectedCycleIndices.has(idx)) {
+					this.selectedCycleIndices.delete(idx);
+				} else {
+					this.selectedCycleIndices.add(idx);
+				}
+				this.destroyCharts();
+				this.renderCycleComparison(container);
+			});
+		});
+
+		const showAllBtn = container.querySelector("#show-all-cycles");
+		if (showAllBtn) {
+			showAllBtn.addEventListener("click", () => {
+				this.selectedCycleIndices.clear();
+				this.destroyCharts();
+				this.renderCycleComparison(container);
+			});
+		}
 
 		const canvas = container.querySelector(
 			"#comparison-chart",
 		) as HTMLCanvasElement;
 
-		const datasets = recent.map((segment, i) => {
+		const datasets = visible.map((segment) => {
+			const colorIdx = recent.findIndex((s) => s.index === segment.index);
 			// Build a lookup from dayOffset → bbt
 			const offsetMap = new Map<number, number>();
 			for (const entry of segment.entries) {
@@ -505,7 +559,7 @@ class AnalyticsPanel extends HTMLElement {
 			return {
 				label: `Cycle ${segment.index + 1} (${segment.periodStart})`,
 				data: offsetRange.map((d) => offsetMap.get(d) ?? null),
-				borderColor: CYCLE_COLORS[i % CYCLE_COLORS.length],
+				borderColor: CYCLE_COLORS[colorIdx % CYCLE_COLORS.length],
 				backgroundColor: "transparent",
 				pointRadius: offsetRange.map((d) => (offsetMap.has(d) ? 3 : 0)),
 				tension: 0.3,
@@ -531,6 +585,8 @@ class AnalyticsPanel extends HTMLElement {
 					? 100
 					: 37.5;
 
+		const textColor = this.getChartTextColor();
+		const gridColor = this.getChartGridColor();
 		const chart = new Chart(canvas, {
 			type: "line",
 			data: {
@@ -544,14 +600,15 @@ class AnalyticsPanel extends HTMLElement {
 				maintainAspectRatio: false,
 				scales: {
 					x: {
-						ticks: { font: { size: 10 }, color: "#fff", maxTicksLimit: 20 },
-						grid: { color: "rgba(255,255,255,0.05)" },
+						ticks: { font: { size: 10 }, color: textColor, maxTicksLimit: 20 },
+						grid: { color: gridColor },
 					},
 					y: {
-						title: { display: true, text: `Temp (${tempUnit})`, color: "#fff" },
+						title: { display: true, text: `Temp (${tempUnit})`, color: textColor },
 						min: yMin,
 						max: yMax,
-						ticks: { font: { size: 11 }, color: "#fff", maxTicksLimit: 8 },
+						ticks: { font: { size: 11 }, color: textColor, maxTicksLimit: 8 },
+						grid: { color: gridColor },
 					},
 				},
 				plugins: {
