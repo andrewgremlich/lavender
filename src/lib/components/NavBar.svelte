@@ -1,28 +1,9 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import Icon from './Icon.svelte';
-	import type { SyncStatus } from '$lib/services/sync-engine';
-	import { metricsStore } from '$lib/services/metrics-store';
+	import { sync } from '$lib/client/sync.svelte';
 
-	let syncStatus = $state<SyncStatus>('synced');
 	let menuOpen = $state(false);
-
-	function updateFromQueue() {
-		metricsStore.getQueue().then((q) => {
-			if (q.length > 0) syncStatus = 'pending';
-		});
-	}
-
-	function onSyncStatusChange(e: Event) {
-		const detail = (e as CustomEvent<{ status: SyncStatus }>).detail;
-		syncStatus = detail.status;
-	}
-
-	$effect(() => {
-		updateFromQueue();
-		window.addEventListener('sync-status-change', onSyncStatusChange);
-		return () => window.removeEventListener('sync-status-change', onSyncStatusChange);
-	});
 
 	const routes = [
 		{ href: '/app', icon: 'house', label: 'Dashboard' },
@@ -33,9 +14,9 @@
 	] as const;
 
 	const syncTitle = $derived(
-		syncStatus === 'synced'
+		sync.status === 'synced'
 			? 'All changes saved'
-			: syncStatus === 'pending'
+			: sync.status === 'pending'
 				? 'Syncing changes…'
 				: 'Sync error — will retry when online'
 	);
@@ -50,7 +31,7 @@
 <nav class="nav-bar">
 	<div class="brand">
 		<h1>Lavender</h1>
-		<span class="sync-dot sync-dot--{syncStatus}" title={syncTitle}></span>
+		<span class="sync-dot sync-dot--{sync.status}" title={syncTitle}></span>
 	</div>
 
 	{#each routes as route (route.href)}

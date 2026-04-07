@@ -95,10 +95,12 @@ Phases are committed incrementally. The legacy codebase lives under `legacy/` fo
   - **Dropped**: legacy PDF report export. It opened a `window.print()` popup with inline HTML — that pattern is unreliable under CSP and worth revisiting as a server-rendered endpoint later. JSON + CSV exports remain.
   - **Dropped**: `renderIcons` DOM-querying helper. All icon rendering now goes through `<Icon name="..." />`.
   - `check`, `lint`, `test` (28 legacy fertility tests), and `build` all green.
-- [ ] **Phase 6 — Reactive stores**
-  - Port sync engine and IndexedDB services to `$lib/services`
-  - Bridge their events into reactive runes/stores
-  - Reactive decryption layer so components never touch crypto directly
+- [x] **Phase 6 — Reactive stores**
+  - Services were already ported to `$lib/services/{db,metrics-store,sync-engine}.ts` in Phase 5 to unblock the UI work. Phase 6 focused on the bridge.
+  - `sync-engine.ts` now exposes a direct subscription API — `onStatusChange(cb)` and `onSyncComplete(cb)` each return an unsubscribe function — replacing the `window.dispatchEvent('sync-status-change' | 'sync-complete')` bridge. `syncEngine.init()` is idempotent so remounting the `/app` layout doesn't double-register the `online` / service-worker listeners.
+  - `$lib/client/sync.svelte.ts` — reactive wrapper (Svelte 5 runes). A module-load `onStatusChange` subscription pushes into `$state`, and `NavBar` reads `sync.status` directly. No more window event listeners in the component.
+  - `$lib/client/entries.svelte.ts` — `startSyncListener` now calls `onSyncComplete` instead of `window.addEventListener('sync-complete', …)`; `stopSyncListener` invokes the unsubscribe handle the engine returned. The reactive decryption layer (entries + derived fertility) from Phase 5 is unchanged — components still consume `entriesStore.entries` and `entriesStore.fertility` without touching crypto or IDB.
+  - `check`, `lint`, `test` (28 fertility tests), and `build` all green.
 - [ ] **Phase 7 — PWA**
   - `@vite-pwa/sveltekit` replacing custom `vite-sw-plugin.ts`
   - Preserve offline-first caching and background sync

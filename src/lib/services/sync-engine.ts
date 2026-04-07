@@ -1,7 +1,11 @@
 // Offline-first sync engine: flushes queued mutations to the server and
 // refreshes the local cache from the authoritative server copy.
-// Ported from legacy/src/client/services/sync-engine.ts. Events are dispatched
-// on window; Phase 6 will bridge these into reactive stores.
+//
+// Originally ported from the legacy module in Phase 5. Phase 6 replaced the
+// window-event bridge with a direct subscription API: callers register
+// listeners via `onStatusChange` / `onSyncComplete` and Svelte reactive
+// stores wrap those subscriptions (see `$lib/client/sync.svelte.ts` and
+// `$lib/client/entries.svelte.ts`).
 
 import { metricsApi } from '$lib/client/api';
 import type { EncryptedEntry } from '$lib/types';
@@ -13,9 +17,30 @@ let status: SyncStatus = 'synced';
 let flushTimer: ReturnType<typeof setTimeout> | null = null;
 let flushing = false;
 
+type StatusListener = (status: SyncStatus) => void;
+type CompleteListener = () => void;
+
+const statusListeners = new Set<StatusListener>();
+const completeListeners = new Set<CompleteListener>();
+
+export function onStatusChange(listener: StatusListener): () => void {
+	statusListeners.add(listener);
+	return () => statusListeners.delete(listener);
+}
+
+export function onSyncComplete(listener: CompleteListener): () => void {
+	completeListeners.add(listener);
+	return () => completeListeners.delete(listener);
+}
+
 function setStatus(next: SyncStatus) {
+	if (status === next) return;
 	status = next;
-	window.dispatchEvent(new CustomEvent('sync-status-change', { detail: { status } }));
+	for (const listener of statusListeners) listener(status);
+}
+
+function emitComplete() {
+	for (const listener of completeListeners) listener();
 }
 
 export function getSyncStatus(): SyncStatus {
@@ -108,7 +133,7 @@ export async function flush(): Promise<void> {
 
 		const leftover = await metricsStore.getQueue();
 		setStatus(leftover.length === 0 ? 'synced' : 'pending');
-		window.dispatchEvent(new CustomEvent('sync-complete'));
+		emitComplete();
 	} finally {
 		flushing = false;
 	}
@@ -123,8 +148,13 @@ export function scheduleFlush(delayMs = 0): void {
 	}, delayMs);
 }
 
+let inited = false;
+
 export const syncEngine = {
 	init() {
+		if (inited) return;
+		inited = true;
+
 		window.addEventListener('online', () => {
 			flush();
 		});

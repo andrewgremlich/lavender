@@ -1,11 +1,11 @@
 // Reactive entries store using Svelte 5 runes. Decrypts server entries
-// client-side and exposes them to components. Phase 6 will refine the bridge
-// to sync engine events; for now we expose a simple `load()` and `refresh()`.
+// client-side and exposes them to components. Phase 6 replaced the
+// window-event bridge with a direct `onSyncComplete` subscription.
 
 import { metricsApi } from './api';
 import { clearLegacyKey, decrypt, encrypt, getLegacyKey, getStoredKey, importKey } from './crypto';
 import { metricsStore } from '$lib/services/metrics-store';
-import { refreshFromServer, scheduleFlush } from '$lib/services/sync-engine';
+import { onSyncComplete, refreshFromServer, scheduleFlush } from '$lib/services/sync-engine';
 import type { HealthEntryData } from '$lib/types';
 import { calculateFertilityIndicators, toFertilityEntry } from '$lib/utils/fertility';
 import type { FertilityIndicators } from '$lib/utils/fertility';
@@ -38,7 +38,7 @@ const state = $state<EntriesState>({
 	error: null
 });
 
-let syncListener: (() => void) | null = null;
+let unsubscribeSync: (() => void) | null = null;
 
 function recompute(entries: HealthEntry[]) {
 	const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date));
@@ -143,19 +143,17 @@ export const entriesStore = {
 		}
 	},
 
-	/** Listen for sync-complete events so the store refreshes after a flush. */
+	/** Subscribe to the sync engine so the store refreshes after each flush. */
 	startSyncListener(): void {
-		if (syncListener) return;
-		syncListener = () => {
+		if (unsubscribeSync) return;
+		unsubscribeSync = onSyncComplete(() => {
 			void this.load();
-		};
-		window.addEventListener('sync-complete', syncListener);
+		});
 	},
 
 	stopSyncListener(): void {
-		if (!syncListener) return;
-		window.removeEventListener('sync-complete', syncListener);
-		syncListener = null;
+		unsubscribeSync?.();
+		unsubscribeSync = null;
 	},
 
 	/** Optimistic create/update: write to IDB immediately and queue a server sync. */
