@@ -1,0 +1,21 @@
+{
+	"name": "Lavender",
+	"short_name": "Lavender",
+	"description": "A gentle companion for your personal wellness journey. Track, reflect, and bloom at your own rhythm.",
+	"start_url": "/app",
+	"display": "standalone",
+	"background_color": "#faf5ff",
+	"theme_color": "#936bf2",
+	"lang": "en",
+	"icons": [
+		{ "src": "/logo-64x64.png", "sizes": "64x64", "type": "image/png" },
+		{ "src": "/logo-128x128.png", "sizes": "128x128", "type": "image/png" },
+		{ "src": "/logo-310x310.png", "sizes": "310x310", "type": "image/png" },
+		{
+			"src": "/logo-512x512.png",
+			"sizes": "512x512",
+			"type": "image/png",
+			"purpose": "any maskable"
+		}
+	]
+}

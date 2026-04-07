@@ -14,6 +14,7 @@ const config = {
 		alias: {
 			$lib: 'src/lib'
 		},
+
 		csp: {
 			mode: 'hash',
 			directives: {
@@ -22,6 +23,7 @@ const config = {
 				'style-src': ['self', 'unsafe-inline'],
 				'img-src': ['self', 'data:', 'blob:'],
 				'connect-src': ['self'],
+				'worker-src': ['self'],
 				'base-uri': ['self'],
 				'form-action': ['self'],
 				'frame-ancestors': ['none']

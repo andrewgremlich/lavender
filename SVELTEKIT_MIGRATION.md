@@ -101,9 +101,14 @@ Phases are committed incrementally. The legacy codebase lives under `legacy/` fo
   - `$lib/client/sync.svelte.ts` — reactive wrapper (Svelte 5 runes). A module-load `onStatusChange` subscription pushes into `$state`, and `NavBar` reads `sync.status` directly. No more window event listeners in the component.
   - `$lib/client/entries.svelte.ts` — `startSyncListener` now calls `onSyncComplete` instead of `window.addEventListener('sync-complete', …)`; `stopSyncListener` invokes the unsubscribe handle the engine returned. The reactive decryption layer (entries + derived fertility) from Phase 5 is unchanged — components still consume `entriesStore.entries` and `entriesStore.fertility` without touching crypto or IDB.
   - `check`, `lint`, `test` (28 fertility tests), and `build` all green.
-- [ ] **Phase 7 — PWA**
-  - `@vite-pwa/sveltekit` replacing custom `vite-sw-plugin.ts`
-  - Preserve offline-first caching and background sync
+- [x] **Phase 7 — PWA**
+  - Replaced the broken `@vite-pwa/sveltekit` + workbox setup with SvelteKit's built-in service worker support. `src/service-worker.ts` uses `$service-worker` imports (`build`, `files`, `version`) for precaching and a versioned cache strategy.
+  - Removed `@vite-pwa/sveltekit`, `vite-plugin-pwa`, `workbox-core`, `workbox-precaching`, `workbox-routing`, `workbox-strategies` — six fewer dev dependencies.
+  - `static/manifest.webmanifest` replaces the plugin-generated manifest. Linked from `app.html`.
+  - SvelteKit auto-registers the service worker (removed `serviceWorker: { register: false }` from config). The root layout no longer imports `virtual:pwa-info` or `virtual:pwa-register`.
+  - Offline-first caching preserved: build + static assets are precached on install; navigations and other GETs use network-first with cache fallback; `/api/*` requests skip the cache entirely.
+  - Background sync preserved: the `sync` event listener notifies clients via `postMessage({ type: 'TRIGGER_SYNC' })`, consumed by the sync engine.
+  - `check`, `lint`, `test` (28 fertility tests), and `build` all green.
 - [ ] **Phase 8 — Testing**
   - Component tests with `@testing-library/svelte`
   - Playwright e2e
