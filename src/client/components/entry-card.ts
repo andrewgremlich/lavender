@@ -28,7 +28,8 @@ function formatTemp(tempC: number): string {
 	const isUS = getUnitSystem() === "us";
 	const temp = isUS ? celsiusToFahrenheit(tempC) : tempC;
 	const unit = isUS ? "\u00b0F" : "\u00b0C";
-	return `${temp.toFixed(2)}${unit}`;
+	const decimals = isUS ? 1 : 2;
+	return `${temp.toFixed(decimals)}${unit}`;
 }
 
 function detailRow(label: string, value: string, cssClass = ""): string {

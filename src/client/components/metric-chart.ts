@@ -450,6 +450,10 @@ class MetricChart extends HTMLElement {
 				plugins: {
 					tooltip: {
 						callbacks: {
+							label: (ctx: TooltipItem<"line">) => {
+								const decimals = isUS ? 1 : 2;
+								return `${ctx.dataset.label}: ${(ctx.parsed.y as number).toFixed(decimals)}${tempUnit}`;
+							},
 							afterLabel: (ctx: TooltipItem<"line">) => {
 								const entry = bbtEntries[ctx.dataIndex];
 								const lines: string[] = [];
