@@ -7,7 +7,7 @@ const settings = new Hono<{ Bindings: Env }>();
 
 settings.use("/*", authMiddleware());
 
-const VALID_DATE_RANGES = new Set(["7", "30", "90", "180", "365", "all"]);
+const VALID_DATE_RANGES = new Set(["7", "30", "all"]);
 
 settings.get("/", async (c) => {
 	const userId = getUserId(c);

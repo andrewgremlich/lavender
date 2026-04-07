@@ -28,7 +28,7 @@ import { celsiusToFahrenheit, getUnitSystem } from "../utils/units";
 import type { CycleCalendar } from "./cycle-calendar";
 
 type HealthEntry = HealthEntryData & { id: string };
-type DateRange = "7" | "30" | "90" | "180" | "365" | "all";
+type DateRange = "7" | "30" | "all";
 
 const LH_LABELS: Record<number, string> = {
 	0: "None",
@@ -111,8 +111,9 @@ class MetricChart extends HTMLElement {
 			// Restore saved range preference before rendering
 			try {
 				const userSettings = await api.settings.get();
-				if (userSettings.defaultDateRange) {
-					this.selectedRange = userSettings.defaultDateRange as DateRange;
+				const saved = userSettings.defaultDateRange as DateRange;
+				if (saved === "7" || saved === "30" || saved === "all") {
+					this.selectedRange = saved;
 				}
 			} catch {
 				// Fall back to default if settings unavailable
@@ -233,9 +234,6 @@ class MetricChart extends HTMLElement {
       <div class="range-selector">
         <button class="range-btn ${this.selectedRange === "7" ? "active" : ""}" data-range="7">Week</button>
         <button class="range-btn ${this.selectedRange === "30" ? "active" : ""}" data-range="30">30 Days</button>
-        <button class="range-btn ${this.selectedRange === "90" ? "active" : ""}" data-range="90">3 Months</button>
-        <button class="range-btn ${this.selectedRange === "180" ? "active" : ""}" data-range="180">6 Months</button>
-        <button class="range-btn ${this.selectedRange === "365" ? "active" : ""}" data-range="365">1 Year</button>
         <button class="range-btn ${this.selectedRange === "all" ? "active" : ""}" data-range="all">All</button>
       </div>
       <div class="chart-card">
