@@ -1,3 +1,13 @@
+<script lang="ts">
+	import { goto } from '$app/navigation';
+	import { auth } from '$lib/client/auth.svelte';
+	import { onMount } from 'svelte';
+
+	onMount(() => {
+		if (auth.loggedIn) goto('/app', { replaceState: true });
+	});
+</script>
+
 <svelte:head>
 	<title>Lavender</title>
 </svelte:head>
