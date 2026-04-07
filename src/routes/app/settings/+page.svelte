@@ -450,7 +450,6 @@
 		gap: var(--space-sm);
 	}
 
-
 	.muted {
 		color: var(--color-text-muted);
 		font-size: var(--text-sm);
