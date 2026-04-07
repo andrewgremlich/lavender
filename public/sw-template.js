@@ -86,6 +86,11 @@ self.addEventListener("fetch", (event) => {
 	const url = new URL(event.request.url);
 	const hostname = url.hostname;
 
+	// Skip API requests — dynamic data must not be served from cache
+	if (url.pathname.startsWith("/api/")) {
+		return;
+	}
+
 	// Skip all localhost domains
 	if (
 		hostname === "localhost" ||

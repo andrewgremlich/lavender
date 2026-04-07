@@ -122,6 +122,14 @@ class MetricChart extends HTMLElement {
 			}
 
 			// Step 2: Sync from server in background (server is authoritative)
+			// Skip if there are pending sync operations — refreshFromServer clears IDB,
+			// which would wipe optimistically-written entries before they reach the server.
+			// sync-complete will trigger another loadData() once the queue is drained.
+			const pendingQueue = await metricsStore.getQueue();
+			if (pendingQueue.length > 0) {
+				return;
+			}
+
 			const serverEntries = await refreshFromServer();
 
 			// Re-render only if server data differs from cache
