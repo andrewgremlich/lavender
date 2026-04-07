@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { auth } from '$lib/client/auth.svelte';
+	import Button from '$lib/components/Button.svelte';
 
 	// Two modes:
 	//  - ?setup=1 (post-login): user is already authenticated and just needs to
@@ -17,6 +18,7 @@
 	let submitting = $state(false);
 	let generatedCode = $state<string | null>(null);
 	let acknowledged = $state(false);
+	let copied = $state(false);
 
 	async function handleRecover(event: SubmitEvent) {
 		event.preventDefault();
@@ -50,6 +52,13 @@
 	async function handleContinue() {
 		await goto('/app');
 	}
+
+	async function copyCode() {
+		if (!generatedCode) return;
+		await navigator.clipboard.writeText(generatedCode);
+		copied = true;
+		setTimeout(() => (copied = false), 2000);
+	}
 </script>
 
 <svelte:head>
@@ -63,14 +72,19 @@
 			This code is the <strong>only way</strong> to recover your data if you forget your password. Store
 			it somewhere safe — we cannot show it to you again.
 		</p>
-		<pre class="code">{generatedCode}</pre>
+		<div class="code-wrapper">
+			<pre class="code">{generatedCode}</pre>
+			<Button variant="outline" size="sm" type="button" onclick={copyCode}>
+				{copied ? '✓ Copied' : 'Copy'}
+			</Button>
+		</div>
 		<label class="checkbox">
 			<input type="checkbox" bind:checked={acknowledged} />
 			I have saved my recovery code in a safe place.
 		</label>
-		<button type="button" disabled={!acknowledged} onclick={handleContinue}>
+		<Button type="button" disabled={!acknowledged} onclick={handleContinue}>
 			Continue to app
-		</button>
+		</Button>
 	{:else if isSetupMode}
 		<h1>Set up account recovery</h1>
 		<p>
@@ -80,9 +94,9 @@
 		{#if error}
 			<p class="error" role="alert">{error}</p>
 		{/if}
-		<button type="button" disabled={submitting} onclick={handleSetup}>
+		<Button type="button" disabled={submitting} onclick={handleSetup}>
 			{submitting ? 'Generating…' : 'Generate recovery code'}
-		</button>
+		</Button>
 	{:else}
 		<h1>Recover account</h1>
 		<p>Enter your username, recovery code, and a new password.</p>
@@ -132,9 +146,9 @@
 			{#if error}
 				<p class="error" role="alert">{error}</p>
 			{/if}
-			<button type="submit" disabled={submitting}>
+			<Button type="submit" disabled={submitting}>
 				{submitting ? 'Recovering…' : 'Recover account'}
-			</button>
+			</Button>
 		</form>
 		<p class="links">
 			<a href="/auth/login">Back to sign in</a>
@@ -180,19 +194,6 @@
 		color: #1e1b4b;
 		background: #fff;
 	}
-	button {
-		font: inherit;
-		padding: 0.6rem 1rem;
-		border-radius: 0.35rem;
-		border: none;
-		background: #7c5cff;
-		color: #fff;
-		cursor: pointer;
-	}
-	button:disabled {
-		opacity: 0.6;
-		cursor: not-allowed;
-	}
 	.error {
 		margin: 0;
 		color: #b00020;
@@ -211,6 +212,15 @@
 		color: var(--color-text, #1e1b4b);
 		white-space: pre-wrap;
 		word-break: break-all;
+		margin: 0;
+	}
+	.code-wrapper {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+	.code-wrapper :global(.btn) {
+		align-self: flex-end;
 	}
 	.links {
 		margin-top: 1.5rem;
