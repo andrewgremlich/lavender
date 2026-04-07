@@ -7,7 +7,7 @@
 	"scripts": {
 		"dev": "vite dev",
 		"build": "vite build",
-		"deploy": "vite build && wrangler deploy",
+		"deploy": "vitest run && vite build && wrangler deploy",
 		"preview": "vite preview",
 		"db:migrate:local": "wrangler d1 migrations apply lavender-db --local",
 		"db:migrate:remote": "wrangler d1 migrations apply lavender-db --remote",

@@ -7,7 +7,7 @@ export default defineConfig({
 		conditions: ['browser']
 	},
 	test: {
-		include: ['src/**/*.{test,spec}.{js,ts}', 'legacy/src/**/*.test.ts'],
+		include: ['src/**/*.{test,spec}.{js,ts}'],
 		environment: 'jsdom',
 		setupFiles: ['src/tests/setup.ts'],
 		alias: {

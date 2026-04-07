@@ -27,14 +27,6 @@ export default ts.config(
 		}
 	},
 	{
-		ignores: [
-			'legacy/**',
-			'.svelte-kit/**',
-			'build/**',
-			'node_modules/**',
-			'.wrangler/**',
-			'dist/**',
-			'public/sw-template.js'
-		]
+		ignores: ['.svelte-kit/**', 'build/**', 'node_modules/**', '.wrangler/**', 'dist/**']
 	}
 );

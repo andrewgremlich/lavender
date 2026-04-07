@@ -2,9 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## Migration in progress: vanilla → SvelteKit
+## SvelteKit Application
 
-This project is mid-migration from vanilla web components + Hono to SvelteKit. The original codebase is preserved under `legacy/` for reference during the migration and will be deleted when migration is complete. See `SVELTEKIT_MIGRATION.md` for the plan.
+This project was migrated from vanilla web components + Hono to SvelteKit. See `SVELTEKIT_MIGRATION.md` for the full migration history.
 
 Package manager is **pnpm**.
 

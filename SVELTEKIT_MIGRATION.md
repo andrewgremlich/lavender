@@ -117,7 +117,11 @@ Phases are committed incrementally. The legacy codebase lives under `legacy/` fo
   - Playwright e2e: `e2e/landing.test.ts` (3 — landing page content, sign-in navigation, unauthenticated `/app` redirect to login).
   - Scripts: `test` (vitest run), `test:e2e` (playwright test). Playwright configured for Chromium against `pnpm run preview` on port 4173.
   - 59 unit/component tests + 3 e2e tests all green. `check`, `lint`, and `build` all green.
-- [ ] **Phase 9 — Final cleanup**
-  - Delete `legacy/`
-  - Remove any remaining legacy assets (`public/sw-template.js`, legacy `public/styles/*`)
-  - Final dependency audit
+- [x] **Phase 9 — Final cleanup**
+  - Deleted `legacy/` directory (all source, config, and test files).
+  - Deleted `public/` directory (`sw-template.js`, `styles/*.css`, duplicate icon PNGs — all superseded by `static/` and Svelte scoped styles).
+  - Moved the 28 fertility tests from `legacy/src/client/utils/fertility.test.ts` to `src/lib/utils/fertility.test.ts`, reformatted to match project conventions. All 59 tests still pass.
+  - Removed `legacy/**` from vitest include, tsconfig exclude, eslint ignores, and prettierignore.
+  - Removed `public/sw-template.js` and `public/styles/` from eslint ignores and prettierignore.
+  - Updated `CLAUDE.md` to reflect completed migration status.
+  - `check`, `lint`, `test` (59 tests), and `build` all green. Migration complete.
