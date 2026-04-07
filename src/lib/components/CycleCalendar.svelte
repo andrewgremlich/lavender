@@ -1,4 +1,5 @@
 <script lang="ts">
+	import Icon from '$lib/components/Icon.svelte';
 	import type { FertilityIndicators } from '$lib/utils/fertility';
 
 	type Props = {
@@ -113,8 +114,18 @@
 			{:else}
 				{@const classes = getDayClasses(cell.dateStr)}
 				{@const tooltip = getDayTooltip(cell.dateStr)}
+				{@const isOvulation =
+					fertility.ovulationDays.has(cell.dateStr) ||
+					fertility.predictedOvulationDays.has(cell.dateStr)}
 				<div class="day-cell {classes.join(' ')}" title={tooltip}>
-					<span class="day-number">{cell.day}</span>
+					{#if isOvulation}
+						<span class="ovulation-egg" aria-label="Ovulation">
+							<Icon name="egg" size={40} strokeWidth={1.5} />
+							<span class="egg-day">{cell.day}</span>
+						</span>
+					{:else}
+						<span class="day-number">{cell.day}</span>
+					{/if}
 				</div>
 			{/if}
 		{/each}
@@ -173,6 +184,7 @@
 		display: grid;
 		grid-template-columns: repeat(7, 1fr);
 		gap: 2px;
+		overflow: hidden;
 	}
 
 	.day-header {
@@ -186,11 +198,15 @@
 	.day-cell {
 		aspect-ratio: 1;
 		display: flex;
+		flex-direction: column;
 		align-items: center;
 		justify-content: center;
 		border-radius: var(--radius-sm);
 		font-size: var(--text-sm);
 		background: transparent;
+		gap: 1px;
+		overflow: hidden;
+		min-width: 0;
 	}
 
 	.day-cell.empty {
@@ -232,6 +248,28 @@
 
 	.day-number {
 		font-weight: 500;
+		line-height: 1;
+	}
+
+	.ovulation-egg {
+		position: relative;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+	}
+
+	.ovulation-egg :global(svg) {
+		width: 85%;
+		height: 85%;
+	}
+
+	.egg-day {
+		position: absolute;
+		font-size: var(--text-xs);
+		font-weight: 600;
+		line-height: 1;
 	}
 
 	.legend {
