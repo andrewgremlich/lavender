@@ -372,48 +372,48 @@
 
 <section class="card danger">
 	<h3>Danger Zone</h3>
-	{#if !confirmDeleteData}
-		<button type="button" class="btn-danger-outline" onclick={() => (confirmDeleteData = true)}>
-			Delete All Data
-		</button>
-	{:else}
-		<div class="confirm">
-			<p>This will permanently delete all your health entries. This action cannot be undone.</p>
-			<div class="confirm-actions">
-				<button type="button" class="btn-danger" onclick={deleteAllData}
-					>Yes, Delete All Data</button
-				>
-				<button type="button" class="btn-outline" onclick={() => (confirmDeleteData = false)}
-					>Cancel</button
-				>
+	<div class="danger-actions">
+		{#if !confirmDeleteData}
+			<button type="button" class="btn-danger-outline" onclick={() => (confirmDeleteData = true)}>
+				Delete All Data
+			</button>
+		{:else}
+			<div class="confirm">
+				<p>This will permanently delete all your health entries. This action cannot be undone.</p>
+				<div class="confirm-actions">
+					<button type="button" class="btn-danger" onclick={deleteAllData}
+						>Yes, Delete All Data</button
+					>
+					<button type="button" class="btn-outline" onclick={() => (confirmDeleteData = false)}
+						>Cancel</button
+					>
+				</div>
 			</div>
-		</div>
-	{/if}
-	{#if dataDeleted}
-		<p class="deleted">All data deleted.</p>
-	{/if}
+		{/if}
+		{#if dataDeleted}
+			<p class="deleted">All data deleted.</p>
+		{/if}
 
-	<div class="spacer"></div>
-
-	{#if !confirmDeleteAccount}
-		<button type="button" class="btn-danger" onclick={() => (confirmDeleteAccount = true)}>
-			Delete Account
-		</button>
-	{:else}
-		<div class="confirm">
-			<p>
-				This will permanently delete your account and all associated data. This cannot be undone.
-			</p>
-			<div class="confirm-actions">
-				<button type="button" class="btn-danger" onclick={deleteAccount}
-					>Yes, Delete My Account</button
-				>
-				<button type="button" class="btn-outline" onclick={() => (confirmDeleteAccount = false)}
-					>Cancel</button
-				>
+		{#if !confirmDeleteAccount}
+			<button type="button" class="btn-danger" onclick={() => (confirmDeleteAccount = true)}>
+				Delete Account
+			</button>
+		{:else}
+			<div class="confirm">
+				<p>
+					This will permanently delete your account and all associated data. This cannot be undone.
+				</p>
+				<div class="confirm-actions">
+					<button type="button" class="btn-danger" onclick={deleteAccount}
+						>Yes, Delete My Account</button
+					>
+					<button type="button" class="btn-outline" onclick={() => (confirmDeleteAccount = false)}
+						>Cancel</button
+					>
+				</div>
 			</div>
-		</div>
-	{/if}
+		{/if}
+	</div>
 </section>
 
 <style>
@@ -444,9 +444,12 @@
 		color: var(--color-error);
 	}
 
-	.spacer {
-		height: var(--space-md);
+	.danger-actions {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-sm);
 	}
+
 
 	.muted {
 		color: var(--color-text-muted);
@@ -548,6 +551,7 @@
 
 	.confirm-actions {
 		display: flex;
+		flex-wrap: wrap;
 		gap: var(--space-sm);
 		margin-top: var(--space-sm);
 	}
