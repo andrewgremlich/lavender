@@ -81,17 +81,53 @@ I don't know if this would be valuable.
 
 ## Phase 5: Marketing & Growth
 
-### 12. Landing Page (`/`) — SEO + Live Subscriber Count + Feature Requests
+### 12. Landing Page SEO & "Why Privacy Matters"
 - Rebuild the `/` route as a proper marketing landing page with SEO meta tags (title, description, Open Graph, Twitter Card, canonical URL, structured data via JSON-LD)
-- Add a `subscribers` table in D1 (`id`, `email`, `created_at`) with a new migration
-- Add a `feature_requests` table in D1 (`id`, `title`, `description`, `votes`, `created_at`)
-- Create `GET /api/subscribers` endpoint returning current subscriber count
-- Create `POST /api/subscribers` endpoint for email signup (validates email, deduplicates)
-- Create `GET /api/feature-requests` endpoint returning requests sorted by votes
-- Create `POST /api/feature-requests` endpoint for submitting new requests
-- Create `POST /api/feature-requests/[id]/vote` endpoint for upvoting
-- Landing page displays a live subscriber count with a "free spots remaining" counter (e.g. "47 of 500 spots claimed")
-- Email signup form on the page that updates the count in real time after submission
-- Feature request section: list of community requests with vote counts, plus a form to submit new ones
-- Server-side render the page via `+page.server.ts` `load` function so subscriber count and feature requests are in the initial HTML (SEO-friendly)
-- All data endpoints are public (no auth required) — feature requests and subscriber count are non-sensitive
+- Add a "Why Privacy Matters" section — static copy explaining E2EE as the key differentiator vs other fertility trackers
+- Dynamic Open Graph image generated via Cloudflare Worker showing live spots-remaining count for compelling social shares
+- Server-side render the page via `+page.server.ts` `load` function for SEO
+
+### 13. Live User Count & Free Tier
+- Use the existing `users` table for user count (`SELECT COUNT(*) FROM users`) — no new table needed
+- Landing page displays a live user count with a "free spots remaining" counter (first 100 users get cross-device sync free; after that it's paywalled)
+- Create `GET /api/subscribers` endpoint returning current user count (public)
+
+### 14. User Roles & Admin Panel
+- Add a `role` column to the `users` table (`TEXT NOT NULL DEFAULT 'user'`, values: `user` | `admin`) via migration
+- Admin panel at `/app/admin` — accessible only to users with `role = 'admin'`
+  - CRUD management for community posts (edit, delete, change type)
+  - View and manage user list
+  - Server-side role check in `+page.server.ts` load function; redirect non-admins
+
+### 15. Community Posts (Feature Requests & Q&A)
+- Add a unified `community_posts` table in D1 (`id`, `user_id`, `type` (`feature_request` | `question`), `title`, `description`, `votes`, `created_at`) — single table for both feature requests and Q&A
+- Add a `community_post_votes` junction table (`user_id`, `post_id`, unique constraint) to enforce one vote per user
+- Voting requires authentication (only registered users can vote)
+- Reading/listing posts is public (no auth required)
+- Create `GET /api/community-posts` endpoint returning posts filterable by `type`, sorted by votes (public)
+- Create `POST /api/community-posts` endpoint for submitting new posts (auth required)
+- Create `POST /api/community-posts/[id]/vote` endpoint for upvoting (auth required, one vote per user)
+
+### 16. Changelog
+- Add `changelog` as a `community_posts` type — admin-only posting
+- Display a "What's New" feed on the landing page showing recent updates
+- Publish an RSS feed (`/feed.xml`) of changelog entries for SEO and power users
+
+### 17. Referral System
+- Add a `referral_code` column to the `users` table (unique, auto-generated on registration)
+- Add a `referred_by` column to track who invited whom
+- Registration accepts an optional referral code via query param (`/auth/register?ref=CODE`)
+- Incentive: referrer and invitee both get free cross-device sync (even after the 100-user threshold)
+- Admin panel shows referral stats
+
+### 18. Social Proof / Testimonials
+- Add `testimonial` as a `community_posts` type
+- Users can submit testimonials (auth required); admin approves before they appear on the landing page
+- Add an `approved` boolean column to `community_posts` (default `false`, only admin can set `true`)
+- Landing page displays approved testimonials in a rotating or grid layout
+
+### 19. Public Roadmap View
+- Dedicated section on the landing page (or `/roadmap` route) showing feature requests from `community_posts`
+- Display vote counts, status (e.g. `planned`, `in_progress`, `shipped`), and allow logged-in users to vote
+- Add a `status` column to `community_posts` (`TEXT NOT NULL DEFAULT 'open'`, values: `open` | `planned` | `in_progress` | `shipped`)
+- Admin can update status from the admin panel
