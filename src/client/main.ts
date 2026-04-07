@@ -9,6 +9,7 @@ import "./components/recovery-form";
 import "./components/data-entry-form";
 import "./components/metric-chart";
 import "./components/settings-panel";
+import "./components/analytics-panel";
 import "./components/nav-bar";
 import "./components/info-panel";
 import "./components/entry-card";
@@ -40,6 +41,9 @@ function setupRouting() {
 	});
 	route("/settings", () => {
 		content.innerHTML = "<settings-panel></settings-panel>";
+	});
+	route("/analytics", () => {
+		content.innerHTML = "<analytics-panel></analytics-panel>";
 	});
 	route("/info", () => {
 		content.innerHTML = "<info-panel></info-panel>";

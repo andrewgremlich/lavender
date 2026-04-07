@@ -624,6 +624,151 @@ export function toFertilityEntry(
 	};
 }
 
+// ---------------------------------------------------------------------------
+// 13. PER-CYCLE ANALYTICS EXPORTS
+// ---------------------------------------------------------------------------
+
+export interface CycleDetail {
+	index: number;
+	periodStart: string;
+	nextPeriodStart?: string;
+	cycleLength?: number;
+	ovulationDay?: string;
+	lutealPhaseLength?: number;
+}
+
+export interface PredictionRecord {
+	cycleIndex: number;
+	periodStart: string;
+	predictedDate: string;
+	errorDays: number;
+}
+
+export interface CycleEntry {
+	date: string;
+	/** Day offset relative to ovulation (0 = ovulation day). */
+	dayOffset: number;
+	bbt?: number;
+}
+
+export interface CycleSegment {
+	index: number;
+	periodStart: string;
+	ovulationDay?: string;
+	entries: CycleEntry[];
+}
+
+/**
+ * Returns structured per-cycle data: period dates, cycle length, detected
+ * ovulation day, and luteal phase length (when computable).
+ */
+export function getCycleDetails(entries: EntryWithTemp[]): CycleDetail[] {
+	const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date));
+	const { periodStartDates } = identifyPeriodDays(sorted);
+	const ovulationDays = detectOvulationDays(sorted);
+	const sortedOvDays = [...ovulationDays].sort();
+
+	return periodStartDates.map((periodStart, i) => {
+		const nextPeriodStart = periodStartDates[i + 1];
+		const cycleLength = nextPeriodStart
+			? daysBetween(periodStart, nextPeriodStart)
+			: undefined;
+
+		const ovulationDay = sortedOvDays.find((ovDay) => {
+			if (ovDay < periodStart) return false;
+			if (nextPeriodStart && ovDay >= nextPeriodStart) return false;
+			return true;
+		});
+
+		let lutealPhaseLength: number | undefined;
+		if (ovulationDay && nextPeriodStart) {
+			const gap = daysBetween(ovulationDay, nextPeriodStart);
+			if (gap >= LUTEAL_PHASE_MIN && gap <= LUTEAL_PHASE_MAX) {
+				lutealPhaseLength = gap;
+			}
+		}
+
+		return {
+			index: i,
+			periodStart,
+			nextPeriodStart,
+			cycleLength,
+			ovulationDay,
+			lutealPhaseLength,
+		};
+	});
+}
+
+/**
+ * Replays historical cycle-length predictions and compares them against
+ * actual period start dates. Requires at least 3 observed period starts.
+ */
+export function getPredictionAccuracy(
+	entries: EntryWithTemp[],
+): PredictionRecord[] {
+	const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date));
+	const { periodStartDates } = identifyPeriodDays(sorted);
+	const records: PredictionRecord[] = [];
+
+	for (let i = 2; i < periodStartDates.length; i++) {
+		const priorPeriods = periodStartDates.slice(0, i);
+		const cycleLengths = getCycleLengths(priorPeriods);
+		if (cycleLengths.length === 0) continue;
+
+		const predictedCycleLength = weightedCycleLength(cycleLengths);
+		const lastPriorPeriod = priorPeriods[priorPeriods.length - 1];
+		const predictedDate = addDaysToStr(lastPriorPeriod, predictedCycleLength);
+		const actualDate = periodStartDates[i];
+		// positive = period came later than predicted; negative = came earlier
+		const errorDays = daysBetween(predictedDate, actualDate);
+
+		records.push({
+			cycleIndex: i,
+			periodStart: actualDate,
+			predictedDate,
+			errorDays,
+		});
+	}
+
+	return records;
+}
+
+/**
+ * Segments entries by cycle and expresses each entry's BBT as a day offset
+ * relative to the detected ovulation day (or period start if none detected).
+ */
+export function getCycleSegments(entries: EntryWithTemp[]): CycleSegment[] {
+	const sorted = [...entries].sort((a, b) => a.date.localeCompare(b.date));
+	const { periodStartDates } = identifyPeriodDays(sorted);
+	const ovulationDays = detectOvulationDays(sorted);
+	const sortedOvDays = [...ovulationDays].sort();
+
+	return periodStartDates.map((periodStart, i) => {
+		const nextPeriodStart = periodStartDates[i + 1];
+
+		const cycleEntries = sorted.filter((e) => {
+			if (e.date < periodStart) return false;
+			if (nextPeriodStart && e.date >= nextPeriodStart) return false;
+			return true;
+		});
+
+		const ovulationDay = sortedOvDays.find((ovDay) => {
+			if (ovDay < periodStart) return false;
+			if (nextPeriodStart && ovDay >= nextPeriodStart) return false;
+			return true;
+		});
+
+		const anchor = ovulationDay ?? periodStart;
+		const mappedEntries: CycleEntry[] = cycleEntries.map((e) => ({
+			date: e.date,
+			dayOffset: daysBetween(anchor, e.date),
+			bbt: e.basalBodyTemp,
+		}));
+
+		return { index: i, periodStart, ovulationDay, entries: mappedEntries };
+	});
+}
+
 export function calculateFertilityIndicators(
 	entries: EntryWithTemp[],
 ): FertilityIndicators {

@@ -81,8 +81,12 @@ class SettingsPanel extends HTMLElement {
       <!-- Export Data -->
       <div class="settings-card">
         <h3>Export Data</h3>
-        <p>Download all your health entries as a decrypted JSON file for backup.</p>
-        <button class="btn btn-primary btn-full" id="export-data-btn">Export All Data</button>
+        <p>Download all your health entries as a decrypted file for backup or analysis.</p>
+        <div class="export-actions">
+          <button class="btn btn-primary" id="export-data-btn">Export JSON</button>
+          <button class="btn btn-primary" id="export-csv-btn">Export CSV</button>
+          <button class="btn btn-primary" id="export-pdf-btn">PDF Report</button>
+        </div>
         <div class="message" id="export-msg"></div>
       </div>
 
@@ -172,6 +176,16 @@ class SettingsPanel extends HTMLElement {
 		this.shadow
 			.querySelector("#export-data-btn")
 			?.addEventListener("click", () => this.exportData());
+
+		// Export CSV
+		this.shadow
+			.querySelector("#export-csv-btn")
+			?.addEventListener("click", () => this.exportCsv());
+
+		// Export PDF
+		this.shadow
+			.querySelector("#export-pdf-btn")
+			?.addEventListener("click", () => this.exportPdf());
 
 		// Delete all data
 		this.setupConfirmAction("delete-data", async () => {
@@ -401,6 +415,252 @@ class SettingsPanel extends HTMLElement {
 		} finally {
 			btn.disabled = false;
 			btn.textContent = "Export All Data";
+		}
+	}
+
+	private async exportCsv() {
+		const msgEl = this.shadow.querySelector("#export-msg") as HTMLElement;
+		const btn = this.shadow.querySelector(
+			"#export-csv-btn",
+		) as HTMLButtonElement;
+
+		const storedKey = getStoredKey();
+		if (!storedKey) {
+			this.showMessage(
+				msgEl,
+				"Encryption key not found. Please log in again.",
+				"error",
+			);
+			return;
+		}
+
+		btn.disabled = true;
+		btn.textContent = "Exporting…";
+
+		try {
+			const entries = await api.metrics.getAll();
+			const key = await importKey(storedKey);
+
+			const decryptedEntries = await Promise.all(
+				entries.map(async (entry) => {
+					const plaintext = await decrypt(entry.encryptedData, entry.iv, key);
+					return {
+						id: entry.id,
+						createdAt: entry.createdAt,
+						expiresAt: entry.expiresAt,
+						data: JSON.parse(plaintext) as Record<string, unknown>,
+					};
+				}),
+			);
+
+			const csvHeaders = [
+				"id",
+				"createdAt",
+				"expiresAt",
+				"date",
+				"basalBodyTemp",
+				"cervicalMucus",
+				"lhSurge",
+				"appetiteChange",
+				"moodChange",
+				"increasedSexDrive",
+				"breastTenderness",
+				"mildSpotting",
+				"heightenedSmell",
+				"cervixChanges",
+				"fluidRetention",
+				"cramping",
+				"bleedingStart",
+				"bleedingEnd",
+				"bleedingFlow",
+				"notes",
+			];
+
+			const csvRows = decryptedEntries.map((entry) => {
+				return csvHeaders
+					.map((header) => {
+						let value: unknown;
+						if (
+							header === "id" ||
+							header === "createdAt" ||
+							header === "expiresAt"
+						) {
+							value = entry[header as keyof typeof entry];
+						} else {
+							value = entry.data[header];
+						}
+						if (value === undefined || value === null) return "";
+						const str = String(value);
+						// Escape fields containing commas, quotes, or newlines
+						if (str.includes(",") || str.includes('"') || str.includes("\n")) {
+							return `"${str.replace(/"/g, '""')}"`;
+						}
+						return str;
+					})
+					.join(",");
+			});
+
+			const csv = [csvHeaders.join(","), ...csvRows].join("\n");
+			const blob = new Blob([csv], { type: "text/csv" });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement("a");
+			a.href = url;
+			a.download = `lavender-export-${new Date().toISOString().slice(0, 10)}.csv`;
+			a.click();
+			URL.revokeObjectURL(url);
+
+			this.showMessage(
+				msgEl,
+				`Exported ${decryptedEntries.length} entries as CSV.`,
+				"success",
+			);
+		} catch (err: unknown) {
+			const message = err instanceof Error ? err.message : "Export failed.";
+			this.showMessage(msgEl, message, "error");
+		} finally {
+			btn.disabled = false;
+			btn.textContent = "Export CSV";
+		}
+	}
+
+	private async exportPdf() {
+		const msgEl = this.shadow.querySelector("#export-msg") as HTMLElement;
+		const btn = this.shadow.querySelector(
+			"#export-pdf-btn",
+		) as HTMLButtonElement;
+
+		const storedKey = getStoredKey();
+		if (!storedKey) {
+			this.showMessage(
+				msgEl,
+				"Encryption key not found. Please log in again.",
+				"error",
+			);
+			return;
+		}
+
+		btn.disabled = true;
+		btn.textContent = "Generating…";
+
+		try {
+			const entries = await api.metrics.getAll();
+			const key = await importKey(storedKey);
+
+			const decryptedEntries = await Promise.all(
+				entries.map(async (entry) => {
+					const plaintext = await decrypt(entry.encryptedData, entry.iv, key);
+					return JSON.parse(plaintext) as Record<string, unknown>;
+				}),
+			);
+
+			decryptedEntries.sort((a, b) =>
+				String(a.date ?? "").localeCompare(String(b.date ?? "")),
+			);
+
+			// Compute cycle-level stats for the report
+			const periodStarts = decryptedEntries
+				.filter((e) => e.bleedingStart)
+				.map((e) => String(e.date));
+			const cycleLengths: number[] = [];
+			for (let i = 1; i < periodStarts.length; i++) {
+				const days =
+					(new Date(periodStarts[i]).getTime() -
+						new Date(periodStarts[i - 1]).getTime()) /
+					86_400_000;
+				if (days >= 18 && days <= 45) cycleLengths.push(Math.round(days));
+			}
+			const avgCycle =
+				cycleLengths.length > 0
+					? Math.round(
+							cycleLengths.reduce((a, b) => a + b, 0) / cycleLengths.length,
+						)
+					: null;
+
+			// Last 3 period starts for the cycle table
+			const recentPeriods = periodStarts.slice(-4);
+			const cycleRows = recentPeriods
+				.slice(0, -1)
+				.map((start, i) => {
+					const next = recentPeriods[i + 1];
+					const len = Math.round(
+						(new Date(next).getTime() - new Date(start).getTime()) / 86_400_000,
+					);
+					return `<tr><td>${i + 1}</td><td>${start}</td><td>${next}</td><td>${len} days</td></tr>`;
+				})
+				.join("");
+
+			const generatedAt = new Date().toLocaleDateString("en-US", {
+				year: "numeric",
+				month: "long",
+				day: "numeric",
+			});
+
+			const html = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Lavender Cycle Report — ${generatedAt}</title>
+<style>
+  body { font-family: -apple-system, sans-serif; max-width: 720px; margin: 0 auto; padding: 2rem; color: #1e1b4b; }
+  h1 { color: #7c3aed; margin-bottom: 0.25rem; }
+  h2 { color: #4c1d95; margin-top: 2rem; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.5rem; }
+  .subtitle { color: #6b7280; font-size: 0.875rem; margin-bottom: 2rem; }
+  .stats-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+  .stat { background: #f5f3ff; border-radius: 0.5rem; padding: 1rem; text-align: center; }
+  .stat-val { font-size: 2rem; font-weight: 700; color: #7c3aed; }
+  .stat-lbl { font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; }
+  table { width: 100%; border-collapse: collapse; margin-bottom: 1rem; }
+  th { background: #f3f0ff; color: #4c1d95; font-size: 0.8rem; text-align: left; padding: 0.5rem 0.75rem; }
+  td { border-bottom: 1px solid #e5e7eb; padding: 0.5rem 0.75rem; font-size: 0.875rem; }
+  .footer { margin-top: 2rem; font-size: 0.75rem; color: #9ca3af; border-top: 1px solid #e5e7eb; padding-top: 1rem; }
+  @media print { body { padding: 0; } }
+</style>
+</head>
+<body>
+<h1>Lavender Cycle Report</h1>
+<p class="subtitle">Generated ${generatedAt} &bull; ${decryptedEntries.length} total entries</p>
+
+<h2>Cycle Statistics</h2>
+<div class="stats-grid">
+  <div class="stat"><div class="stat-val">${avgCycle ?? "—"}</div><div class="stat-lbl">Avg Cycle Length (days)</div></div>
+  <div class="stat"><div class="stat-val">${periodStarts.length}</div><div class="stat-lbl">Periods Recorded</div></div>
+  <div class="stat"><div class="stat-val">${decryptedEntries.filter((e) => e.basalBodyTemp).length}</div><div class="stat-lbl">BBT Readings</div></div>
+</div>
+
+${
+	cycleRows
+		? `<h2>Recent Cycles</h2>
+<table>
+  <thead><tr><th>#</th><th>Period Start</th><th>Next Period</th><th>Length</th></tr></thead>
+  <tbody>${cycleRows}</tbody>
+</table>`
+		: ""
+}
+
+<p class="footer">This report was generated entirely in your browser from locally-decrypted data. Your health information is end-to-end encrypted — Lavender servers never see it in plaintext.</p>
+<script>window.print();</script>
+</body>
+</html>`;
+
+			const win = window.open("", "_blank");
+			if (!win) {
+				this.showMessage(
+					msgEl,
+					"Popup blocked. Please allow popups for this site.",
+					"error",
+				);
+				return;
+			}
+			win.document.write(html);
+			win.document.close();
+
+			this.showMessage(msgEl, "PDF report opened in a new tab.", "success");
+		} catch (err: unknown) {
+			const message = err instanceof Error ? err.message : "Export failed.";
+			this.showMessage(msgEl, message, "error");
+		} finally {
+			btn.disabled = false;
+			btn.textContent = "PDF Report";
 		}
 	}
 
