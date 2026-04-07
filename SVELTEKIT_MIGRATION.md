@@ -76,10 +76,13 @@ Phases are committed incrementally. The legacy codebase lives under `legacy/` fo
   - `handleRateLimit` replaces the legacy in-memory Map with a KV-backed sliding window: 20 requests per 15 minutes per `cf-connecting-ip`, applied only to `/api/*`. State is a JSON blob `{count, reset}` with `expirationTtl` set to the remaining window. If `RATE_LIMIT_KV` isn't bound (e.g. running under `vite preview` without workerd), limiting is skipped rather than failing closed.
   - `wrangler.toml` has a placeholder KV id. **Before `pnpm deploy`**, run `wrangler kv namespace create RATE_LIMIT_KV` and substitute the real id.
   - **Dropped**: the `/api/cleanup` route wasn't ported in Phase 2, and the legacy global JWT-secret-length check is now centralized in `getPlatform()`.
-- [ ] **Phase 4 — Auth flow**
-  - `/auth/login`, `/auth/register`, `/auth/recovery` pages
-  - Auth stores using Svelte 5 runes
-  - `/app` layout redirect when unauthenticated
+- [x] **Phase 4 — Auth flow**
+  - `$lib/client/crypto.ts` — direct port of legacy `encryption.ts` (PBKDF2 key derivation, AES-GCM encrypt/decrypt, recovery code wrap/unwrap, sessionStorage helpers). Legacy `lavendar` salt prefix preserved.
+  - `$lib/client/api.ts` — fetch wrapper with auto-attached bearer token. Only the auth subset is ported for Phase 4; metrics/settings clients land with Phase 5/6.
+  - `$lib/client/auth.svelte.ts` — reactive auth store using Svelte 5 runes. Exposes `auth.loggedIn`, `auth.username`, and `register/login/recover/setupRecovery/logout`. Reads initial state from the JWT in sessionStorage on module load, expiring tokens client-side so the `/app` layout can redirect without waiting for an API 401. UI never touches sessionStorage or crypto directly.
+  - `/auth/login`, `/auth/register`, `/auth/recovery` pages built with runes (`$state`, `$derived`, `$effect`). Register and recovery both surface the recovery code in a post-success screen gated by an acknowledgement checkbox. Recovery page has two modes: unauthenticated recover-with-code, and `?setup=1` for logged-in legacy accounts without a recovery code.
+  - `/app/+layout.svelte` client-side redirect to `/auth/login` when `!auth.loggedIn`. The server already rejects unauthenticated `/api/*` calls via `hooks.server.ts`, so the layout only guards navigation.
+  - Pages use scoped styles with inline colors for now — componentization of reusable primitives (button, input, etc.) is deferred to Phase 5 per the "not up front" rule.
 - [ ] **Phase 5 — App pages & components**
   - Dashboard, entry form, settings, analytics, nav, info, calendar, entry card
   - Componentize reusable primitives opportunistically as duplication emerges (not up front)
