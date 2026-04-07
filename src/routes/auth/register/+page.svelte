@@ -9,10 +9,23 @@
 	let submitting = $state(false);
 	let recoveryCode = $state<string | null>(null);
 	let acknowledged = $state(false);
+	let copied = $state(false);
+
+	const reqs = $derived({
+		length: password.length >= 12,
+		number: /\d/.test(password),
+		special: /[^a-zA-Z0-9]/.test(password)
+	});
+
+	const allMet = $derived(reqs.length && reqs.number && reqs.special);
 
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
 		error = null;
+		if (!allMet) {
+			error = 'Password does not meet all requirements';
+			return;
+		}
 		if (password !== confirm) {
 			error = 'Passwords do not match';
 			return;
@@ -30,6 +43,13 @@
 	async function handleContinue() {
 		await goto('/app');
 	}
+
+	async function copyCode() {
+		if (!recoveryCode) return;
+		await navigator.clipboard.writeText(recoveryCode);
+		copied = true;
+		setTimeout(() => (copied = false), 2000);
+	}
 </script>
 
 <svelte:head>
@@ -43,7 +63,12 @@
 			This code is the <strong>only way</strong> to recover your data if you forget your password. Store
 			it somewhere safe — we cannot show it to you again.
 		</p>
-		<pre class="code">{recoveryCode}</pre>
+		<div class="code-wrapper">
+			<pre class="code">{recoveryCode}</pre>
+			<button type="button" class="copy-btn" onclick={copyCode}>
+				{copied ? '✓ Copied' : 'Copy'}
+			</button>
+		</div>
 		<label class="checkbox">
 			<input type="checkbox" bind:checked={acknowledged} />
 			I have saved my recovery code in a safe place.
@@ -74,6 +99,11 @@
 					disabled={submitting}
 				/>
 			</label>
+			<ul class="requirements">
+				<li class:met={reqs.length}>At least 12 characters</li>
+				<li class:met={reqs.number}>At least one number</li>
+				<li class:met={reqs.special}>At least one special character</li>
+			</ul>
 			<label>
 				Confirm password
 				<input
@@ -129,6 +159,8 @@
 		padding: 0.5rem 0.75rem;
 		border: 1px solid #ccc;
 		border-radius: 0.35rem;
+		color: #1e1b4b;
+		background: #fff;
 	}
 	button {
 		font: inherit;
@@ -148,16 +180,52 @@
 		color: #b00020;
 		font-size: 0.875rem;
 	}
+	.requirements {
+		font-size: 0.8125rem;
+		color: var(--color-text-muted, #6b7280);
+		padding-left: 1rem;
+		list-style: disc;
+		margin: -0.5rem 0 0;
+	}
+	.requirements li {
+		transition: color 0.15s;
+	}
+	.requirements li.met {
+		color: var(--color-success, #10b981);
+	}
 	.code {
 		font-family: ui-monospace, 'SF Mono', Menlo, monospace;
 		font-size: 1.1rem;
 		padding: 1rem;
-		background: #f5f3ff;
-		border: 1px solid #ddd;
+		background: var(--color-surface, #f5f3ff);
+		border: 1px solid var(--color-border, #ddd);
 		border-radius: 0.35rem;
 		text-align: center;
 		letter-spacing: 0.05em;
 		user-select: all;
+		color: var(--color-text, #1e1b4b);
+		white-space: pre-wrap;
+		word-break: break-all;
+		margin: 0;
+	}
+	.code-wrapper {
+		display: flex;
+		flex-direction: column;
+		gap: 0.5rem;
+	}
+	.copy-btn {
+		align-self: flex-end;
+		padding: 0.4rem 0.75rem;
+		font-size: 0.8125rem;
+		background: var(--color-surface, #f5f3ff);
+		color: var(--color-primary, #7c5cff);
+		border: 1px solid var(--color-border, #ddd);
+		border-radius: 0.35rem;
+		cursor: pointer;
+		transition: background 0.15s;
+	}
+	.copy-btn:hover {
+		background: var(--color-primary-alpha, rgba(124, 58, 237, 0.12));
 	}
 	.links {
 		margin-top: 1.5rem;

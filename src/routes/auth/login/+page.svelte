@@ -93,6 +93,8 @@
 		padding: 0.5rem 0.75rem;
 		border: 1px solid #ccc;
 		border-radius: 0.35rem;
+		color: #1e1b4b;
+		background: #fff;
 	}
 	button {
 		font: inherit;

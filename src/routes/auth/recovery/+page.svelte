@@ -177,6 +177,8 @@
 		padding: 0.5rem 0.75rem;
 		border: 1px solid #ccc;
 		border-radius: 0.35rem;
+		color: #1e1b4b;
+		background: #fff;
 	}
 	button {
 		font: inherit;
@@ -200,12 +202,15 @@
 		font-family: ui-monospace, 'SF Mono', Menlo, monospace;
 		font-size: 1.05rem;
 		padding: 1rem;
-		background: #f5f3ff;
-		border: 1px solid #ddd;
+		background: var(--color-surface, #f5f3ff);
+		border: 1px solid var(--color-border, #ddd);
 		border-radius: 0.35rem;
 		text-align: center;
 		letter-spacing: 0.05em;
 		user-select: all;
+		color: var(--color-text, #1e1b4b);
+		white-space: pre-wrap;
+		word-break: break-all;
 	}
 	.links {
 		margin-top: 1.5rem;
