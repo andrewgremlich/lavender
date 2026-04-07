@@ -291,6 +291,29 @@ class MetricChart extends HTMLElement {
 			isUS ? celsiusToFahrenheit(e.basalBodyTemp ?? 0) : (e.basalBodyTemp ?? 0),
 		);
 
+		// Compute tight axis bounds from actual data
+		const buffer = isUS ? 0.5 : 0.3;
+		const tempMin =
+			temps.length > 0
+				? Math.floor((Math.min(...temps) - buffer) * 10) / 10
+				: isUS
+					? 96
+					: 35.5;
+		const tempMax =
+			temps.length > 0
+				? Math.ceil((Math.max(...temps) + buffer) * 10) / 10
+				: isUS
+					? 100
+					: 37.5;
+
+		// Compute 3-point centered moving average for trend detection
+		const movingAvg = (i: number): number => {
+			const start = Math.max(0, i - 1);
+			const end = Math.min(temps.length - 1, i + 1);
+			const slice = temps.slice(start, end + 1);
+			return slice.reduce((a, b) => a + b, 0) / slice.length;
+		};
+
 		// Create point colors based on computed fertility indicators
 		const { ovulationDays, fertileWindowDays } = this.fertility;
 		const pointBorderColors = bbtEntries.map((e) => {
@@ -357,6 +380,15 @@ class MetricChart extends HTMLElement {
 						fill: true,
 						yAxisID: "y",
 						order: 1,
+						segment: {
+							borderColor: (ctx) => {
+								const i = ctx.p0DataIndex;
+								if (i + 1 >= temps.length) return "#7c3aed";
+								const avg0 = movingAvg(i);
+								const avg1 = movingAvg(i + 1);
+								return avg1 > avg0 ? "#10b981" : "#7c3aed";
+							},
+						},
 					},
 				],
 			},
@@ -381,9 +413,13 @@ class MetricChart extends HTMLElement {
 							font: { size: 12 },
 							color: "#fff",
 						},
-						suggestedMin: 35.5,
-						suggestedMax: 37.5,
-						ticks: { font: { size: 14 }, color: "#fff" },
+						min: tempMin,
+						max: tempMax,
+						ticks: {
+							font: { size: 11 },
+							color: "#fff",
+							maxTicksLimit: 8,
+						},
 					},
 					yIndicators: {
 						position: "right",
