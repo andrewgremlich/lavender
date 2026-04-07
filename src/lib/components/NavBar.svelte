@@ -10,8 +10,7 @@
 		{ href: '/app', icon: 'house', label: 'Dashboard' },
 		{ href: '/app/entry', icon: 'circle-plus', label: 'Add Entry' },
 		{ href: '/app/analytics', icon: 'trending-up', label: 'Analytics', desktop: true },
-		{ href: '/app/settings', icon: 'settings', label: 'Settings', desktop: true },
-		{ href: '/app/info', icon: 'info', label: 'Info', desktop: true }
+		{ href: '/app/settings', icon: 'settings', label: 'Settings', desktop: true }
 	] as const;
 
 	const syncTitle = $derived(

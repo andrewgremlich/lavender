@@ -16,9 +16,9 @@
 	<Text as="h1">Lavender</Text>
 	<Text variant="muted">
 		A gentle companion for your personal wellness journey. Track, reflect, and bloom at your own
-		rhythm.
+		rhythm. <a href="/info">About Lavender</a>
 	</Text>
-	<a href="/auth/login">Sign in</a>
+	<p><a href="/auth/login">Sign in</a></p>
 </main>
 
 <style>
