@@ -4,6 +4,8 @@
 	import Icon from '$lib/components/Icon.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import Input from '$lib/components/Input.svelte';
+	import PillGroup from '$lib/components/PillGroup.svelte';
+	import PillOption from '$lib/components/PillOption.svelte';
 	import Text from '$lib/components/Text.svelte';
 	import type { HealthEntryData } from '$lib/types';
 	import { INDICATORS } from '$lib/utils/indicators';
@@ -63,7 +65,6 @@
 	let saved = $state(false);
 	let submitting = $state(false);
 
-	// Preload edit data if present in sessionStorage (set by EntryCard).
 	$effect(() => {
 		const raw = sessionStorage.getItem('lavender_edit_entry');
 		if (!raw) return;
@@ -73,8 +74,7 @@
 			const next = blankForm();
 			if (parsed.date) next.date = parsed.date;
 			if (parsed.basalBodyTemp != null) {
-				const temp =
-					tempUnit === 'F' ? celsiusToFahrenheit(parsed.basalBodyTemp) : parsed.basalBodyTemp;
+				const temp = tempUnit === 'F' ? celsiusToFahrenheit(parsed.basalBodyTemp) : parsed.basalBodyTemp;
 				next.bbt = (Math.round(temp * 100) / 100).toString();
 			}
 			if (parsed.cervicalMucus) next.cervicalMucus = parsed.cervicalMucus;
@@ -105,45 +105,36 @@
 		}
 	}
 
-	async function handleSubmit(e: SubmitEvent) {
-		e.preventDefault();
-		error = null;
-
-		if (!form.date) {
-			error = 'Please select a date.';
-			return;
-		}
-
+	function buildEntry(): HealthEntryData {
 		const entry: HealthEntryData = { date: form.date };
-
 		if (form.bbt) {
 			let tempC = Number.parseFloat(form.bbt);
-			if (tempUnit === 'F') {
-				tempC = Math.round(fahrenheitToCelsius(tempC) * 100) / 100;
-			}
+			if (tempUnit === 'F') tempC = Math.round(fahrenheitToCelsius(tempC) * 100) / 100;
 			entry.basalBodyTemp = tempC;
 		}
-		if (form.cervicalMucus) {
-			entry.cervicalMucus = form.cervicalMucus as HealthEntryData['cervicalMucus'];
-		}
+		if (form.cervicalMucus) entry.cervicalMucus = form.cervicalMucus as HealthEntryData['cervicalMucus'];
 		if (form.lhSurge) {
 			const lhValue = Number.parseInt(form.lhSurge, 10) as HealthEntryData['lhSurge'];
 			if (lhValue) entry.lhSurge = lhValue;
 		}
 		for (const ind of INDICATORS) {
-			if (form.indicators[ind.key]) {
-				(entry as unknown as Record<string, unknown>)[ind.key] = true;
-			}
+			if (form.indicators[ind.key]) (entry as unknown as Record<string, unknown>)[ind.key] = true;
 		}
 		if (form.bleedingStatus === 'started') entry.bleedingStart = true;
 		if (form.bleedingStatus === 'ended') entry.bleedingEnd = true;
-		if (form.bleedingFlow)
-			entry.bleedingFlow = form.bleedingFlow as HealthEntryData['bleedingFlow'];
+		if (form.bleedingFlow) entry.bleedingFlow = form.bleedingFlow as HealthEntryData['bleedingFlow'];
 		if (form.notes.trim()) entry.notes = form.notes.trim();
+		return entry;
+	}
+
+	async function handleSubmit(e: SubmitEvent) {
+		e.preventDefault();
+		error = null;
+		if (!form.date) { error = 'Please select a date.'; return; }
 
 		submitting = true;
 		try {
-			await entriesStore.saveEntry(entry, editId);
+			await entriesStore.saveEntry(buildEntry(), editId);
 			saved = true;
 			if (editId) editId = null;
 		} catch (err) {
@@ -193,12 +184,8 @@
 				<div class="temp-header">
 					<label for="bbt">Basal Body Temperature (°{tempUnit})</label>
 					<div class="unit-toggle">
-						<button type="button" class:active={tempUnit === 'C'} onclick={() => switchUnit('C')}
-							>°C</button
-						>
-						<button type="button" class:active={tempUnit === 'F'} onclick={() => switchUnit('F')}
-							>°F</button
-						>
+						<button type="button" class:active={tempUnit === 'C'} onclick={() => switchUnit('C')}>°C</button>
+						<button type="button" class:active={tempUnit === 'F'} onclick={() => switchUnit('F')}>°F</button>
 					</div>
 				</div>
 				<input
@@ -214,105 +201,70 @@
 
 			<details>
 				<summary>Cervical Mucus</summary>
-				<div class="pill-group">
+				<PillGroup>
 					{#each MUCUS_OPTIONS as opt (opt.value)}
-						<label class="pill-option">
-							<input
-								type="radio"
-								name="cervicalMucus"
-								value={opt.value}
-								bind:group={form.cervicalMucus}
-							/>
-							<span class="pill-content">
-								<Icon name={opt.icon} />
-								{opt.label}
-							</span>
-						</label>
+						<PillOption>
+							<input type="radio" name="cervicalMucus" value={opt.value} bind:group={form.cervicalMucus} />
+							<span><Icon name={opt.icon} /> {opt.label}</span>
+						</PillOption>
 					{/each}
-				</div>
+				</PillGroup>
 			</details>
 
 			<details>
 				<summary>LH Surge</summary>
-				<div class="pill-group">
+				<PillGroup>
 					{#each LH_OPTIONS as opt (opt.value)}
-						<label class="pill-option">
+						<PillOption>
 							<input type="radio" name="lhSurge" value={opt.value} bind:group={form.lhSurge} />
-							<span class="pill-content">
-								<Icon name={opt.icon} />
-								{opt.label}
-							</span>
-						</label>
+							<span><Icon name={opt.icon} /> {opt.label}</span>
+						</PillOption>
 					{/each}
-				</div>
+				</PillGroup>
 			</details>
 
 			<details>
 				<summary>Indicators</summary>
-				<div class="pill-group">
+				<PillGroup>
 					{#each INDICATORS as ind (ind.key)}
-						<label class="pill-option">
+						<PillOption>
 							<input type="checkbox" bind:checked={form.indicators[ind.key]} />
 							<span>{ind.label}</span>
-						</label>
+						</PillOption>
 					{/each}
-				</div>
+				</PillGroup>
 			</details>
 
 			<details>
 				<summary>Period / Bleeding</summary>
-				<div class="pill-group row">
-					<label class="pill-option">
-						<input
-							type="radio"
-							name="bleedingStatus"
-							value="none"
-							bind:group={form.bleedingStatus}
-						/>
+				<PillGroup row>
+					<PillOption>
+						<input type="radio" name="bleedingStatus" value="none" bind:group={form.bleedingStatus} />
 						<span>None</span>
-					</label>
-					<label class="pill-option">
-						<input
-							type="radio"
-							name="bleedingStatus"
-							value="started"
-							bind:group={form.bleedingStatus}
-						/>
+					</PillOption>
+					<PillOption>
+						<input type="radio" name="bleedingStatus" value="started" bind:group={form.bleedingStatus} />
 						<span>Started</span>
-					</label>
-					<label class="pill-option">
-						<input
-							type="radio"
-							name="bleedingStatus"
-							value="ended"
-							bind:group={form.bleedingStatus}
-						/>
+					</PillOption>
+					<PillOption>
+						<input type="radio" name="bleedingStatus" value="ended" bind:group={form.bleedingStatus} />
 						<span>Ended</span>
-					</label>
-				</div>
+					</PillOption>
+				</PillGroup>
 				<label for="flow-section">Flow Intensity</label>
-				<div class="pill-group" id="flow-section">
+				<PillGroup>
 					{#each FLOW_OPTIONS as opt (opt.value)}
-						<label class="pill-option">
-							<input
-								type="radio"
-								name="bleedingFlow"
-								value={opt.value}
-								bind:group={form.bleedingFlow}
-							/>
-							<span class="pill-content">
-								<Icon name={opt.icon} />
-								{opt.label}
-							</span>
-						</label>
+						<PillOption>
+							<input type="radio" name="bleedingFlow" value={opt.value} bind:group={form.bleedingFlow} />
+							<span><Icon name={opt.icon} /> {opt.label}</span>
+						</PillOption>
 					{/each}
-				</div>
+				</PillGroup>
 			</details>
 
 			<details>
 				<summary>Notes</summary>
-				<textarea placeholder="Any additional observations..." bind:value={form.notes} rows="4"
-				></textarea>
+				<textarea placeholder="Any additional observations..." bind:value={form.notes} rows="4"></textarea>
 			</details>
 
 			<Button type="submit" size="lg" disabled={submitting}>
@@ -337,11 +289,13 @@
 		border-radius: var(--radius-md);
 		margin-bottom: var(--space-md);
 	}
+
 	.msg.error {
 		background: var(--color-error-bg);
 		color: var(--color-error);
 		border: 1px solid var(--color-error);
 	}
+
 	.msg.success {
 		background: var(--color-success-bg);
 		color: var(--color-success);
@@ -432,50 +386,5 @@
 	.unit-toggle button.active {
 		background: var(--color-primary);
 		color: var(--color-text-inverse);
-	}
-
-	.pill-group {
-		display: flex;
-		flex-wrap: wrap;
-		gap: var(--space-sm);
-		margin-top: var(--space-sm);
-	}
-	.pill-group.row {
-		flex-direction: row;
-	}
-
-	.pill-option {
-		position: relative;
-		flex: 1 1 auto;
-		min-width: 80px;
-	}
-
-	.pill-option input {
-		position: absolute;
-		opacity: 0;
-		pointer-events: none;
-	}
-
-	.pill-option span {
-		display: flex;
-		align-items: center;
-		justify-content: center;
-		gap: var(--space-xs);
-		padding: var(--space-sm) var(--space-md);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-md);
-		font-size: var(--text-sm);
-		cursor: pointer;
-		transition: all var(--transition-fast);
-	}
-
-	.pill-option input:checked + span {
-		border-color: var(--color-primary);
-		background: var(--color-primary-alpha);
-		color: var(--color-primary);
-	}
-
-	.pill-content {
-		flex-direction: row;
 	}
 </style>
