@@ -1,27 +1,25 @@
 <script lang="ts" module>
-	import {
-		ChevronDown,
-		Circle,
-		CircleCheck,
-		CircleDot,
-		CirclePlus,
-		Droplet,
-		Droplets,
-		Egg,
-		House,
-		Info,
-		type IconNode,
-		LogOut,
-		Menu,
-		Minus,
-		Pencil,
-		Save,
-		Settings,
-		Trash2,
-		TrendingUp
-	} from 'lucide';
+	import ChevronDown from '@lucide/svelte/icons/chevron-down';
+	import Circle from '@lucide/svelte/icons/circle';
+	import CircleCheck from '@lucide/svelte/icons/circle-check';
+	import CircleDot from '@lucide/svelte/icons/circle-dot';
+	import CirclePlus from '@lucide/svelte/icons/circle-plus';
+	import Droplet from '@lucide/svelte/icons/droplet';
+	import Droplets from '@lucide/svelte/icons/droplets';
+	import Egg from '@lucide/svelte/icons/egg';
+	import House from '@lucide/svelte/icons/house';
+	import Info from '@lucide/svelte/icons/info';
+	import LogOut from '@lucide/svelte/icons/log-out';
+	import Menu from '@lucide/svelte/icons/menu';
+	import Minus from '@lucide/svelte/icons/minus';
+	import Pencil from '@lucide/svelte/icons/pencil';
+	import Save from '@lucide/svelte/icons/save';
+	import Settings from '@lucide/svelte/icons/settings';
+	import Trash2 from '@lucide/svelte/icons/trash-2';
+	import TrendingUp from '@lucide/svelte/icons/trending-up';
+	import type { Component } from 'svelte';
 
-	const ICONS: Record<string, IconNode> = {
+	const ICONS: Record<string, Component<{ size?: number; strokeWidth?: number }>> = {
 		'chevron-down': ChevronDown,
 		circle: Circle,
 		'circle-check': CircleCheck,
@@ -54,42 +52,10 @@
 
 	let { name, size = 20, strokeWidth = 2 }: Props = $props();
 
-	// Each Lucide IconNode is ['svg', attrs, children]. We splat the children
-	// (each a [tagName, attrs] tuple) into inline SVG elements.
-	const node = $derived(ICONS[name]);
-	const children = $derived(
-		(node?.[2] ?? []) as unknown as Array<[string, Record<string, string>]>
-	);
+	const icon = $derived(ICONS[name]);
 </script>
 
-{#if node}
-	<svg
-		xmlns="http://www.w3.org/2000/svg"
-		width={size}
-		height={size}
-		viewBox="0 0 24 24"
-		fill="none"
-		stroke="currentColor"
-		stroke-width={strokeWidth}
-		stroke-linecap="round"
-		stroke-linejoin="round"
-	>
-		{#each children as [tag, attrs] (tag + JSON.stringify(attrs))}
-			{#if tag === 'path'}
-				<path {...attrs} />
-			{:else if tag === 'circle'}
-				<circle {...attrs} />
-			{:else if tag === 'line'}
-				<line {...attrs} />
-			{:else if tag === 'rect'}
-				<rect {...attrs} />
-			{:else if tag === 'polyline'}
-				<polyline {...attrs} />
-			{:else if tag === 'polygon'}
-				<polygon {...attrs} />
-			{:else if tag === 'ellipse'}
-				<ellipse {...attrs} />
-			{/if}
-		{/each}
-	</svg>
+{#if icon}
+	{@const IconComponent = icon}
+	<IconComponent {size} {strokeWidth} />
 {/if}
