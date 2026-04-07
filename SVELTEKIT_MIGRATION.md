@@ -83,10 +83,18 @@ Phases are committed incrementally. The legacy codebase lives under `legacy/` fo
   - `/auth/login`, `/auth/register`, `/auth/recovery` pages built with runes (`$state`, `$derived`, `$effect`). Register and recovery both surface the recovery code in a post-success screen gated by an acknowledgement checkbox. Recovery page has two modes: unauthenticated recover-with-code, and `?setup=1` for logged-in legacy accounts without a recovery code.
   - `/app/+layout.svelte` client-side redirect to `/auth/login` when `!auth.loggedIn`. The server already rejects unauthenticated `/api/*` calls via `hooks.server.ts`, so the layout only guards navigation.
   - Pages use scoped styles with inline colors for now — componentization of reusable primitives (button, input, etc.) is deferred to Phase 5 per the "not up front" rule.
-- [ ] **Phase 5 — App pages & components**
-  - Dashboard, entry form, settings, analytics, nav, info, calendar, entry card
-  - Componentize reusable primitives opportunistically as duplication emerges (not up front)
-  - Component-scoped CSS using Svelte scoped styles (no shadow DOM); shared theme via CSS custom properties
+- [x] **Phase 5 — App pages & components**
+  - `src/app.css` holds the theme (CSS custom properties + resets), imported once from `src/routes/+layout.svelte`. All per-component styling lives in Svelte scoped `<style>` blocks — no shadow DOM, no global class dependencies.
+  - `$lib/utils/{fertility,indicators,units}.ts` — direct copy from legacy. `icons.ts` was dropped; replaced by a single `$lib/components/Icon.svelte` wrapper that renders Lucide `IconNode`s as inline SVGs (one component handles all icon names used across the app).
+  - `$lib/services/{db,metrics-store,sync-engine}.ts` — direct ports from legacy. The services remain event-driven (window `sync-status-change` / `sync-complete`) and are consumed by the reactive wrapper in `$lib/client/entries.svelte.ts`. Phase 6 will replace the event bridge with direct subscriptions.
+  - `$lib/client/entries.svelte.ts` — reactive entries store (Svelte 5 runes). Handles decryption with the current key and a one-time legacy-key migration. Exposes `entries`, `fertility` (derived from `calculateFertilityIndicators`), `loading`, `error`, and `load/saveEntry/deleteEntry/clear`. Components never touch crypto or IDB directly.
+  - `$lib/client/api.ts` extended with `metricsApi` (CRUD + deleteAll) and `settingsApi`, and `authApi.changePassword` / `authApi.deleteAccount` for settings flows.
+  - `$lib/components/`: `NavBar.svelte`, `Icon.svelte`, `EntryCard.svelte`, `CycleCalendar.svelte`, `MetricChart.svelte`. The chart wrapper manages its Chart.js instance with an `$effect` (rebuild on prop change) + `onDestroy` (teardown). Same pattern used inline on the analytics page for its three tab charts.
+  - `/app/+layout.svelte` mounts the NavBar, initializes the sync engine + entries store listener when logged in, and redirects to `/auth/login` otherwise.
+  - Routes: `/app` (dashboard with MetricChart + CycleCalendar + recent EntryCards), `/app/entry` (log/edit form — edit state passed via sessionStorage from EntryCard, cleared on unmount), `/app/analytics` (comparison/luteal/accuracy tabs), `/app/settings` (units, retention, JSON/CSV export, password change, delete data, delete account, logout), `/app/info`.
+  - **Dropped**: legacy PDF report export. It opened a `window.print()` popup with inline HTML — that pattern is unreliable under CSP and worth revisiting as a server-rendered endpoint later. JSON + CSV exports remain.
+  - **Dropped**: `renderIcons` DOM-querying helper. All icon rendering now goes through `<Icon name="..." />`.
+  - `check`, `lint`, `test` (28 legacy fertility tests), and `build` all green.
 - [ ] **Phase 6 — Reactive stores**
   - Port sync engine and IndexedDB services to `$lib/services`
   - Bridge their events into reactive runes/stores

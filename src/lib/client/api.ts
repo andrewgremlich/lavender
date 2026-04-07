@@ -1,8 +1,7 @@
 // Fetch wrapper that auto-attaches the session JWT.
-// Ported from legacy/src/client/services/api.ts. Only the auth subset is
-// included here for Phase 4; metrics/settings clients land with Phase 5/6.
+// Ported from legacy/src/client/services/api.ts.
 
-import type { AuthResponse } from '$lib/types';
+import type { AuthResponse, EncryptedEntry, UserSettings } from '$lib/types';
 
 const API_BASE = '/api';
 const TOKEN_KEY = 'lavender_token';
@@ -86,5 +85,40 @@ export const authApi = {
 		request<AuthResponse>('/auth/recover', {
 			method: 'POST',
 			body: JSON.stringify(payload)
+		}),
+	changePassword: (
+		oldPassword: string,
+		newPassword: string,
+		reEncryptedEntries: Array<{ id: string; encryptedData: string; iv: string }>
+	) =>
+		request<{ token: string; username: string }>('/auth/password', {
+			method: 'PUT',
+			body: JSON.stringify({ oldPassword, newPassword, reEncryptedEntries })
+		}),
+	deleteAccount: () => request<{ message: string }>('/auth/account', { method: 'DELETE' })
+};
+
+export const metricsApi = {
+	getAll: () => request<EncryptedEntry[]>('/metrics'),
+	create: (encryptedData: string, iv: string) =>
+		request<{ id: string; createdAt: string; expiresAt: string }>('/metrics', {
+			method: 'POST',
+			body: JSON.stringify({ encryptedData, iv })
+		}),
+	update: (id: string, encryptedData: string, iv: string) =>
+		request<{ message: string }>(`/metrics/${id}`, {
+			method: 'PUT',
+			body: JSON.stringify({ encryptedData, iv })
+		}),
+	delete: (id: string) => request<{ message: string }>(`/metrics/${id}`, { method: 'DELETE' }),
+	deleteAll: () => request<{ message: string }>('/metrics', { method: 'DELETE' })
+};
+
+export const settingsApi = {
+	get: () => request<UserSettings>('/settings'),
+	update: (patch: Partial<UserSettings>) =>
+		request<UserSettings>('/settings', {
+			method: 'PUT',
+			body: JSON.stringify(patch)
 		})
 };

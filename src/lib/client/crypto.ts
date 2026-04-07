@@ -98,6 +98,10 @@ export function getLegacyKey(): string | null {
 	return sessionStorage.getItem(EK_LEGACY_KEY);
 }
 
+export function clearLegacyKey(): void {
+	sessionStorage.removeItem(EK_LEGACY_KEY);
+}
+
 // --- Recovery code helpers ---
 
 /** Generate a 16-byte recovery code formatted as "XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX". */
