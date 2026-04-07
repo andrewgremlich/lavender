@@ -410,6 +410,12 @@ class MetricChart extends HTMLElement {
 							maxTicksLimit: 15,
 							font: { size: 11 },
 							color: "#fff",
+							callback: (value: unknown, index: number) => {
+								const label = labels[index];
+								if (!label) return value;
+								const [, month, day] = label.split("-");
+								return `${month}/${day}`;
+							},
 						},
 						grid: { display: false },
 					},
