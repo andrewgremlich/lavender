@@ -1,0 +1,33 @@
+.input-field {
+	display: flex;
+	flex-direction: column;
+	gap: 0.35rem;
+}
+
+.input-field label {
+	font-size: var(--text-sm);
+	font-weight: 500;
+}
+
+.input-field input {
+	font: inherit;
+	padding: 0.625rem 0.75rem;
+	border: 1px solid var(--color-border, #ccc);
+	border-radius: var(--radius-md, 0.35rem);
+	background: var(--color-surface, #fff);
+	color: var(--color-text, #1e1b4b);
+	font-size: var(--text-base, 1rem);
+	width: 100%;
+	color-scheme: light dark;
+}
+
+.input-field input:focus {
+	outline: none;
+	border-color: var(--color-border-focus, #a78bfa);
+	box-shadow: 0 0 0 3px var(--color-primary-alpha, rgba(124, 58, 237, 0.12));
+}
+
+.input-field input:disabled {
+	opacity: 0.6;
+	cursor: not-allowed;
+}
