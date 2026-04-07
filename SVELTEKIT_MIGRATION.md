@@ -58,11 +58,17 @@ Phases are committed incrementally. The legacy codebase lives under `legacy/` fo
   - `wrangler.toml`: `main` → `.svelte-kit/cloudflare/_worker.js`, added `assets.directory` and `nodejs_compat` flag, D1 binding `lavender_db` unchanged
   - TypeScript downgraded 6.0.2 → 5.9 and Vite 8 → 5.4 to match SvelteKit ecosystem
   - `check`, `lint`, `test`, and `build` all green
-- [ ] **Phase 2 — API routes + server crypto/types**
-  - Port `/api/auth`, `/api/metrics`, `/api/settings` from Hono to SvelteKit `+server.ts`
-  - Move `src/worker/crypto.ts` → `$lib/server/crypto.ts`
-  - Move `Env`, `UserRow`, `HealthEntryRow`, `UserSettingsRow` → `$lib/server/types.ts`
-  - Remove `hono` dependency
+- [x] **Phase 2 — API routes + server crypto/types**
+  - Ported `/api/auth/{register,login,password,recovery-setup,recovery-start,recover,account}`, `/api/metrics`, `/api/metrics/[id]`, `/api/settings`, and `/api/health` from Hono to SvelteKit `+server.ts`
+  - `$lib/server/crypto.ts` (PBKDF2 password hashing, salt/id generation, timing-safe equal) — direct port from legacy
+  - `$lib/server/types.ts` — `UserRow`, `HealthEntryRow`, `UserSettingsRow`. The legacy `Env` interface was dropped in favor of SvelteKit's typed `App.Platform`
+  - `$lib/server/jwt.ts` — hand-rolled HS256 using Web Crypto (no external JWT library, keeping the "no crypto deps" principle). Header is pinned to `{alg:"HS256",typ:"JWT"}` and checked on verify so tampered alg fields can't bypass verification
+  - `$lib/server/db.ts` — `getPlatform(event)` helper that extracts D1 + JWT secret and returns 500 if misconfigured
+  - `$lib/server/auth.ts` — temporary `requireAuth(event, jwtSecret)` helper; will be replaced by `event.locals.user` populated in `hooks.server.ts` in Phase 3
+  - `$lib/server/validation.ts` — password complexity and username validation extracted from legacy auth routes
+  - `$lib/types.ts` — client-safe shared types (`HealthEntryData`, `EncryptedEntry`, `UserSettings`, `AuthResponse`, `ApiError`)
+  - **Dropped**: `/api/cleanup` endpoint. It required auth but allowed any authenticated user to delete expired entries across all users' data, with no known client caller. Per-user expiry already happens on every `GET /api/metrics`. If a global cleanup job is needed later, it should be a Cloudflare cron trigger, not an HTTP endpoint.
+  - **Deferred to Phase 3**: CORS, security headers, rate limiting, and hoisting auth into hooks
 - [ ] **Phase 3 — `hooks.server.ts`**
   - Auth (JWT verification), security headers, CSP nonces
   - **KV-backed rate limiting** (replacing the in-memory Map). Local-only KV namespace with placeholder id in `wrangler.toml` for now; real namespace must be created before remote deploy.
