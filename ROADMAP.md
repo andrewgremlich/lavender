@@ -68,11 +68,12 @@ I don't know if this would be valuable.
 ## Phase 4: Large Effort
 
 ### 10. Multi-language (i18n) ✅
-- Use [`svelte-i18n`](https://github.com/kaisermann/svelte-i18n) — Svelte-native, store-based, works with Svelte 5
-- Extract all user-facing strings into JSON locale files (e.g. `src/lib/i18n/en.json`)
-- Language selector in settings, preference stored in `localStorage`
-- Start with English + 1-2 additional languages
-- Touches every component, so best done after other features stabilize
+- Used [`svelte-i18n`](https://github.com/kaisermann/svelte-i18n) — Svelte-native, store-based, works with Svelte 5
+- ~300 strings extracted into `src/lib/i18n/{en,es,fr}.json`; locales lazy-loaded via `register()`
+- `src/lib/i18n/index.ts` handles init, locale detection (localStorage → browser language → English fallback), and `storeLocale`/`getStoredLocale` helpers
+- `setupI18n()` called once in the root `+layout.svelte`
+- Language selector card added to Settings page; `locale.set()` updates the UI immediately without a page reload
+- All components and routes updated to use `$_('key')` — NavBar, EntryCard, RangeSelector, ExportSection, ImportSection, ChangePasswordSection, DangerZoneSection, and all auth/app routes
 
 ---
 
