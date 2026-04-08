@@ -3,6 +3,7 @@
 	import { auth } from '$lib/client/auth.svelte';
 	import Button from '$lib/components/Button.svelte';
 	import Input from '$lib/components/Input.svelte';
+	import Logo from '$lib/components/Logo.svelte';
 	import Text from '$lib/components/Text.svelte';
 	import { _ } from 'svelte-i18n';
 
@@ -35,6 +36,7 @@
 </svelte:head>
 
 <main>
+	<Logo size="lg" class="auth-logo" />
 	<Text as="h1">{$_('auth.login.title')}</Text>
 	<form onsubmit={handleSubmit}>
 		<Input
@@ -72,11 +74,16 @@
 		max-width: 24rem;
 		margin: 4rem auto;
 		padding: 2rem;
+		text-align: center;
+	}
+	:global(.auth-logo) {
+		margin: 0 auto var(--space-md);
 	}
 	form {
 		display: flex;
 		flex-direction: column;
 		gap: 1rem;
+		text-align: left;
 	}
 	:global(.links) {
 		margin-top: 1.5rem;

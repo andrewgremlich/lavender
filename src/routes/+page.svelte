@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { auth } from '$lib/client/auth.svelte';
+	import Logo from '$lib/components/Logo.svelte';
 	import Text from '$lib/components/Text.svelte';
 
 	$effect(() => {
@@ -13,6 +14,7 @@
 </svelte:head>
 
 <main>
+	<Logo size="xl" class="hero-logo" />
 	<Text as="h1">Lavender</Text>
 	<Text variant="muted">
 		A gentle companion for your personal wellness journey. Track, reflect, and bloom at your own
@@ -27,6 +29,10 @@
 		margin: 4rem auto;
 		padding: 0 1rem;
 		font-family: system-ui, sans-serif;
+		text-align: center;
+	}
+	:global(.hero-logo) {
+		margin: 0 auto var(--space-lg);
 	}
 	a {
 		color: #7a5cbf;
