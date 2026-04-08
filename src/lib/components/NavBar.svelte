@@ -4,6 +4,7 @@
 	import { _ } from 'svelte-i18n';
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';
+	import Logo from './Logo.svelte';
 
 	let menuOpen = $state(false);
 
@@ -31,6 +32,7 @@
 
 <nav class="nav-bar">
 	<div class="brand">
+		<Logo size="sm" />
 		<h1>Lavender</h1>
 		<span class="sync-dot sync-dot--{sync.status}" title={syncTitle}></span>
 	</div>
@@ -222,7 +224,7 @@
 		.brand {
 			display: flex;
 			align-items: center;
-			justify-content: space-between;
+			gap: var(--space-sm);
 			padding: 0 var(--space-sm);
 			margin-bottom: var(--space-lg);
 		}
@@ -230,6 +232,8 @@
 		.brand h1 {
 			font-size: var(--text-xl);
 			color: var(--color-primary);
+			margin: 0;
+			flex: 1;
 		}
 
 		.nav-item {

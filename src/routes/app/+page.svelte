@@ -7,6 +7,7 @@
 	import ChartLegend from '$lib/components/ChartLegend.svelte';
 	import CycleCalendar from '$lib/components/CycleCalendar.svelte';
 	import EntryCard from '$lib/components/EntryCard.svelte';
+	import Logo from '$lib/components/Logo.svelte';
 	import MetricChart from '$lib/components/MetricChart.svelte';
 	import RangeSelector from '$lib/components/RangeSelector.svelte';
 	import Text from '$lib/components/Text.svelte';
@@ -91,7 +92,10 @@
 	<title>{$_('dashboard.pageTitle')}</title>
 </svelte:head>
 
-<Text as="h2">{$_('dashboard.title')}</Text>
+<header class="dashboard-header">
+	<Logo size="md" />
+	<Text as="h2">{$_('dashboard.title')}</Text>
+</header>
 
 {#if entriesStore.loading && entriesStore.entries.length === 0}
 	<Text variant="muted">{$_('dashboard.loading')}</Text>
@@ -127,6 +131,17 @@
 {/if}
 
 <style>
+	.dashboard-header {
+		display: flex;
+		align-items: center;
+		gap: var(--space-md);
+		margin-bottom: var(--space-md);
+	}
+
+	.dashboard-header :global(h2) {
+		margin: 0;
+	}
+
 	.error {
 		padding: var(--space-md);
 		background: var(--color-error-bg);
