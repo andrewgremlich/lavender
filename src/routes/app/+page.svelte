@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { browser } from '$app/environment';
 	import { goto } from '$app/navigation';
 	import { settingsApi } from '$lib/client/api';
 	import { entriesStore } from '$lib/client/entries.svelte';
@@ -12,6 +13,27 @@
 	import { _ } from 'svelte-i18n';
 
 	type Range = '7' | '30' | 'all';
+
+	const RANGE_STORAGE_KEY = 'lavender_default_date_range';
+
+	function getStoredRange(): Range | null {
+		if (!browser) return null;
+		try {
+			const stored = window.localStorage.getItem(RANGE_STORAGE_KEY);
+			return stored === '7' || stored === '30' || stored === 'all' ? stored : null;
+		} catch {
+			return null;
+		}
+	}
+
+	function storeRange(value: Range): void {
+		if (!browser) return;
+		try {
+			window.localStorage.setItem(RANGE_STORAGE_KEY, value);
+		} catch {
+			// ignore local storage failures
+		}
+	}
 
 	const legendItems = $derived([
 		{ color: '#7c3aed', label: $_('dashboard.legend.bbt') },
@@ -29,7 +51,7 @@
 		}
 	]);
 
-	let range = $state<Range>('30');
+	let range = $state<Range>(getStoredRange() ?? '30');
 
 	$effect(() => {
 		settingsApi
@@ -41,6 +63,7 @@
 					s.defaultDateRange === 'all'
 				) {
 					range = s.defaultDateRange;
+					storeRange(s.defaultDateRange);
 				}
 			})
 			.catch(() => {});
@@ -48,6 +71,7 @@
 
 	function selectRange(next: Range) {
 		range = next;
+		storeRange(next);
 		settingsApi.update({ defaultDateRange: next }).catch(() => {});
 	}
 
