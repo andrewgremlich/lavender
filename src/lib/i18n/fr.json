@@ -135,6 +135,7 @@
 		"export": {
 			"title": "Exporter les données",
 			"description": "Téléchargez toutes vos entrées de santé sous forme de fichier déchiffré pour sauvegarde ou analyse.",
+			"pdfDescription": "Les exports PDF incluent un résumé des données et des tendances de votre cycle, ce qui est idéal pour les partager avec des professionnels de santé.",
 			"json": "Exporter JSON",
 			"csv": "Exporter CSV",
 			"pdf": "Exporter PDF",

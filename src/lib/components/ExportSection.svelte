@@ -275,6 +275,7 @@
 
 <SettingsCard title={$_('settings.export.title')}>
 	<p>{$_('settings.export.description')}</p>
+	<p>{$_('settings.export.pdfDescription')}</p>
 	<div class="export-actions">
 		<Button type="button" onclick={exportJson}>{$_('settings.export.json')}</Button>
 		<Button type="button" onclick={exportCsv}>{$_('settings.export.csv')}</Button>

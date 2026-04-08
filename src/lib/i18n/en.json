@@ -135,6 +135,7 @@
 		"export": {
 			"title": "Export Data",
 			"description": "Download all your health entries as a decrypted file for backup or analysis.",
+			"pdfDescription": "PDF exports include a summary of your cycle data and trends, ideal for sharing with healthcare providers.",
 			"json": "Export JSON",
 			"csv": "Export CSV",
 			"pdf": "Export PDF",
