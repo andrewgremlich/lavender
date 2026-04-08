@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { PDF, StandardFonts, rgb } from '@libpdf/core';
+	import Chart from 'chart.js/auto';
 	import { metricsApi } from '$lib/client/api';
 	import { decrypt, getStoredKey, importKey } from '$lib/client/crypto';
+	import { getCycleSegments, toFertilityEntry } from '$lib/utils/fertility';
+	import { celsiusToFahrenheit, getUnitSystem } from '$lib/utils/units';
 	import { _ } from 'svelte-i18n';
 	import Button from './Button.svelte';
 	import FlashMessage from './FlashMessage.svelte';
@@ -136,10 +139,8 @@
 	async function exportPdf() {
 		try {
 			const decrypted = await decryptAll();
-			decrypted.sort(
-				(a, b) =>
-					new Date(b.data.date as string).getTime() - new Date(a.data.date as string).getTime()
-			);
+			const fertilityEntries = decrypted.map((e) => toFertilityEntry(e.data as any));
+			const segments = getCycleSegments(fertilityEntries);
 
 			const pdf = PDF.create();
 			const margin = 50;
@@ -258,6 +259,154 @@
 				});
 
 				y -= rowHeight;
+			}
+
+			// Add temperature chart page
+			page = pdf.addPage({ size: 'letter' });
+			y = page.height - margin;
+			page.drawText('Temperature Chart', {
+				x: margin,
+				y,
+				font: headerFont,
+				size: 16,
+				color: black
+			});
+			y -= 24;
+
+			const bbtEntries = decrypted.filter((e) => e.data.basalBodyTemp != null);
+			if (bbtEntries.length > 0) {
+				const isUS = getUnitSystem() === 'us';
+				const tempUnit = isUS ? '°F' : '°C';
+				const canvas = document.createElement('canvas');
+				canvas.width = 500;
+				canvas.height = 400;
+				const ctx = canvas.getContext('2d');
+				if (ctx) {
+					const chart = new Chart(ctx, {
+						type: 'line',
+						data: {
+							labels: bbtEntries.map((e) => e.data.date as string),
+							datasets: [
+								{
+									label: `Basal Body Temperature (${tempUnit})`,
+									data: bbtEntries.map((e) =>
+										isUS ? celsiusToFahrenheit(e.data.basalBodyTemp as number) : (e.data.basalBodyTemp as number)
+									),
+									borderColor: 'rgb(75, 192, 192)',
+									backgroundColor: 'rgba(75, 192, 192, 0.2)',
+									tension: 0.1
+								}
+							]
+						},
+						options: {
+							responsive: false,
+							scales: {
+								x: {
+									title: { display: true, text: 'Date' }
+								},
+								y: {
+									title: { display: true, text: `Temperature (${tempUnit})` }
+								}
+							}
+						}
+					});
+					// Wait for chart to render
+					await new Promise((resolve) => setTimeout(resolve, 100));
+					const base64 = chart.toBase64Image();
+					const imageBytes = Uint8Array.from(atob(base64.split(',')[1]), (c) => c.charCodeAt(0));
+					const pngImage = await pdf.embedPng(imageBytes);
+					page.drawImage(pngImage, {
+						x: margin,
+						y: y - 400,
+						width: 500,
+						height: 400
+					});
+					chart.destroy();
+				}
+			}
+
+			// Add comparison chart page
+			if (segments.length >= 2) {
+				page = pdf.addPage({ size: 'letter' });
+				y = page.height - margin;
+				page.drawText('Cycle Temperature Comparison', {
+					x: margin,
+					y,
+					font: headerFont,
+					size: 16,
+					color: black
+				});
+				y -= 24;
+
+				const recentSegments = segments.slice(-5);
+				const isUS = getUnitSystem() === 'us';
+				const tempUnit = isUS ? '°F' : '°C';
+				const CYCLE_COLORS = ['#7c3aed', '#ec4899', '#10b981', '#f59e0b', '#3b82f6', '#ef4444'];
+				const MIN_OFFSET = -20;
+				const MAX_OFFSET = 20;
+				const offsetRange: number[] = [];
+				for (let d = MIN_OFFSET; d <= MAX_OFFSET; d++) offsetRange.push(d);
+
+				const datasets = recentSegments.map((segment, idx) => {
+					const offsetMap = new Map<number, number>();
+					for (const entry of segment.entries) {
+						if (entry.bbt !== undefined) {
+							offsetMap.set(
+								entry.dayOffset,
+								isUS ? celsiusToFahrenheit(entry.bbt) : entry.bbt
+							);
+						}
+					}
+					return {
+						label: `Cycle ${segment.index + 1}`,
+						data: offsetRange.map((d) => offsetMap.get(d) ?? null),
+						borderColor: CYCLE_COLORS[idx % CYCLE_COLORS.length],
+						backgroundColor: 'transparent',
+						pointRadius: offsetRange.map((d) => (offsetMap.has(d) ? 3 : 0)),
+						tension: 0.3,
+						spanGaps: true
+					};
+				});
+
+				const canvas2 = document.createElement('canvas');
+				canvas2.width = 500;
+				canvas2.height = 400;
+				const ctx2 = canvas2.getContext('2d');
+				if (ctx2) {
+					const chart2 = new Chart(ctx2, {
+						type: 'line',
+						data: {
+							labels: offsetRange.map((d) =>
+								d === 0 ? 'Ovulation' : d > 0 ? `+${d}` : String(d)
+							),
+							datasets
+						},
+						options: {
+							responsive: false,
+							scales: {
+								x: {
+									title: { display: true, text: 'Days from Ovulation' }
+								},
+								y: {
+									title: { display: true, text: `Temperature (${tempUnit})` }
+								}
+							}
+						}
+					});
+					await new Promise((resolve) => setTimeout(resolve, 100));
+					const base64_2 = chart2.toBase64Image();
+					const imageBytes2 = Uint8Array.from(atob(base64_2.split(',')[1]), (c) =>
+						c.charCodeAt(0)
+					);
+					const pngImage2 = await pdf.embedPng(imageBytes2);
+					page.drawImage(pngImage2, {
+						x: margin,
+						y: y - 400,
+						width: 500,
+						height: 400
+					});
+					chart2.destroy();
+				}
 			}
 
 			const bytes = await pdf.save();
