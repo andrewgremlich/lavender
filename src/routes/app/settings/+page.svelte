@@ -3,6 +3,7 @@
 	import { settingsApi } from '$lib/client/api';
 	import { auth } from '$lib/client/auth.svelte';
 	import { entriesStore } from '$lib/client/entries.svelte';
+	import { SUPPORTED_LOCALES, getStoredLocale, storeLocale, type SupportedLocale } from '$lib/i18n';
 	import { metricsStore } from '$lib/services/metrics-store';
 	import { getUnitSystem, setUnitSystem, type UnitSystem } from '$lib/utils/units';
 	import Button from '$lib/components/Button.svelte';
@@ -13,11 +14,14 @@
 	import ImportSection from '$lib/components/ImportSection.svelte';
 	import ChangePasswordSection from '$lib/components/ChangePasswordSection.svelte';
 	import DangerZoneSection from '$lib/components/DangerZoneSection.svelte';
+	import { _, locale } from 'svelte-i18n';
 
 	let unitSystem = $state<UnitSystem>(getUnitSystem());
 	let retentionDays = $state(180);
+	let language = $state<SupportedLocale>(getStoredLocale());
 	let unitsMsg = $state<{ text: string; type: 'success' | 'error' } | null>(null);
 	let retentionMsg = $state<{ text: string; type: 'success' | 'error' } | null>(null);
+	let languageMsg = $state<{ text: string; type: 'success' | 'error' } | null>(null);
 
 	$effect(() => {
 		settingsApi
@@ -39,20 +43,26 @@
 
 	function saveUnits() {
 		setUnitSystem(unitSystem);
-		flash((m) => (unitsMsg = m), 'Unit preference saved.', 'success');
+		flash((m) => (unitsMsg = m), $_('settings.units.saved'), 'success');
 	}
 
 	async function saveRetention() {
 		try {
 			await settingsApi.update({ dataRetentionDays: retentionDays });
-			flash((m) => (retentionMsg = m), 'Retention period saved.', 'success');
+			flash((m) => (retentionMsg = m), $_('settings.retention.saved'), 'success');
 		} catch (err) {
 			flash(
 				(m) => (retentionMsg = m),
-				err instanceof Error ? err.message : 'Failed to save.',
+				err instanceof Error ? err.message : $_('settings.retention.saveFailed'),
 				'error'
 			);
 		}
+	}
+
+	function saveLanguage() {
+		storeLocale(language);
+		locale.set(language);
+		flash((m) => (languageMsg = m), $_('settings.language.saved'), 'success');
 	}
 
 	async function logout() {
@@ -64,33 +74,44 @@
 </script>
 
 <svelte:head>
-	<title>Settings — Lavender</title>
+	<title>{$_('settings.pageTitle')}</title>
 </svelte:head>
 
 <div class="header">
-	<Text as="h2">Settings</Text>
-	<Button variant="outline" type="button" onclick={logout}>Log Out</Button>
+	<Text as="h2">{$_('settings.title')}</Text>
+	<Button variant="outline" type="button" onclick={logout}>{$_('settings.logOut')}</Button>
 </div>
 
-<SettingsCard title="Units">
-	<label for="unit-system">Measurement system</label>
+<SettingsCard title={$_('settings.units.title')}>
+	<label for="unit-system">{$_('settings.units.label')}</label>
 	<select id="unit-system" bind:value={unitSystem}>
-		<option value="metric">Metric (°C, kg, cm)</option>
-		<option value="us">US (°F, lb, in)</option>
+		<option value="metric">{$_('settings.units.metric')}</option>
+		<option value="us">{$_('settings.units.us')}</option>
 	</select>
-	<Button type="button" onclick={saveUnits}>Save</Button>
+	<Button type="button" onclick={saveUnits}>{$_('common.save')}</Button>
 	<FlashMessage message={unitsMsg} />
 </SettingsCard>
 
-<SettingsCard title="Data Retention">
-	<label for="retention">Auto-delete entries older than</label>
+<SettingsCard title={$_('settings.retention.title')}>
+	<label for="retention">{$_('settings.retention.label')}</label>
 	<select id="retention" bind:value={retentionDays}>
-		<option value={180}>6 months</option>
-		<option value={270}>9 months</option>
-		<option value={365}>1 year</option>
+		<option value={180}>{$_('settings.retention.6months')}</option>
+		<option value={270}>{$_('settings.retention.9months')}</option>
+		<option value={365}>{$_('settings.retention.1year')}</option>
 	</select>
-	<Button type="button" onclick={saveRetention}>Save</Button>
+	<Button type="button" onclick={saveRetention}>{$_('common.save')}</Button>
 	<FlashMessage message={retentionMsg} />
+</SettingsCard>
+
+<SettingsCard title={$_('settings.language.title')}>
+	<label for="language">{$_('settings.language.label')}</label>
+	<select id="language" bind:value={language}>
+		{#each SUPPORTED_LOCALES as loc (loc.value)}
+			<option value={loc.value}>{loc.label}</option>
+		{/each}
+	</select>
+	<Button type="button" onclick={saveLanguage}>{$_('common.save')}</Button>
+	<FlashMessage message={languageMsg} />
 </SettingsCard>
 
 <ExportSection />

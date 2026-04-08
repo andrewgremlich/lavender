@@ -13,6 +13,7 @@
 		getPredictionAccuracy,
 		toFertilityEntry
 	} from '$lib/utils/fertility';
+	import { _ } from 'svelte-i18n';
 
 	type Tab = 'comparison' | 'luteal' | 'accuracy';
 
@@ -53,76 +54,98 @@
 </script>
 
 <svelte:head>
-	<title>Analytics — Lavender</title>
+	<title>{$_('analytics.pageTitle')}</title>
 </svelte:head>
 
-<Text as="h2">Analytics</Text>
+<Text as="h2">{$_('analytics.title')}</Text>
 
 {#if entriesStore.loading && entriesStore.entries.length === 0}
-	<Text variant="muted">Loading your data…</Text>
+	<Text variant="muted">{$_('analytics.loading')}</Text>
 {:else if entriesStore.entries.length === 0}
 	<div class="empty">
-		<Text as="h3">No Data Yet</Text>
-		<p>Add health entries to see analytics and trends.</p>
+		<Text as="h3">{$_('dashboard.noDataYet')}</Text>
+		<p>{$_('analytics.noDataDescription')}</p>
 	</div>
 {:else}
 	<div class="tab-bar">
-		<Button variant="ghost" type="button" active={tab === 'comparison'} onclick={() => (tab = 'comparison')}>
-			Cycle Comparison
+		<Button
+			variant="ghost"
+			type="button"
+			active={tab === 'comparison'}
+			onclick={() => (tab = 'comparison')}
+		>
+			{$_('analytics.tabs.cycleComparison')}
 		</Button>
-		<Button variant="ghost" type="button" active={tab === 'luteal'} onclick={() => (tab = 'luteal')}>
-			Luteal Trends
+		<Button
+			variant="ghost"
+			type="button"
+			active={tab === 'luteal'}
+			onclick={() => (tab = 'luteal')}
+		>
+			{$_('analytics.tabs.lutealTrends')}
 		</Button>
-		<Button variant="ghost" type="button" active={tab === 'accuracy'} onclick={() => (tab = 'accuracy')}>
-			Prediction Accuracy
+		<Button
+			variant="ghost"
+			type="button"
+			active={tab === 'accuracy'}
+			onclick={() => (tab = 'accuracy')}
+		>
+			{$_('analytics.tabs.predictionAccuracy')}
 		</Button>
 	</div>
 
 	{#if tab === 'luteal'}
 		{#if lutealStats == null}
 			<div class="empty">
-				<Text as="h3">Not Enough Data</Text>
-				<p>Luteal phase trends require at least 2 complete cycles with detected ovulation. Keep logging daily to unlock this view.</p>
+				<Text as="h3">{$_('analytics.notEnoughData')}</Text>
+				<p>{$_('analytics.luteal.notEnoughDataDescription')}</p>
 			</div>
 		{:else}
 			{#if lutealStats.isConcerning}
 				<div class="banner warning">
-					Short luteal phase detected in last 2 cycles (&lt;10 days). Consider discussing with a healthcare provider.
+					{$_('analytics.luteal.shortPhaseWarning')}
 				</div>
 			{:else if lutealStats.isTrending}
 				<div class="banner info">
-					Luteal phase length has been decreasing over the last 3 cycles.
+					{$_('analytics.luteal.decreasingTrend')}
 				</div>
 			{/if}
 			<StatsRow>
-				<StatCard value={lutealStats.avg} label="Avg Luteal Phase (days)" />
-				<StatCard value={lutealStats.last} label="Last Cycle (days)" warning={lutealStats.last < 10} />
-				<StatCard value={lutealStats.count} label="Cycles Analyzed" />
+				<StatCard value={lutealStats.avg} label={$_('analytics.luteal.avgLabel')} />
+				<StatCard
+					value={lutealStats.last}
+					label={$_('analytics.luteal.lastCycleLabel')}
+					warning={lutealStats.last < 10}
+				/>
+				<StatCard value={lutealStats.count} label={$_('analytics.luteal.cyclesAnalyzed')} />
 			</StatsRow>
 			<LutealChart cycles={withLuteal} />
 		{/if}
 	{:else if tab === 'accuracy'}
 		{#if accuracyStats == null}
 			<div class="empty">
-				<Text as="h3">Not Enough Data</Text>
-				<p>Prediction accuracy requires at least 3 recorded period start dates.</p>
+				<Text as="h3">{$_('analytics.notEnoughData')}</Text>
+				<p>{$_('analytics.accuracy.notEnoughDataDescription')}</p>
 			</div>
 		{:else}
 			<StatsRow>
-				<StatCard value="{accuracyStats.accuracyPct}%" label="Within ±2 Days" />
-				<StatCard value={accuracyStats.avgError} label="Avg Error (days)" />
-				<StatCard value={accuracyStats.maxError} label="Max Error (days)" />
+				<StatCard
+					value="{accuracyStats.accuracyPct}%"
+					label={$_('analytics.accuracy.within2Days')}
+				/>
+				<StatCard value={accuracyStats.avgError} label={$_('analytics.accuracy.avgError')} />
+				<StatCard value={accuracyStats.maxError} label={$_('analytics.accuracy.maxError')} />
 			</StatsRow>
 			<AccuracyChart records={accuracyRecords} />
 		{/if}
 	{:else if alignedSegments.length < 2}
 		<div class="empty">
-			<Text as="h3">Not Enough Data</Text>
-			<p>Cycle comparison requires at least 2 cycles with both BBT readings and detected ovulation.</p>
+			<Text as="h3">{$_('analytics.notEnoughData')}</Text>
+			<p>{$_('analytics.comparison.notEnoughDataDescription')}</p>
 		</div>
 	{:else}
 		<StatsRow>
-			<StatCard value={alignedSegments.length} label="Cycles Available" />
+			<StatCard value={alignedSegments.length} label={$_('analytics.comparison.cyclesAvailable')} />
 		</StatsRow>
 		<ComparisonChart segments={alignedSegments} />
 	{/if}

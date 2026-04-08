@@ -25,7 +25,8 @@
 		"@libpdf/core": "^0.3.4",
 		"@lucide/svelte": "^1.7.0",
 		"chart.js": "^4.5.1",
-		"date-fns": "^4.1.0"
+		"date-fns": "^4.1.0",
+		"svelte-i18n": "^4.0.1"
 	},
 	"devDependencies": {
 		"@cloudflare/workers-types": "^4.20260405.1",

@@ -3,6 +3,7 @@
 	import { encrypt, getStoredKey, importKey } from '$lib/client/crypto';
 	import { entriesStore } from '$lib/client/entries.svelte';
 	import { metricsStore } from '$lib/services/metrics-store';
+	import { _ } from 'svelte-i18n';
 	import Button from './Button.svelte';
 	import FlashMessage from './FlashMessage.svelte';
 	import SettingsCard from './SettingsCard.svelte';
@@ -46,9 +47,17 @@
 	}
 
 	const booleanFields = new Set([
-		'appetiteChange', 'moodChange', 'increasedSexDrive', 'breastTenderness',
-		'mildSpotting', 'heightenedSmell', 'cervixChanges', 'fluidRetention',
-		'cramping', 'bleedingStart', 'bleedingEnd'
+		'appetiteChange',
+		'moodChange',
+		'increasedSexDrive',
+		'breastTenderness',
+		'mildSpotting',
+		'heightenedSmell',
+		'cervixChanges',
+		'fluidRetention',
+		'cramping',
+		'bleedingStart',
+		'bleedingEnd'
 	]);
 
 	const skipFields = new Set(['id', 'createdAt', 'expiresAt']);
@@ -80,7 +89,7 @@
 	function parseJsonEntries(text: string): Record<string, unknown>[] {
 		const parsed = JSON.parse(text);
 		const arr = Array.isArray(parsed) ? parsed : parsed.entries;
-		if (!Array.isArray(arr)) throw new Error('Invalid JSON format. Expected an "entries" array.');
+		if (!Array.isArray(arr)) throw new Error($_('settings.import.invalidJsonFormat'));
 		return arr.map((e: Record<string, unknown>) => {
 			if (e.data && typeof e.data === 'object') return e.data as Record<string, unknown>;
 			const rest = { ...e };
@@ -94,13 +103,13 @@
 	async function handleImport() {
 		const file = fileInput?.files?.[0];
 		if (!file) {
-			flash('Please select a file.', 'error');
+			flash($_('settings.import.selectFileError'), 'error');
 			return;
 		}
 
 		const storedKey = getStoredKey();
 		if (!storedKey) {
-			flash('Encryption key not found. Please log in again.', 'error');
+			flash($_('settings.import.keyNotFound'), 'error');
 			return;
 		}
 
@@ -115,12 +124,12 @@
 			} else if (file.name.endsWith('.csv')) {
 				entries = csvToEntries(text);
 			} else {
-				throw new Error('Unsupported file type. Please use .json or .csv.');
+				throw new Error($_('settings.import.unsupportedFileType'));
 			}
 
 			entries = entries.filter((e) => e.date);
 			if (entries.length === 0) {
-				flash('No valid entries found in file.', 'error');
+				flash($_('settings.import.noValidEntries'), 'error');
 				return;
 			}
 
@@ -133,9 +142,9 @@
 
 			await metricsStore.clearCache();
 			entriesStore.clear();
-			flash(`Imported ${imported} entries.`, 'success');
+			flash($_('settings.import.importedEntries', { values: { count: imported } }), 'success');
 		} catch (err) {
-			flash(err instanceof Error ? err.message : 'Import failed.', 'error');
+			flash(err instanceof Error ? err.message : $_('settings.import.importFailed'), 'error');
 		} finally {
 			importing = false;
 			if (fileInput) fileInput.value = '';
@@ -144,8 +153,8 @@
 	}
 </script>
 
-<SettingsCard title="Import Data">
-	<p>Restore entries from a previously exported Lavender JSON or CSV file.</p>
+<SettingsCard title={$_('settings.import.title')}>
+	<p>{$_('settings.import.description')}</p>
 	<div class="file-picker">
 		<input
 			type="file"
@@ -154,15 +163,15 @@
 			onchange={() => (fileName = fileInput?.files?.[0]?.name ?? '')}
 			class="file-input-hidden"
 			id="import-file"
-			aria-label="Select a JSON or CSV file to import"
+			aria-label={$_('settings.import.fileAriaLabel')}
 		/>
 		<label for="import-file" class="file-label">
-			Choose file
+			{$_('settings.import.chooseFile')}
 		</label>
-		<span class="file-name">{fileName || 'No file selected'}</span>
+		<span class="file-name">{fileName || $_('settings.import.noFileSelected')}</span>
 	</div>
 	<Button type="button" onclick={handleImport} disabled={importing}>
-		{importing ? 'Importing…' : 'Import'}
+		{importing ? $_('settings.import.importing') : $_('settings.import.import')}
 	</Button>
 	<FlashMessage message={msg} />
 </SettingsCard>

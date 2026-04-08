@@ -1,6 +1,9 @@
 <script lang="ts">
-	import '../reset.css';
 	import '../app.css';
+	import '../reset.css';
+	import { setupI18n } from '$lib/i18n';
+
+	setupI18n();
 
 	let { children } = $props();
 </script>

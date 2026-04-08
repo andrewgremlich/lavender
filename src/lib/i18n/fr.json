@@ -1,0 +1,346 @@
+{
+	"nav": {
+		"dashboard": "Tableau de bord",
+		"addEntry": "Ajouter une entrée",
+		"analytics": "Analyses",
+		"settings": "Paramètres",
+		"menu": "Menu",
+		"openMenu": "Ouvrir le menu",
+		"sync": {
+			"synced": "Tous les changements sauvegardés",
+			"pending": "Synchronisation en cours…",
+			"error": "Erreur de synchronisation — nouvelle tentative dès la reconnexion"
+		}
+	},
+	"dashboard": {
+		"title": "Tableau de bord",
+		"pageTitle": "Tableau de bord — Lavender",
+		"loading": "Chargement de vos données…",
+		"noDataYet": "Aucune donnée",
+		"noDataDescription": "Commencez à suivre vos métriques de santé pour voir les tendances.",
+		"addFirstEntry": "Ajouter votre première entrée",
+		"recentEntries": "Entrées récentes",
+		"noEntriesInRange": "Aucune entrée dans cette plage.",
+		"legend": {
+			"bbt": "TBC",
+			"lhSurge": "Pic LH",
+			"ovulation": "Ovulation",
+			"fertileWindow": "Fenêtre fertile",
+			"indicators": "Indicateurs"
+		}
+	},
+	"entry": {
+		"pageTitle": "Saisir des données — Lavender",
+		"title": "Saisir des données de santé",
+		"editTitle": "Modifier l'entrée",
+		"date": "Date",
+		"temperature": "Température",
+		"bbt": "Température basale du corps (°{unit})",
+		"cervicalMucus": "Glaire cervicale",
+		"lhSurge": "Pic LH",
+		"indicators": "Indicateurs",
+		"periodBleeding": "Règles / Saignements",
+		"flowIntensity": "Intensité du flux",
+		"notes": "Notes",
+		"notesPlaceholder": "Observations supplémentaires...",
+		"save": "Sauvegarder l'entrée",
+		"update": "Mettre à jour l'entrée",
+		"saving": "Chiffrement et sauvegarde…",
+		"savedSuccess": "Entrée sauvegardée avec succès !",
+		"updatedSuccess": "Entrée mise à jour avec succès !",
+		"addAnother": "Ajouter une autre",
+		"viewChart": "Voir le graphique",
+		"selectDateError": "Veuillez sélectionner une date.",
+		"saveError": "Échec de la sauvegarde.",
+		"mucus": {
+			"dry": "Sec",
+			"sticky": "Collant",
+			"creamy": "Crémeux",
+			"watery": "Aqueux",
+			"eggWhite": "Blanc d'œuf"
+		},
+		"lh": {
+			"none": "Aucun",
+			"light": "Léger",
+			"positive": "Positif"
+		},
+		"flow": {
+			"light": "Léger",
+			"medium": "Moyen",
+			"heavy": "Abondant"
+		},
+		"bleeding": {
+			"none": "Aucun",
+			"started": "Commencé",
+			"ended": "Terminé"
+		}
+	},
+	"analytics": {
+		"pageTitle": "Analyses — Lavender",
+		"title": "Analyses",
+		"loading": "Chargement de vos données…",
+		"noDataYet": "Aucune donnée",
+		"noDataDescription": "Ajoutez des entrées de santé pour voir les analyses et tendances.",
+		"tabs": {
+			"cycleComparison": "Comparaison des cycles",
+			"lutealTrends": "Tendances lutéales",
+			"predictionAccuracy": "Précision des prédictions"
+		},
+		"notEnoughData": "Données insuffisantes",
+		"luteal": {
+			"notEnoughDataDescription": "Les tendances de la phase lutéale nécessitent au moins 2 cycles complets avec ovulation détectée. Continuez à enregistrer quotidiennement pour débloquer cette vue.",
+			"shortPhaseWarning": "Phase lutéale courte détectée lors des 2 derniers cycles (<10 jours). Pensez à en discuter avec un professionnel de santé.",
+			"decreasingTrend": "La durée de la phase lutéale diminue depuis les 3 derniers cycles.",
+			"avgLabel": "Phase lutéale moy. (jours)",
+			"lastCycleLabel": "Dernier cycle (jours)",
+			"cyclesAnalyzed": "Cycles analysés"
+		},
+		"accuracy": {
+			"notEnoughDataDescription": "La précision des prédictions nécessite au moins 3 dates de début de règles enregistrées.",
+			"within2Days": "Dans ±2 jours",
+			"avgError": "Erreur moy. (jours)",
+			"maxError": "Erreur max. (jours)"
+		},
+		"comparison": {
+			"notEnoughDataDescription": "La comparaison des cycles nécessite au moins 2 cycles avec des lectures TBC et une ovulation détectée.",
+			"cyclesAvailable": "Cycles disponibles"
+		}
+	},
+	"settings": {
+		"pageTitle": "Paramètres — Lavender",
+		"title": "Paramètres",
+		"logOut": "Se déconnecter",
+		"units": {
+			"title": "Unités",
+			"label": "Système de mesure",
+			"metric": "Métrique (°C, kg, cm)",
+			"us": "US (°F, lb, in)",
+			"saved": "Préférence d'unités sauvegardée.",
+			"saveFailed": "Échec de la sauvegarde."
+		},
+		"retention": {
+			"title": "Conservation des données",
+			"label": "Supprimer les entrées antérieures à",
+			"6months": "6 mois",
+			"9months": "9 mois",
+			"1year": "1 an",
+			"saved": "Période de conservation sauvegardée.",
+			"saveFailed": "Échec de la sauvegarde."
+		},
+		"language": {
+			"title": "Langue",
+			"label": "Langue d'affichage",
+			"saved": "Langue sauvegardée."
+		},
+		"export": {
+			"title": "Exporter les données",
+			"description": "Téléchargez toutes vos entrées de santé sous forme de fichier déchiffré pour sauvegarde ou analyse.",
+			"json": "Exporter JSON",
+			"csv": "Exporter CSV",
+			"pdf": "Exporter PDF",
+			"exportedEntries": "{count} entrées exportées.",
+			"exportedCsv": "{count} entrées exportées en CSV.",
+			"exportedPdf": "{count} entrées exportées en PDF.",
+			"exportFailed": "Échec de l'exportation.",
+			"pdfTitle": "Lavender — Rapport de cycle",
+			"pdfGenerated": "Généré le {date} · {count} entrées",
+			"pdfColumns": {
+				"date": "Date",
+				"bbt": "TBC",
+				"mucus": "Glaire",
+				"lh": "LH",
+				"bleeding": "Saignement",
+				"symptoms": "Symptômes",
+				"notes": "Notes"
+			},
+			"symptoms": {
+				"appetiteChange": "Changement d'appétit",
+				"moodChange": "Changement d'humeur",
+				"increasedSexDrive": "Augmentation de la libido",
+				"breastTenderness": "Sensibilité des seins",
+				"mildSpotting": "Légères pertes",
+				"heightenedSmell": "Odorat accru",
+				"cervixChanges": "Changements du col",
+				"fluidRetention": "Rétention d'eau",
+				"cramping": "Crampes"
+			}
+		},
+		"import": {
+			"title": "Importer des données",
+			"description": "Restaurez des entrées depuis un fichier JSON ou CSV précédemment exporté de Lavender.",
+			"chooseFile": "Choisir un fichier",
+			"noFileSelected": "Aucun fichier sélectionné",
+			"import": "Importer",
+			"importing": "Importation…",
+			"fileAriaLabel": "Sélectionnez un fichier JSON ou CSV à importer",
+			"selectFileError": "Veuillez sélectionner un fichier.",
+			"keyNotFound": "Clé de chiffrement introuvable. Veuillez vous reconnecter.",
+			"noValidEntries": "Aucune entrée valide trouvée dans le fichier.",
+			"unsupportedFileType": "Type de fichier non pris en charge. Utilisez .json ou .csv.",
+			"invalidJsonFormat": "Format JSON invalide. Un tableau \"entries\" est attendu.",
+			"importFailed": "Échec de l'importation.",
+			"importedEntries": "{count} entrées importées."
+		},
+		"changePassword": {
+			"title": "Changer le mot de passe",
+			"description": "Changer votre mot de passe rechiffrera toutes vos données de santé avec une nouvelle clé. Cela peut prendre un moment.",
+			"currentPassword": "Mot de passe actuel",
+			"newPassword": "Nouveau mot de passe",
+			"confirmPassword": "Confirmer le nouveau mot de passe",
+			"requirements": {
+				"length": "Au moins 12 caractères",
+				"number": "Au moins un chiffre",
+				"special": "Au moins un caractère spécial"
+			},
+			"change": "Changer le mot de passe",
+			"changing": "Rechiffrement des données…",
+			"success": "Mot de passe changé avec succès.",
+			"allFieldsRequired": "Tous les champs sont obligatoires.",
+			"passwordsMismatch": "Les nouveaux mots de passe ne correspondent pas.",
+			"passwordRequirementsNotMet": "Le mot de passe doit avoir 12+ caractères, un chiffre et un caractère spécial.",
+			"passwordSameAsCurrent": "Le nouveau mot de passe doit être différent de l'actuel.",
+			"keyNotFound": "Clé de chiffrement introuvable. Veuillez vous reconnecter.",
+			"notAuthenticated": "Non authentifié.",
+			"changeFailed": "Échec du changement de mot de passe."
+		},
+		"dangerZone": {
+			"title": "Zone de danger",
+			"deleteData": "Supprimer toutes les données",
+			"deleteAccount": "Supprimer le compte",
+			"confirmDeleteData": "Cela supprimera définitivement toutes vos entrées de santé. Cette action est irréversible.",
+			"confirmDeleteAccount": "Cela supprimera définitivement votre compte et toutes les données associées. C'est irréversible.",
+			"yesDeleteData": "Oui, supprimer toutes les données",
+			"yesDeleteAccount": "Oui, supprimer mon compte",
+			"cancel": "Annuler",
+			"dataDeleted": "Toutes les données supprimées.",
+			"operationFailed": "Opération échouée : {error}"
+		}
+	},
+	"auth": {
+		"login": {
+			"pageTitle": "Se connecter — Lavender",
+			"title": "Se connecter",
+			"username": "Nom d'utilisateur",
+			"password": "Mot de passe",
+			"submit": "Se connecter",
+			"submitting": "Connexion…",
+			"createAccount": "Créer un compte",
+			"forgotPassword": "Mot de passe oublié ?",
+			"failed": "Échec de la connexion"
+		},
+		"register": {
+			"pageTitle": "Créer un compte — Lavender",
+			"title": "Créer un compte",
+			"username": "Nom d'utilisateur",
+			"password": "Mot de passe",
+			"confirmPassword": "Confirmer le mot de passe",
+			"submit": "Créer un compte",
+			"submitting": "Création du compte…",
+			"alreadyHaveAccount": "Vous avez déjà un compte ?",
+			"failed": "Échec de l'inscription",
+			"passwordsMismatch": "Les mots de passe ne correspondent pas",
+			"passwordRequirementsNotMet": "Le mot de passe ne remplit pas toutes les conditions",
+			"requirements": {
+				"length": "Au moins 12 caractères",
+				"number": "Au moins un chiffre",
+				"special": "Au moins un caractère spécial"
+			},
+			"recoveryCode": {
+				"title": "Sauvegardez votre code de récupération",
+				"description": "Ce code est le {strong} pour récupérer vos données si vous oubliez votre mot de passe. Conservez-le en lieu sûr — nous ne pourrons plus vous le montrer.",
+				"onlyWay": "seul moyen",
+				"acknowledged": "J'ai sauvegardé mon code de récupération en lieu sûr.",
+				"copy": "Copier",
+				"copied": "✓ Copié",
+				"continue": "Continuer vers l'application"
+			}
+		},
+		"recovery": {
+			"pageTitle": "Récupération du compte — Lavender",
+			"recoverTitle": "Récupérer le compte",
+			"recoverDescription": "Saisissez votre nom d'utilisateur, votre code de récupération et un nouveau mot de passe.",
+			"setupTitle": "Configurer la récupération du compte",
+			"setupDescription": "Votre compte n'a pas encore de code de récupération. Générez-en un maintenant pour pouvoir restaurer l'accès si vous oubliez votre mot de passe.",
+			"newCodeTitle": "Sauvegardez votre nouveau code de récupération",
+			"setupCodeTitle": "Sauvegardez votre code de récupération",
+			"codeDescription": "Ce code est le {strong} pour récupérer vos données si vous oubliez votre mot de passe. Conservez-le en lieu sûr — nous ne pourrons plus vous le montrer.",
+			"onlyWay": "seul moyen",
+			"username": "Nom d'utilisateur",
+			"recoveryCode": "Code de récupération",
+			"recoveryCodePlaceholder": "XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX",
+			"newPassword": "Nouveau mot de passe",
+			"confirmNewPassword": "Confirmer le nouveau mot de passe",
+			"generateCode": "Générer un code de récupération",
+			"generating": "Génération…",
+			"recover": "Récupérer le compte",
+			"recovering": "Récupération…",
+			"backToSignIn": "Retour à la connexion",
+			"acknowledged": "J'ai sauvegardé mon code de récupération en lieu sûr.",
+			"copy": "Copier",
+			"copied": "✓ Copié",
+			"continue": "Continuer vers l'application",
+			"passwordsMismatch": "Les mots de passe ne correspondent pas",
+			"failed": "Échec de la récupération",
+			"setupFailed": "Échec de la génération du code de récupération"
+		}
+	},
+	"rangeSelector": {
+		"week": "Semaine",
+		"30days": "30 jours",
+		"all": "Tout"
+	},
+	"entryCard": {
+		"noDetails": "Aucun détail",
+		"noDetailsRecorded": "Aucun détail enregistré",
+		"editEntry": "Modifier l'entrée",
+		"deleteEntry": "Supprimer l'entrée",
+		"labels": {
+			"basalBodyTemp": "Temp. basale",
+			"cervicalMucus": "Glaire cervicale",
+			"lhSurge": "Pic LH",
+			"bleedingSarted": "Saignement commencé",
+			"bleedingEnded": "Saignement terminé",
+			"flowIntensity": "Intensité du flux",
+			"notes": "Notes"
+		},
+		"mucus": {
+			"dry": "Sec",
+			"sticky": "Collant",
+			"creamy": "Crémeux",
+			"watery": "Aqueux",
+			"eggWhite": "Blanc d'œuf"
+		},
+		"flow": {
+			"light": "Léger",
+			"medium": "Moyen",
+			"heavy": "Abondant"
+		},
+		"lh": {
+			"light": "LH Léger",
+			"positive": "LH+"
+		},
+		"period": "Règles",
+		"indicators": "{count} indicateur",
+		"indicators_plural": "{count} indicateurs"
+	},
+	"indicators": {
+		"appetiteChange": "Changement d'appétit",
+		"moodChange": "Changement d'humeur",
+		"increasedSexDrive": "Augmentation de la libido",
+		"breastTenderness": "Sensibilité des seins",
+		"mildSpotting": "Légères pertes",
+		"heightenedSmell": "Odorat accru",
+		"cervixChanges": "Changements du col",
+		"fluidRetention": "Rétention d'eau",
+		"cramping": "Crampes"
+	},
+	"common": {
+		"save": "Sauvegarder",
+		"cancel": "Annuler",
+		"yes": "Oui",
+		"no": "Non",
+		"edit": "Modifier",
+		"delete": "Supprimer",
+		"loading": "Chargement…"
+	}
+}

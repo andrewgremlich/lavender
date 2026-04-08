@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { entriesStore } from '$lib/client/entries.svelte';
-	import Icon from '$lib/components/Icon.svelte';
 	import Button from '$lib/components/Button.svelte';
+	import Icon from '$lib/components/Icon.svelte';
 	import Input from '$lib/components/Input.svelte';
 	import PillGroup from '$lib/components/PillGroup.svelte';
 	import PillOption from '$lib/components/PillOption.svelte';
@@ -10,6 +10,7 @@
 	import type { HealthEntryData } from '$lib/types';
 	import { INDICATORS } from '$lib/utils/indicators';
 	import { celsiusToFahrenheit, fahrenheitToCelsius, getUnitSystem } from '$lib/utils/units';
+	import { _ } from 'svelte-i18n';
 
 	type TempUnit = 'C' | 'F';
 	type Form = {
@@ -23,25 +24,25 @@
 		indicators: Record<string, boolean>;
 	};
 
-	const MUCUS_OPTIONS = [
-		{ value: 'dry', icon: 'circle', label: 'Dry' },
-		{ value: 'sticky', icon: 'circle-dot', label: 'Sticky' },
-		{ value: 'creamy', icon: 'droplet', label: 'Creamy' },
-		{ value: 'watery', icon: 'droplets', label: 'Watery' },
-		{ value: 'eggWhite', icon: 'egg', label: 'Egg White' }
-	] as const;
+	const MUCUS_OPTIONS = $derived([
+		{ value: 'dry', icon: 'circle', label: $_('entry.mucus.dry') },
+		{ value: 'sticky', icon: 'circle-dot', label: $_('entry.mucus.sticky') },
+		{ value: 'creamy', icon: 'droplet', label: $_('entry.mucus.creamy') },
+		{ value: 'watery', icon: 'droplets', label: $_('entry.mucus.watery') },
+		{ value: 'eggWhite', icon: 'egg', label: $_('entry.mucus.eggWhite') }
+	] as const);
 
-	const LH_OPTIONS = [
-		{ value: '0', icon: 'circle', label: 'None' },
-		{ value: '1', icon: 'circle-dot', label: 'Light' },
-		{ value: '2', icon: 'circle-check', label: 'Positive' }
-	] as const;
+	const LH_OPTIONS = $derived([
+		{ value: '0', icon: 'circle', label: $_('entry.lh.none') },
+		{ value: '1', icon: 'circle-dot', label: $_('entry.lh.light') },
+		{ value: '2', icon: 'circle-check', label: $_('entry.lh.positive') }
+	] as const);
 
-	const FLOW_OPTIONS = [
-		{ value: 'light', icon: 'minus', label: 'Light' },
-		{ value: 'medium', icon: 'droplet', label: 'Medium' },
-		{ value: 'heavy', icon: 'droplets', label: 'Heavy' }
-	] as const;
+	const FLOW_OPTIONS = $derived([
+		{ value: 'light', icon: 'minus', label: $_('entry.flow.light') },
+		{ value: 'medium', icon: 'droplet', label: $_('entry.flow.medium') },
+		{ value: 'heavy', icon: 'droplets', label: $_('entry.flow.heavy') }
+	] as const);
 
 	const today = new Date().toISOString().split('T')[0];
 
@@ -74,7 +75,8 @@
 			const next = blankForm();
 			if (parsed.date) next.date = parsed.date;
 			if (parsed.basalBodyTemp != null) {
-				const temp = tempUnit === 'F' ? celsiusToFahrenheit(parsed.basalBodyTemp) : parsed.basalBodyTemp;
+				const temp =
+					tempUnit === 'F' ? celsiusToFahrenheit(parsed.basalBodyTemp) : parsed.basalBodyTemp;
 				next.bbt = (Math.round(temp * 100) / 100).toString();
 			}
 			if (parsed.cervicalMucus) next.cervicalMucus = parsed.cervicalMucus;
@@ -112,7 +114,8 @@
 			if (tempUnit === 'F') tempC = Math.round(fahrenheitToCelsius(tempC) * 100) / 100;
 			entry.basalBodyTemp = tempC;
 		}
-		if (form.cervicalMucus) entry.cervicalMucus = form.cervicalMucus as HealthEntryData['cervicalMucus'];
+		if (form.cervicalMucus)
+			entry.cervicalMucus = form.cervicalMucus as HealthEntryData['cervicalMucus'];
 		if (form.lhSurge) {
 			const lhValue = Number.parseInt(form.lhSurge, 10) as HealthEntryData['lhSurge'];
 			if (lhValue) entry.lhSurge = lhValue;
@@ -122,7 +125,8 @@
 		}
 		if (form.bleedingStatus === 'started') entry.bleedingStart = true;
 		if (form.bleedingStatus === 'ended') entry.bleedingEnd = true;
-		if (form.bleedingFlow) entry.bleedingFlow = form.bleedingFlow as HealthEntryData['bleedingFlow'];
+		if (form.bleedingFlow)
+			entry.bleedingFlow = form.bleedingFlow as HealthEntryData['bleedingFlow'];
 		if (form.notes.trim()) entry.notes = form.notes.trim();
 		return entry;
 	}
@@ -130,7 +134,10 @@
 	async function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
 		error = null;
-		if (!form.date) { error = 'Please select a date.'; return; }
+		if (!form.date) {
+			error = $_('entry.selectDateError');
+			return;
+		}
 
 		submitting = true;
 		try {
@@ -138,7 +145,7 @@
 			saved = true;
 			if (editId) editId = null;
 		} catch (err) {
-			error = err instanceof Error ? err.message : 'Failed to save entry.';
+			error = err instanceof Error ? err.message : $_('entry.saveError');
 		} finally {
 			submitting = false;
 		}
@@ -155,10 +162,10 @@
 </script>
 
 <svelte:head>
-	<title>Log Health Data — Lavender</title>
+	<title>{$_('entry.pageTitle')}</title>
 </svelte:head>
 
-<Text as="h2">{editId ? 'Edit Entry' : 'Log Health Data'}</Text>
+<Text as="h2">{editId ? $_('entry.editTitle') : $_('entry.title')}</Text>
 
 <div class="card">
 	{#if error}
@@ -167,25 +174,29 @@
 
 	{#if saved}
 		<div class="msg success">
-			{editId ? 'Entry updated successfully!' : 'Entry saved successfully!'}
+			{editId ? $_('entry.updatedSuccess') : $_('entry.savedSuccess')}
 			<div class="success-actions">
 				{#if !editId}
-					<Button type="button" onclick={addAnother}>Add Another</Button>
+					<Button type="button" onclick={addAnother}>{$_('entry.addAnother')}</Button>
 				{/if}
-				<Button type="button" onclick={() => goto('/app')}>View Chart</Button>
+				<Button type="button" onclick={() => goto('/app')}>{$_('entry.viewChart')}</Button>
 			</div>
 		</div>
 	{:else}
 		<form onsubmit={handleSubmit}>
-			<Input label="Date" id="entry-date" type="date" bind:value={form.date} required />
+			<Input label={$_('entry.date')} id="entry-date" type="date" bind:value={form.date} required />
 
 			<details open>
-				<summary>Temperature</summary>
+				<summary>{$_('entry.temperature')}</summary>
 				<div class="temp-header">
-					<label for="bbt">Basal Body Temperature (°{tempUnit})</label>
+					<label for="bbt">{$_('entry.bbt', { values: { unit: tempUnit } })}</label>
 					<div class="unit-toggle">
-						<button type="button" class:active={tempUnit === 'C'} onclick={() => switchUnit('C')}>°C</button>
-						<button type="button" class:active={tempUnit === 'F'} onclick={() => switchUnit('F')}>°F</button>
+						<button type="button" class:active={tempUnit === 'C'} onclick={() => switchUnit('C')}
+							>°C</button
+						>
+						<button type="button" class:active={tempUnit === 'F'} onclick={() => switchUnit('F')}
+							>°F</button
+						>
 					</div>
 				</div>
 				<input
@@ -200,11 +211,16 @@
 			</details>
 
 			<details>
-				<summary>Cervical Mucus</summary>
+				<summary>{$_('entry.cervicalMucus')}</summary>
 				<PillGroup>
 					{#each MUCUS_OPTIONS as opt (opt.value)}
 						<PillOption>
-							<input type="radio" name="cervicalMucus" value={opt.value} bind:group={form.cervicalMucus} />
+							<input
+								type="radio"
+								name="cervicalMucus"
+								value={opt.value}
+								bind:group={form.cervicalMucus}
+							/>
 							<span><Icon name={opt.icon} /> {opt.label}</span>
 						</PillOption>
 					{/each}
@@ -212,7 +228,7 @@
 			</details>
 
 			<details>
-				<summary>LH Surge</summary>
+				<summary>{$_('entry.lhSurge')}</summary>
 				<PillGroup>
 					{#each LH_OPTIONS as opt (opt.value)}
 						<PillOption>
@@ -224,38 +240,58 @@
 			</details>
 
 			<details>
-				<summary>Indicators</summary>
+				<summary>{$_('entry.indicators')}</summary>
 				<PillGroup>
 					{#each INDICATORS as ind (ind.key)}
 						<PillOption>
 							<input type="checkbox" bind:checked={form.indicators[ind.key]} />
-							<span>{ind.label}</span>
+							<span>{$_(`indicators.${ind.key}`)}</span>
 						</PillOption>
 					{/each}
 				</PillGroup>
 			</details>
 
 			<details>
-				<summary>Period / Bleeding</summary>
+				<summary>{$_('entry.periodBleeding')}</summary>
 				<PillGroup row>
 					<PillOption>
-						<input type="radio" name="bleedingStatus" value="none" bind:group={form.bleedingStatus} />
-						<span>None</span>
+						<input
+							type="radio"
+							name="bleedingStatus"
+							value="none"
+							bind:group={form.bleedingStatus}
+						/>
+						<span>{$_('entry.bleeding.none')}</span>
 					</PillOption>
 					<PillOption>
-						<input type="radio" name="bleedingStatus" value="started" bind:group={form.bleedingStatus} />
-						<span>Started</span>
+						<input
+							type="radio"
+							name="bleedingStatus"
+							value="started"
+							bind:group={form.bleedingStatus}
+						/>
+						<span>{$_('entry.bleeding.started')}</span>
 					</PillOption>
 					<PillOption>
-						<input type="radio" name="bleedingStatus" value="ended" bind:group={form.bleedingStatus} />
-						<span>Ended</span>
+						<input
+							type="radio"
+							name="bleedingStatus"
+							value="ended"
+							bind:group={form.bleedingStatus}
+						/>
+						<span>{$_('entry.bleeding.ended')}</span>
 					</PillOption>
 				</PillGroup>
-				<label for="flow-section">Flow Intensity</label>
+				<label for="flow-section">{$_('entry.flowIntensity')}</label>
 				<PillGroup>
 					{#each FLOW_OPTIONS as opt (opt.value)}
 						<PillOption>
-							<input type="radio" name="bleedingFlow" value={opt.value} bind:group={form.bleedingFlow} />
+							<input
+								type="radio"
+								name="bleedingFlow"
+								value={opt.value}
+								bind:group={form.bleedingFlow}
+							/>
 							<span><Icon name={opt.icon} /> {opt.label}</span>
 						</PillOption>
 					{/each}
@@ -263,13 +299,14 @@
 			</details>
 
 			<details>
-				<summary>Notes</summary>
-				<textarea placeholder="Any additional observations..." bind:value={form.notes} rows="4"></textarea>
+				<summary>{$_('entry.notes')}</summary>
+				<textarea placeholder={$_('entry.notesPlaceholder')} bind:value={form.notes} rows="4"
+				></textarea>
 			</details>
 
 			<Button type="submit" size="lg" disabled={submitting}>
 				<Icon name="save" />
-				{submitting ? 'Encrypting & saving…' : editId ? 'Update Entry' : 'Save Entry'}
+				{submitting ? $_('entry.saving') : editId ? $_('entry.update') : $_('entry.save')}
 			</Button>
 		</form>
 	{/if}

@@ -1,24 +1,25 @@
 <script lang="ts">
 	import { page } from '$app/stores';
-	import Icon from './Icon.svelte';
-	import Button from './Button.svelte';
 	import { sync } from '$lib/client/sync.svelte';
+	import { _ } from 'svelte-i18n';
+	import Button from './Button.svelte';
+	import Icon from './Icon.svelte';
 
 	let menuOpen = $state(false);
 
-	const routes = [
-		{ href: '/app', icon: 'house', label: 'Dashboard' },
-		{ href: '/app/entry', icon: 'circle-plus', label: 'Add Entry' },
-		{ href: '/app/analytics', icon: 'trending-up', label: 'Analytics', desktop: true },
-		{ href: '/app/settings', icon: 'settings', label: 'Settings', desktop: true }
-	] as const;
+	const routes = $derived([
+		{ href: '/app', icon: 'house', label: $_('nav.dashboard') },
+		{ href: '/app/entry', icon: 'circle-plus', label: $_('nav.addEntry') },
+		{ href: '/app/analytics', icon: 'trending-up', label: $_('nav.analytics'), desktop: true },
+		{ href: '/app/settings', icon: 'settings', label: $_('nav.settings'), desktop: true }
+	]);
 
 	const syncTitle = $derived(
 		sync.status === 'synced'
-			? 'All changes saved'
+			? $_('nav.sync.synced')
 			: sync.status === 'pending'
-				? 'Syncing changes…'
-				: 'Sync error — will retry when online'
+				? $_('nav.sync.pending')
+				: $_('nav.sync.error')
 	);
 
 	function isActive(href: string): boolean {
@@ -49,12 +50,12 @@
 	<Button
 		variant="ghost"
 		class="nav-item menu-toggle"
-		aria-label="Open menu"
+		aria-label={$_('nav.openMenu')}
 		aria-expanded={menuOpen}
 		onclick={() => (menuOpen = !menuOpen)}
 	>
 		<Icon name="menu" />
-		<span class="label">Menu</span>
+		<span class="label">{$_('nav.menu')}</span>
 	</Button>
 </nav>
 
@@ -67,7 +68,7 @@
 			if (e.target === e.currentTarget) menuOpen = false;
 		}}
 	>
-		<div class="menu-sheet" role="dialog" aria-label="Menu">
+		<div class="menu-sheet" role="dialog" aria-label={$_('nav.menu')}>
 			{#each routes.filter((r) => 'desktop' in r && r.desktop) as route (route.href)}
 				<a href={route.href} class="menu-item" onclick={() => (menuOpen = false)}>
 					<Icon name={route.icon} />

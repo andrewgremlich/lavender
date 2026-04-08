@@ -3,8 +3,9 @@
 	import { entriesStore, type HealthEntry } from '$lib/client/entries.svelte';
 	import { countIndicators, INDICATORS } from '$lib/utils/indicators';
 	import { celsiusToFahrenheit, getUnitSystem } from '$lib/utils/units';
-	import Icon from './Icon.svelte';
+	import { _ } from 'svelte-i18n';
 	import Button from './Button.svelte';
+	import Icon from './Icon.svelte';
 
 	type Props = { entry: HealthEntry };
 	let { entry }: Props = $props();
@@ -12,15 +13,22 @@
 	let expanded = $state(false);
 	let deleting = $state(false);
 
-	const MUCUS_LABELS: Record<string, string> = {
-		dry: 'Dry',
-		sticky: 'Sticky',
-		creamy: 'Creamy',
-		watery: 'Watery',
-		eggWhite: 'Egg White'
-	};
-	const FLOW_LABELS: Record<string, string> = { light: 'Light', medium: 'Medium', heavy: 'Heavy' };
-	const LH_LABELS: Record<number, string> = { 1: 'Light', 2: 'Positive' };
+	const MUCUS_LABELS = $derived<Record<string, string>>({
+		dry: $_('entryCard.mucus.dry'),
+		sticky: $_('entryCard.mucus.sticky'),
+		creamy: $_('entryCard.mucus.creamy'),
+		watery: $_('entryCard.mucus.watery'),
+		eggWhite: $_('entryCard.mucus.eggWhite')
+	});
+	const FLOW_LABELS = $derived<Record<string, string>>({
+		light: $_('entryCard.flow.light'),
+		medium: $_('entryCard.flow.medium'),
+		heavy: $_('entryCard.flow.heavy')
+	});
+	const LH_LABELS = $derived<Record<number, string>>({
+		1: $_('entryCard.lh.light'),
+		2: $_('entryCard.lh.positive')
+	});
 
 	function formatTemp(c: number): string {
 		const isUS = getUnitSystem() === 'us';
@@ -35,16 +43,21 @@
 			out.push({ text: MUCUS_LABELS[entry.cervicalMucus] ?? entry.cervicalMucus });
 		}
 		if (entry.lhSurge != null && entry.lhSurge > 0) {
-			out.push({ text: entry.lhSurge === 2 ? 'LH+' : 'LH Light' });
+			out.push({
+				text: entry.lhSurge === 2 ? $_('entryCard.lh.positive') : $_('entryCard.lh.light')
+			});
 		}
 		if (entry.bleedingStart || entry.bleedingFlow) {
 			const flow = entry.bleedingFlow ? ` (${FLOW_LABELS[entry.bleedingFlow]})` : '';
-			out.push({ text: `Period${flow}`, kind: 'bleeding' });
+			out.push({ text: `${$_('entryCard.period')}${flow}`, kind: 'bleeding' });
 		}
 		const indCount = countIndicators(entry as unknown as Record<string, unknown>);
 		if (indCount > 0) {
 			out.push({
-				text: `${indCount} indicator${indCount > 1 ? 's' : ''}`,
+				text:
+					indCount > 1
+						? $_('entryCard.indicators_plural', { values: { count: indCount } })
+						: $_('entryCard.indicators', { values: { count: indCount } }),
 				kind: 'indicators'
 			});
 		}
@@ -54,31 +67,39 @@
 	function details(): Array<{ label: string; value: string; wrap?: boolean }> {
 		const rows: Array<{ label: string; value: string; wrap?: boolean }> = [];
 		if (entry.basalBodyTemp != null) {
-			rows.push({ label: 'Basal Body Temp', value: formatTemp(entry.basalBodyTemp) });
+			rows.push({
+				label: $_('entryCard.labels.basalBodyTemp'),
+				value: formatTemp(entry.basalBodyTemp)
+			});
 		}
 		if (entry.cervicalMucus) {
 			rows.push({
-				label: 'Cervical Mucus',
+				label: $_('entryCard.labels.cervicalMucus'),
 				value: MUCUS_LABELS[entry.cervicalMucus] ?? entry.cervicalMucus
 			});
 		}
 		if (entry.lhSurge != null && entry.lhSurge > 0) {
-			rows.push({ label: 'LH Surge', value: LH_LABELS[entry.lhSurge] ?? String(entry.lhSurge) });
+			rows.push({
+				label: $_('entryCard.labels.lhSurge'),
+				value: LH_LABELS[entry.lhSurge] ?? String(entry.lhSurge)
+			});
 		}
 		for (const ind of INDICATORS) {
 			if ((entry as unknown as Record<string, unknown>)[ind.key]) {
-				rows.push({ label: ind.label, value: 'Yes' });
+				rows.push({ label: $_(`indicators.${ind.key}`), value: 'Yes' });
 			}
 		}
-		if (entry.bleedingStart) rows.push({ label: 'Bleeding Started', value: 'Yes' });
-		if (entry.bleedingEnd) rows.push({ label: 'Bleeding Ended', value: 'Yes' });
+		if (entry.bleedingStart)
+			rows.push({ label: $_('entryCard.labels.bleedingSarted'), value: 'Yes' });
+		if (entry.bleedingEnd) rows.push({ label: $_('entryCard.labels.bleedingEnded'), value: 'Yes' });
 		if (entry.bleedingFlow) {
 			rows.push({
-				label: 'Flow Intensity',
+				label: $_('entryCard.labels.flowIntensity'),
 				value: FLOW_LABELS[entry.bleedingFlow] ?? entry.bleedingFlow
 			});
 		}
-		if (entry.notes) rows.push({ label: 'Notes', value: entry.notes, wrap: true });
+		if (entry.notes)
+			rows.push({ label: $_('entryCard.labels.notes'), value: entry.notes, wrap: true });
 		return rows;
 	}
 
@@ -117,7 +138,7 @@
 		<span class="date">{entry.date}</span>
 		<div class="tags">
 			{#if tags.length === 0}
-				<span class="empty">No details</span>
+				<span class="empty">{$_('entryCard.noDetails')}</span>
 			{:else}
 				{#each tags as tag (tag.text)}
 					<span
@@ -128,15 +149,20 @@
 				{/each}
 			{/if}
 		</div>
-		<Button variant="icon" title="Edit entry" onclick={onEdit} aria-label="Edit">
+		<Button
+			variant="icon"
+			title={$_('entryCard.editEntry')}
+			onclick={onEdit}
+			aria-label={$_('entryCard.editEntry')}
+		>
 			<Icon name="pencil" size={16} />
 		</Button>
 		<Button
 			variant="icon-danger"
-			title="Delete entry"
+			title={$_('entryCard.deleteEntry')}
 			onclick={onDelete}
 			disabled={deleting}
-			aria-label="Delete"
+			aria-label={$_('entryCard.deleteEntry')}
 		>
 			<Icon name="trash-2" size={16} />
 		</Button>
@@ -150,7 +176,7 @@
 				</div>
 			{/each}
 			{#if details().length === 0}
-				<div class="row"><span class="empty">No details recorded</span></div>
+				<div class="row"><span class="empty">{$_('entryCard.noDetailsRecorded')}</span></div>
 			{/if}
 		</div>
 	{/if}

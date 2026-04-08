@@ -4,6 +4,7 @@
 	import { auth } from '$lib/client/auth.svelte';
 	import { entriesStore } from '$lib/client/entries.svelte';
 	import { metricsStore } from '$lib/services/metrics-store';
+	import { _ } from 'svelte-i18n';
 	import Button from './Button.svelte';
 	import SettingsCard from './SettingsCard.svelte';
 
@@ -19,7 +20,11 @@
 			dataDeleted = true;
 			confirmDeleteData = false;
 		} catch (err) {
-			alert(`Operation failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+			alert(
+				$_('settings.dangerZone.operationFailed', {
+					values: { error: err instanceof Error ? err.message : 'Unknown error' }
+				})
+			);
 		}
 	}
 
@@ -31,40 +36,52 @@
 			auth.logout();
 			goto('/auth/login', { replaceState: true });
 		} catch (err) {
-			alert(`Operation failed: ${err instanceof Error ? err.message : 'Unknown error'}`);
+			alert(
+				$_('settings.dangerZone.operationFailed', {
+					values: { error: err instanceof Error ? err.message : 'Unknown error' }
+				})
+			);
 		}
 	}
 </script>
 
-<SettingsCard title="Danger Zone" danger>
+<SettingsCard title={$_('settings.dangerZone.title')} danger>
 	<div class="danger-actions">
 		{#if !confirmDeleteData}
 			<Button variant="danger-outline" type="button" onclick={() => (confirmDeleteData = true)}>
-				Delete All Data
+				{$_('settings.dangerZone.deleteData')}
 			</Button>
 		{:else}
 			<div class="confirm">
-				<p>This will permanently delete all your health entries. This action cannot be undone.</p>
+				<p>{$_('settings.dangerZone.confirmDeleteData')}</p>
 				<div class="confirm-actions">
-					<Button variant="danger" type="button" onclick={deleteAllData}>Yes, Delete All Data</Button>
-					<Button variant="outline" type="button" onclick={() => (confirmDeleteData = false)}>Cancel</Button>
+					<Button variant="danger" type="button" onclick={deleteAllData}
+						>{$_('settings.dangerZone.yesDeleteData')}</Button
+					>
+					<Button variant="outline" type="button" onclick={() => (confirmDeleteData = false)}
+						>{$_('settings.dangerZone.cancel')}</Button
+					>
 				</div>
 			</div>
 		{/if}
 		{#if dataDeleted}
-			<p class="deleted">All data deleted.</p>
+			<p class="deleted">{$_('settings.dangerZone.dataDeleted')}</p>
 		{/if}
 
 		{#if !confirmDeleteAccount}
 			<Button variant="danger" type="button" onclick={() => (confirmDeleteAccount = true)}>
-				Delete Account
+				{$_('settings.dangerZone.deleteAccount')}
 			</Button>
 		{:else}
 			<div class="confirm">
-				<p>This will permanently delete your account and all associated data. This cannot be undone.</p>
+				<p>{$_('settings.dangerZone.confirmDeleteAccount')}</p>
 				<div class="confirm-actions">
-					<Button variant="danger" type="button" onclick={deleteAccount}>Yes, Delete My Account</Button>
-					<Button variant="outline" type="button" onclick={() => (confirmDeleteAccount = false)}>Cancel</Button>
+					<Button variant="danger" type="button" onclick={deleteAccount}
+						>{$_('settings.dangerZone.yesDeleteAccount')}</Button
+					>
+					<Button variant="outline" type="button" onclick={() => (confirmDeleteAccount = false)}
+						>{$_('settings.dangerZone.cancel')}</Button
+					>
 				</div>
 			</div>
 		{/if}

@@ -1,7 +1,8 @@
 <script lang="ts">
-	import { PDF, rgb, StandardFonts } from '@libpdf/core';
+	import { PDF, StandardFonts, rgb } from '@libpdf/core';
 	import { metricsApi } from '$lib/client/api';
 	import { decrypt, getStoredKey, importKey } from '$lib/client/crypto';
+	import { _ } from 'svelte-i18n';
 	import Button from './Button.svelte';
 	import FlashMessage from './FlashMessage.svelte';
 	import SettingsCard from './SettingsCard.svelte';
@@ -15,7 +16,7 @@
 
 	async function decryptAll() {
 		const storedKey = getStoredKey();
-		if (!storedKey) throw new Error('Encryption key not found. Please log in again.');
+		if (!storedKey) throw new Error($_('settings.import.keyNotFound'));
 		const entries = await metricsApi.getAll();
 		const key = await importKey(storedKey);
 		return Promise.all(
@@ -57,17 +58,36 @@
 				'application/json',
 				`lavender-backup-${new Date().toISOString().slice(0, 10)}.json`
 			);
-			flash(`Exported ${decrypted.length} entries.`, 'success');
+			flash(
+				$_('settings.export.exportedEntries', { values: { count: decrypted.length } }),
+				'success'
+			);
 		} catch (err) {
-			flash(err instanceof Error ? err.message : 'Export failed.', 'error');
+			flash(err instanceof Error ? err.message : $_('settings.export.exportFailed'), 'error');
 		}
 	}
 
 	const csvHeaders = [
-		'id', 'createdAt', 'expiresAt', 'date', 'basalBodyTemp', 'cervicalMucus',
-		'lhSurge', 'appetiteChange', 'moodChange', 'increasedSexDrive',
-		'breastTenderness', 'mildSpotting', 'heightenedSmell', 'cervixChanges',
-		'fluidRetention', 'cramping', 'bleedingStart', 'bleedingEnd', 'bleedingFlow', 'notes'
+		'id',
+		'createdAt',
+		'expiresAt',
+		'date',
+		'basalBodyTemp',
+		'cervicalMucus',
+		'lhSurge',
+		'appetiteChange',
+		'moodChange',
+		'increasedSexDrive',
+		'breastTenderness',
+		'mildSpotting',
+		'heightenedSmell',
+		'cervixChanges',
+		'fluidRetention',
+		'cramping',
+		'bleedingStart',
+		'bleedingEnd',
+		'bleedingFlow',
+		'notes'
 	];
 
 	function escapeCsv(value: unknown): string {
@@ -95,23 +115,23 @@
 			);
 			const csv = [csvHeaders.join(','), ...rows].join('\n');
 			downloadFile(csv, 'text/csv', `lavender-export-${new Date().toISOString().slice(0, 10)}.csv`);
-			flash(`Exported ${decrypted.length} entries as CSV.`, 'success');
+			flash($_('settings.export.exportedCsv', { values: { count: decrypted.length } }), 'success');
 		} catch (err) {
-			flash(err instanceof Error ? err.message : 'Export failed.', 'error');
+			flash(err instanceof Error ? err.message : $_('settings.export.exportFailed'), 'error');
 		}
 	}
 
-	const symptomLabels: [string, string][] = [
-		['appetiteChange', 'Appetite change'],
-		['moodChange', 'Mood change'],
-		['increasedSexDrive', 'Increased sex drive'],
-		['breastTenderness', 'Breast tenderness'],
-		['mildSpotting', 'Mild spotting'],
-		['heightenedSmell', 'Heightened smell'],
-		['cervixChanges', 'Cervix changes'],
-		['fluidRetention', 'Fluid retention'],
-		['cramping', 'Cramping']
-	];
+	const symptomKeys = [
+		'appetiteChange',
+		'moodChange',
+		'increasedSexDrive',
+		'breastTenderness',
+		'mildSpotting',
+		'heightenedSmell',
+		'cervixChanges',
+		'fluidRetention',
+		'cramping'
+	] as const;
 
 	async function exportPdf() {
 		try {
@@ -130,13 +150,13 @@
 			const rowHeight = 16;
 
 			const columns: { label: string; x: number; width: number }[] = [
-				{ label: 'Date', x: margin, width: 62 },
-				{ label: 'BBT', x: 112, width: 36 },
-				{ label: 'Mucus', x: 148, width: 52 },
-				{ label: 'LH', x: 200, width: 26 },
-				{ label: 'Bleeding', x: 226, width: 48 },
-				{ label: 'Symptoms', x: 274, width: 200 },
-				{ label: 'Notes', x: 474, width: 88 }
+				{ label: $_('settings.export.pdfColumns.date'), x: margin, width: 62 },
+				{ label: $_('settings.export.pdfColumns.bbt'), x: 112, width: 36 },
+				{ label: $_('settings.export.pdfColumns.mucus'), x: 148, width: 52 },
+				{ label: $_('settings.export.pdfColumns.lh'), x: 200, width: 26 },
+				{ label: $_('settings.export.pdfColumns.bleeding'), x: 226, width: 48 },
+				{ label: $_('settings.export.pdfColumns.symptoms'), x: 274, width: 200 },
+				{ label: $_('settings.export.pdfColumns.notes'), x: 474, width: 88 }
 			];
 			const tableWidth = columns[columns.length - 1].x + columns[columns.length - 1].width - margin;
 
@@ -146,14 +166,13 @@
 			const lineColor = rgb(0.8, 0.8, 0.8);
 
 			function truncate(text: string, maxChars: number): string {
-				return text.length > maxChars ? text.slice(0, maxChars - 1) + '…' : text;
+				return text.length > maxChars ? `${text.slice(0, maxChars - 1)}…` : text;
 			}
 
 			let page = pdf.addPage({ size: 'letter' });
 			let y = page.height - margin;
 
-			// Title
-			page.drawText('Lavender — Cycle Report', {
+			page.drawText($_('settings.export.pdfTitle'), {
 				x: margin,
 				y,
 				font: headerFont,
@@ -162,13 +181,14 @@
 			});
 			y -= 16;
 			page.drawText(
-				`Generated ${new Date().toLocaleDateString()} · ${decrypted.length} entries`,
+				$_('settings.export.pdfGenerated', {
+					values: { date: new Date().toLocaleDateString(), count: decrypted.length }
+				}),
 				{ x: margin, y, font: bodyFont, size: 9, color: gray }
 			);
 			y -= 24;
 
 			function drawTableHeader() {
-				// Header background
 				page.drawRectangle({
 					x: margin,
 					y: y - rowHeight + 4,
@@ -176,7 +196,6 @@
 					height: rowHeight,
 					color: headerBg
 				});
-				// Header text
 				for (const col of columns) {
 					page.drawText(col.label, {
 						x: col.x + 3,
@@ -186,7 +205,6 @@
 						color: black
 					});
 				}
-				// Header bottom line
 				page.drawLine({
 					start: { x: margin, y: y - rowHeight + 4 },
 					end: { x: margin + tableWidth, y: y - rowHeight + 4 },
@@ -199,7 +217,6 @@
 			drawTableHeader();
 
 			for (const entry of decrypted) {
-				// New page if we're running out of space
 				if (y - rowHeight < margin) {
 					page = pdf.addPage({ size: 'letter' });
 					y = page.height - margin;
@@ -207,9 +224,9 @@
 				}
 
 				const d = entry.data;
-				const symptoms = symptomLabels
-					.filter(([key]) => d[key])
-					.map(([, label]) => label)
+				const symptoms = symptomKeys
+					.filter((key) => d[key])
+					.map((key) => $_(`settings.export.symptoms.${key}`))
 					.join(', ');
 
 				const values = [
@@ -233,7 +250,6 @@
 					});
 				}
 
-				// Row separator
 				page.drawLine({
 					start: { x: margin, y: y - rowHeight + 4 },
 					end: { x: margin + tableWidth, y: y - rowHeight + 4 },
@@ -250,19 +266,19 @@
 				'application/pdf',
 				`lavender-report-${new Date().toISOString().slice(0, 10)}.pdf`
 			);
-			flash(`Exported ${decrypted.length} entries as PDF.`, 'success');
+			flash($_('settings.export.exportedPdf', { values: { count: decrypted.length } }), 'success');
 		} catch (err) {
-			flash(err instanceof Error ? err.message : 'Export failed.', 'error');
+			flash(err instanceof Error ? err.message : $_('settings.export.exportFailed'), 'error');
 		}
 	}
 </script>
 
-<SettingsCard title="Export Data">
-	<p>Download all your health entries as a decrypted file for backup or analysis.</p>
+<SettingsCard title={$_('settings.export.title')}>
+	<p>{$_('settings.export.description')}</p>
 	<div class="export-actions">
-		<Button type="button" onclick={exportJson}>Export JSON</Button>
-		<Button type="button" onclick={exportCsv}>Export CSV</Button>
-		<Button type="button" onclick={exportPdf}>Export PDF</Button>
+		<Button type="button" onclick={exportJson}>{$_('settings.export.json')}</Button>
+		<Button type="button" onclick={exportCsv}>{$_('settings.export.csv')}</Button>
+		<Button type="button" onclick={exportPdf}>{$_('settings.export.pdf')}</Button>
 	</div>
 	<FlashMessage message={msg} />
 </SettingsCard>

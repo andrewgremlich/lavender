@@ -41,7 +41,7 @@ I don't know if this would be valuable.
 
 ### 6. PDF Reports ✅
 - Generate a printable cycle summary (last 1–3 cycles) with BBT chart, key dates, symptom summary
-- Options: `jsPDF` library, or render HTML and use `window.print()` with print-specific CSS
+- Implemented using `@libpdf/core` (not `jsPDF` as originally scoped)
 - PDF generated entirely client-side from decrypted data (preserves E2EE)
 
 ---
@@ -67,7 +67,7 @@ I don't know if this would be valuable.
 
 ## Phase 4: Large Effort
 
-### 10. Multi-language (i18n)
+### 10. Multi-language (i18n) ✅
 - Use [`svelte-i18n`](https://github.com/kaisermann/svelte-i18n) — Svelte-native, store-based, works with Svelte 5
 - Extract all user-facing strings into JSON locale files (e.g. `src/lib/i18n/en.json`)
 - Language selector in settings, preference stored in `localStorage`

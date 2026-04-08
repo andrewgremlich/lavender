@@ -4,6 +4,7 @@
 	import Button from '$lib/components/Button.svelte';
 	import Input from '$lib/components/Input.svelte';
 	import Text from '$lib/components/Text.svelte';
+	import { _ } from 'svelte-i18n';
 
 	let username = $state('');
 	let password = $state('');
@@ -26,18 +27,18 @@
 		event.preventDefault();
 		error = null;
 		if (!allMet) {
-			error = 'Password does not meet all requirements';
+			error = $_('auth.register.passwordRequirementsNotMet');
 			return;
 		}
 		if (password !== confirm) {
-			error = 'Passwords do not match';
+			error = $_('auth.register.passwordsMismatch');
 			return;
 		}
 		submitting = true;
 		try {
 			recoveryCode = await auth.register(username, password);
 		} catch (e) {
-			error = e instanceof Error ? e.message : 'Registration failed';
+			error = e instanceof Error ? e.message : $_('auth.register.failed');
 		} finally {
 			submitting = false;
 		}
@@ -56,34 +57,34 @@
 </script>
 
 <svelte:head>
-	<title>Create account — Lavender</title>
+	<title>{$_('auth.register.pageTitle')}</title>
 </svelte:head>
 
 <main>
 	{#if recoveryCode}
-		<Text as="h1">Save your recovery code</Text>
+		<Text as="h1">{$_('auth.register.recoveryCode.title')}</Text>
 		<p>
-			This code is the <strong>only way</strong> to recover your data if you forget your password. Store
-			it somewhere safe — we cannot show it to you again.
+			This code is the <strong>{$_('auth.register.recoveryCode.onlyWay')}</strong> to recover your data
+			if you forget your password. Store it somewhere safe — we cannot show it to you again.
 		</p>
 		<div class="code-wrapper">
 			<pre class="code">{recoveryCode}</pre>
 			<Button variant="outline" size="sm" type="button" onclick={copyCode}>
-				{copied ? '✓ Copied' : 'Copy'}
+				{copied ? $_('auth.register.recoveryCode.copied') : $_('auth.register.recoveryCode.copy')}
 			</Button>
 		</div>
 		<label class="checkbox">
 			<input type="checkbox" bind:checked={acknowledged} />
-			I have saved my recovery code in a safe place.
+			{$_('auth.register.recoveryCode.acknowledged')}
 		</label>
 		<Button type="button" disabled={!acknowledged} onclick={handleContinue}>
-			Continue to app
+			{$_('auth.register.recoveryCode.continue')}
 		</Button>
 	{:else}
-		<Text as="h1">Create account</Text>
+		<Text as="h1">{$_('auth.register.title')}</Text>
 		<form onsubmit={handleSubmit}>
 			<Input
-				label="Username"
+				label={$_('auth.register.username')}
 				type="text"
 				autocomplete="username"
 				bind:value={username}
@@ -91,7 +92,7 @@
 				disabled={submitting}
 			/>
 			<Input
-				label="Password"
+				label={$_('auth.register.password')}
 				type="password"
 				autocomplete="new-password"
 				bind:value={password}
@@ -99,12 +100,12 @@
 				disabled={submitting}
 			/>
 			<ul class="requirements">
-				<li class:met={reqs.length}>At least 12 characters</li>
-				<li class:met={reqs.number}>At least one number</li>
-				<li class:met={reqs.special}>At least one special character</li>
+				<li class:met={reqs.length}>{$_('auth.register.requirements.length')}</li>
+				<li class:met={reqs.number}>{$_('auth.register.requirements.number')}</li>
+				<li class:met={reqs.special}>{$_('auth.register.requirements.special')}</li>
 			</ul>
 			<Input
-				label="Confirm password"
+				label={$_('auth.register.confirmPassword')}
 				type="password"
 				autocomplete="new-password"
 				bind:value={confirm}
@@ -115,11 +116,11 @@
 				<Text variant="error" role="alert">{error}</Text>
 			{/if}
 			<Button type="submit" disabled={submitting}>
-				{submitting ? 'Creating account…' : 'Create account'}
+				{submitting ? $_('auth.register.submitting') : $_('auth.register.submit')}
 			</Button>
 		</form>
 		<Text class="links">
-			<a href="/auth/login">Already have an account?</a>
+			<a href="/auth/login">{$_('auth.register.alreadyHaveAccount')}</a>
 		</Text>
 	{/if}
 </main>

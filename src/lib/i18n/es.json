@@ -1,0 +1,346 @@
+{
+	"nav": {
+		"dashboard": "Tablero",
+		"addEntry": "Añadir entrada",
+		"analytics": "Análisis",
+		"settings": "Configuración",
+		"menu": "Menú",
+		"openMenu": "Abrir menú",
+		"sync": {
+			"synced": "Todos los cambios guardados",
+			"pending": "Sincronizando cambios…",
+			"error": "Error de sincronización — reintentará cuando haya conexión"
+		}
+	},
+	"dashboard": {
+		"title": "Tablero",
+		"pageTitle": "Tablero — Lavender",
+		"loading": "Cargando tus datos…",
+		"noDataYet": "Sin datos aún",
+		"noDataDescription": "Empieza a registrar tus métricas de salud para ver tendencias e información.",
+		"addFirstEntry": "Añadir primera entrada",
+		"recentEntries": "Entradas recientes",
+		"noEntriesInRange": "No hay entradas en este rango.",
+		"legend": {
+			"bbt": "TBC",
+			"lhSurge": "Pico LH",
+			"ovulation": "Ovulación",
+			"fertileWindow": "Ventana fértil",
+			"indicators": "Indicadores"
+		}
+	},
+	"entry": {
+		"pageTitle": "Registrar datos — Lavender",
+		"title": "Registrar datos de salud",
+		"editTitle": "Editar entrada",
+		"date": "Fecha",
+		"temperature": "Temperatura",
+		"bbt": "Temperatura corporal basal (°{unit})",
+		"cervicalMucus": "Moco cervical",
+		"lhSurge": "Pico LH",
+		"indicators": "Indicadores",
+		"periodBleeding": "Período / Sangrado",
+		"flowIntensity": "Intensidad del flujo",
+		"notes": "Notas",
+		"notesPlaceholder": "Observaciones adicionales...",
+		"save": "Guardar entrada",
+		"update": "Actualizar entrada",
+		"saving": "Cifrando y guardando…",
+		"savedSuccess": "¡Entrada guardada con éxito!",
+		"updatedSuccess": "¡Entrada actualizada con éxito!",
+		"addAnother": "Añadir otra",
+		"viewChart": "Ver gráfica",
+		"selectDateError": "Por favor selecciona una fecha.",
+		"saveError": "Error al guardar la entrada.",
+		"mucus": {
+			"dry": "Seco",
+			"sticky": "Pegajoso",
+			"creamy": "Cremoso",
+			"watery": "Acuoso",
+			"eggWhite": "Clara de huevo"
+		},
+		"lh": {
+			"none": "Ninguno",
+			"light": "Leve",
+			"positive": "Positivo"
+		},
+		"flow": {
+			"light": "Leve",
+			"medium": "Moderado",
+			"heavy": "Intenso"
+		},
+		"bleeding": {
+			"none": "Ninguno",
+			"started": "Comenzó",
+			"ended": "Terminó"
+		}
+	},
+	"analytics": {
+		"pageTitle": "Análisis — Lavender",
+		"title": "Análisis",
+		"loading": "Cargando tus datos…",
+		"noDataYet": "Sin datos aún",
+		"noDataDescription": "Añade entradas de salud para ver análisis y tendencias.",
+		"tabs": {
+			"cycleComparison": "Comparación de ciclos",
+			"lutealTrends": "Tendencias luteales",
+			"predictionAccuracy": "Precisión de predicción"
+		},
+		"notEnoughData": "Datos insuficientes",
+		"luteal": {
+			"notEnoughDataDescription": "Las tendencias de la fase lútea requieren al menos 2 ciclos completos con ovulación detectada. Sigue registrando diariamente para desbloquear esta vista.",
+			"shortPhaseWarning": "Fase lútea corta detectada en los últimos 2 ciclos (<10 días). Considera consultarlo con un proveedor de salud.",
+			"decreasingTrend": "La duración de la fase lútea ha disminuido durante los últimos 3 ciclos.",
+			"avgLabel": "Fase lútea promedio (días)",
+			"lastCycleLabel": "Último ciclo (días)",
+			"cyclesAnalyzed": "Ciclos analizados"
+		},
+		"accuracy": {
+			"notEnoughDataDescription": "La precisión de predicción requiere al menos 3 fechas de inicio de período registradas.",
+			"within2Days": "Dentro de ±2 días",
+			"avgError": "Error promedio (días)",
+			"maxError": "Error máximo (días)"
+		},
+		"comparison": {
+			"notEnoughDataDescription": "La comparación de ciclos requiere al menos 2 ciclos con lecturas de TBC y ovulación detectada.",
+			"cyclesAvailable": "Ciclos disponibles"
+		}
+	},
+	"settings": {
+		"pageTitle": "Configuración — Lavender",
+		"title": "Configuración",
+		"logOut": "Cerrar sesión",
+		"units": {
+			"title": "Unidades",
+			"label": "Sistema de medición",
+			"metric": "Métrico (°C, kg, cm)",
+			"us": "EE. UU. (°F, lb, in)",
+			"saved": "Preferencia de unidades guardada.",
+			"saveFailed": "Error al guardar."
+		},
+		"retention": {
+			"title": "Retención de datos",
+			"label": "Eliminar entradas anteriores a",
+			"6months": "6 meses",
+			"9months": "9 meses",
+			"1year": "1 año",
+			"saved": "Período de retención guardado.",
+			"saveFailed": "Error al guardar."
+		},
+		"language": {
+			"title": "Idioma",
+			"label": "Idioma de visualización",
+			"saved": "Idioma guardado."
+		},
+		"export": {
+			"title": "Exportar datos",
+			"description": "Descarga todas tus entradas de salud como un archivo descifrado para copia de seguridad o análisis.",
+			"json": "Exportar JSON",
+			"csv": "Exportar CSV",
+			"pdf": "Exportar PDF",
+			"exportedEntries": "Se exportaron {count} entradas.",
+			"exportedCsv": "Se exportaron {count} entradas como CSV.",
+			"exportedPdf": "Se exportaron {count} entradas como PDF.",
+			"exportFailed": "Error al exportar.",
+			"pdfTitle": "Lavender — Informe de ciclo",
+			"pdfGenerated": "Generado el {date} · {count} entradas",
+			"pdfColumns": {
+				"date": "Fecha",
+				"bbt": "TBC",
+				"mucus": "Moco",
+				"lh": "LH",
+				"bleeding": "Sangrado",
+				"symptoms": "Síntomas",
+				"notes": "Notas"
+			},
+			"symptoms": {
+				"appetiteChange": "Cambio de apetito",
+				"moodChange": "Cambio de humor",
+				"increasedSexDrive": "Mayor deseo sexual",
+				"breastTenderness": "Sensibilidad en los senos",
+				"mildSpotting": "Manchado leve",
+				"heightenedSmell": "Olfato agudizado",
+				"cervixChanges": "Cambios en el cérvix",
+				"fluidRetention": "Retención de líquidos",
+				"cramping": "Calambres"
+			}
+		},
+		"import": {
+			"title": "Importar datos",
+			"description": "Restaura entradas desde un archivo JSON o CSV exportado anteriormente de Lavender.",
+			"chooseFile": "Elegir archivo",
+			"noFileSelected": "Ningún archivo seleccionado",
+			"import": "Importar",
+			"importing": "Importando…",
+			"fileAriaLabel": "Selecciona un archivo JSON o CSV para importar",
+			"selectFileError": "Por favor selecciona un archivo.",
+			"keyNotFound": "Clave de cifrado no encontrada. Por favor inicia sesión de nuevo.",
+			"noValidEntries": "No se encontraron entradas válidas en el archivo.",
+			"unsupportedFileType": "Tipo de archivo no compatible. Usa .json o .csv.",
+			"invalidJsonFormat": "Formato JSON inválido. Se esperaba un array \"entries\".",
+			"importFailed": "Error al importar.",
+			"importedEntries": "Se importaron {count} entradas."
+		},
+		"changePassword": {
+			"title": "Cambiar contraseña",
+			"description": "Cambiar tu contraseña volverá a cifrar todos tus datos de salud con una nueva clave. Esto puede tardar un momento.",
+			"currentPassword": "Contraseña actual",
+			"newPassword": "Nueva contraseña",
+			"confirmPassword": "Confirmar nueva contraseña",
+			"requirements": {
+				"length": "Al menos 12 caracteres",
+				"number": "Al menos un número",
+				"special": "Al menos un carácter especial"
+			},
+			"change": "Cambiar contraseña",
+			"changing": "Volviendo a cifrar datos…",
+			"success": "Contraseña cambiada con éxito.",
+			"allFieldsRequired": "Todos los campos son obligatorios.",
+			"passwordsMismatch": "Las nuevas contraseñas no coinciden.",
+			"passwordRequirementsNotMet": "La contraseña debe tener 12+ caracteres, un número y un carácter especial.",
+			"passwordSameAsCurrent": "La nueva contraseña debe ser diferente a la actual.",
+			"keyNotFound": "Clave de cifrado no encontrada. Por favor inicia sesión de nuevo.",
+			"notAuthenticated": "No autenticado.",
+			"changeFailed": "Error al cambiar la contraseña."
+		},
+		"dangerZone": {
+			"title": "Zona de peligro",
+			"deleteData": "Eliminar todos los datos",
+			"deleteAccount": "Eliminar cuenta",
+			"confirmDeleteData": "Esto eliminará permanentemente todas tus entradas de salud. Esta acción no se puede deshacer.",
+			"confirmDeleteAccount": "Esto eliminará permanentemente tu cuenta y todos los datos asociados. Esto no se puede deshacer.",
+			"yesDeleteData": "Sí, eliminar todos los datos",
+			"yesDeleteAccount": "Sí, eliminar mi cuenta",
+			"cancel": "Cancelar",
+			"dataDeleted": "Todos los datos eliminados.",
+			"operationFailed": "Operación fallida: {error}"
+		}
+	},
+	"auth": {
+		"login": {
+			"pageTitle": "Iniciar sesión — Lavender",
+			"title": "Iniciar sesión",
+			"username": "Nombre de usuario",
+			"password": "Contraseña",
+			"submit": "Iniciar sesión",
+			"submitting": "Iniciando sesión…",
+			"createAccount": "Crear una cuenta",
+			"forgotPassword": "¿Olvidaste tu contraseña?",
+			"failed": "Error al iniciar sesión"
+		},
+		"register": {
+			"pageTitle": "Crear cuenta — Lavender",
+			"title": "Crear cuenta",
+			"username": "Nombre de usuario",
+			"password": "Contraseña",
+			"confirmPassword": "Confirmar contraseña",
+			"submit": "Crear cuenta",
+			"submitting": "Creando cuenta…",
+			"alreadyHaveAccount": "¿Ya tienes una cuenta?",
+			"failed": "Error en el registro",
+			"passwordsMismatch": "Las contraseñas no coinciden",
+			"passwordRequirementsNotMet": "La contraseña no cumple todos los requisitos",
+			"requirements": {
+				"length": "Al menos 12 caracteres",
+				"number": "Al menos un número",
+				"special": "Al menos un carácter especial"
+			},
+			"recoveryCode": {
+				"title": "Guarda tu código de recuperación",
+				"description": "Este código es la {strong} para recuperar tus datos si olvidas tu contraseña. Guárdalo en un lugar seguro — no podremos mostrártelo de nuevo.",
+				"onlyWay": "única forma",
+				"acknowledged": "He guardado mi código de recuperación en un lugar seguro.",
+				"copy": "Copiar",
+				"copied": "✓ Copiado",
+				"continue": "Continuar a la aplicación"
+			}
+		},
+		"recovery": {
+			"pageTitle": "Recuperación de cuenta — Lavender",
+			"recoverTitle": "Recuperar cuenta",
+			"recoverDescription": "Ingresa tu nombre de usuario, código de recuperación y una nueva contraseña.",
+			"setupTitle": "Configurar recuperación de cuenta",
+			"setupDescription": "Tu cuenta aún no tiene un código de recuperación. Genera uno ahora para poder restaurar el acceso si olvidas tu contraseña.",
+			"newCodeTitle": "Guarda tu nuevo código de recuperación",
+			"setupCodeTitle": "Guarda tu código de recuperación",
+			"codeDescription": "Este código es la {strong} para recuperar tus datos si olvidas tu contraseña. Guárdalo en un lugar seguro — no podremos mostrártelo de nuevo.",
+			"onlyWay": "única forma",
+			"username": "Nombre de usuario",
+			"recoveryCode": "Código de recuperación",
+			"recoveryCodePlaceholder": "XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX",
+			"newPassword": "Nueva contraseña",
+			"confirmNewPassword": "Confirmar nueva contraseña",
+			"generateCode": "Generar código de recuperación",
+			"generating": "Generando…",
+			"recover": "Recuperar cuenta",
+			"recovering": "Recuperando…",
+			"backToSignIn": "Volver al inicio de sesión",
+			"acknowledged": "He guardado mi código de recuperación en un lugar seguro.",
+			"copy": "Copiar",
+			"copied": "✓ Copiado",
+			"continue": "Continuar a la aplicación",
+			"passwordsMismatch": "Las contraseñas no coinciden",
+			"failed": "Error en la recuperación",
+			"setupFailed": "Error al generar el código de recuperación"
+		}
+	},
+	"rangeSelector": {
+		"week": "Semana",
+		"30days": "30 días",
+		"all": "Todo"
+	},
+	"entryCard": {
+		"noDetails": "Sin detalles",
+		"noDetailsRecorded": "No se registraron detalles",
+		"editEntry": "Editar entrada",
+		"deleteEntry": "Eliminar entrada",
+		"labels": {
+			"basalBodyTemp": "Temp. corporal basal",
+			"cervicalMucus": "Moco cervical",
+			"lhSurge": "Pico LH",
+			"bleedingSarted": "Sangrado iniciado",
+			"bleedingEnded": "Sangrado terminado",
+			"flowIntensity": "Intensidad del flujo",
+			"notes": "Notas"
+		},
+		"mucus": {
+			"dry": "Seco",
+			"sticky": "Pegajoso",
+			"creamy": "Cremoso",
+			"watery": "Acuoso",
+			"eggWhite": "Clara de huevo"
+		},
+		"flow": {
+			"light": "Leve",
+			"medium": "Moderado",
+			"heavy": "Intenso"
+		},
+		"lh": {
+			"light": "LH Leve",
+			"positive": "LH+"
+		},
+		"period": "Período",
+		"indicators": "{count} indicador",
+		"indicators_plural": "{count} indicadores"
+	},
+	"indicators": {
+		"appetiteChange": "Cambio de apetito",
+		"moodChange": "Cambio de humor",
+		"increasedSexDrive": "Mayor deseo sexual",
+		"breastTenderness": "Sensibilidad en los senos",
+		"mildSpotting": "Manchado leve",
+		"heightenedSmell": "Olfato agudizado",
+		"cervixChanges": "Cambios en el cérvix",
+		"fluidRetention": "Retención de líquidos",
+		"cramping": "Calambres"
+	},
+	"common": {
+		"save": "Guardar",
+		"cancel": "Cancelar",
+		"yes": "Sí",
+		"no": "No",
+		"edit": "Editar",
+		"delete": "Eliminar",
+		"loading": "Cargando…"
+	}
+}

@@ -4,6 +4,7 @@
 	import Button from '$lib/components/Button.svelte';
 	import Input from '$lib/components/Input.svelte';
 	import Text from '$lib/components/Text.svelte';
+	import { _ } from 'svelte-i18n';
 
 	let username = $state('');
 	let password = $state('');
@@ -17,13 +18,12 @@
 		try {
 			const hasRecovery = await auth.login(username, password);
 			if (!hasRecovery) {
-				// Existing user without a recovery code — route through recovery setup.
 				await goto('/auth/recovery?setup=1');
 			} else {
 				await goto('/app');
 			}
 		} catch (e) {
-			error = e instanceof Error ? e.message : 'Sign-in failed';
+			error = e instanceof Error ? e.message : $_('auth.login.failed');
 		} finally {
 			submitting = false;
 		}
@@ -31,14 +31,14 @@
 </script>
 
 <svelte:head>
-	<title>Sign in — Lavender</title>
+	<title>{$_('auth.login.pageTitle')}</title>
 </svelte:head>
 
 <main>
-	<Text as="h1">Sign in</Text>
+	<Text as="h1">{$_('auth.login.title')}</Text>
 	<form onsubmit={handleSubmit}>
 		<Input
-			label="Username"
+			label={$_('auth.login.username')}
 			type="text"
 			autocomplete="username"
 			bind:value={username}
@@ -46,7 +46,7 @@
 			disabled={submitting}
 		/>
 		<Input
-			label="Password"
+			label={$_('auth.login.password')}
 			type="password"
 			autocomplete="current-password"
 			bind:value={password}
@@ -57,13 +57,13 @@
 			<Text variant="error" role="alert">{error}</Text>
 		{/if}
 		<Button type="submit" disabled={submitting}>
-			{submitting ? 'Signing in…' : 'Sign in'}
+			{submitting ? $_('auth.login.submitting') : $_('auth.login.submit')}
 		</Button>
 	</form>
 	<Text class="links">
-		<a href="/auth/register">Create an account</a>
+		<a href="/auth/register">{$_('auth.login.createAccount')}</a>
 		<span aria-hidden="true">·</span>
-		<a href="/auth/recovery">Forgot password?</a>
+		<a href="/auth/recovery">{$_('auth.login.forgotPassword')}</a>
 	</Text>
 </main>
 

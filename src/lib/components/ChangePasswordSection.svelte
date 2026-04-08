@@ -9,6 +9,7 @@
 		importKey,
 		storeKey
 	} from '$lib/client/crypto';
+	import { _ } from 'svelte-i18n';
 	import Button from './Button.svelte';
 	import FlashMessage from './FlashMessage.svelte';
 	import Input from './Input.svelte';
@@ -38,30 +39,30 @@
 
 	async function changePassword() {
 		if (!currentPassword || !newPassword || !confirmPassword) {
-			flash('All fields are required.', 'error');
+			flash($_('settings.changePassword.allFieldsRequired'), 'error');
 			return;
 		}
 		if (newPassword !== confirmPassword) {
-			flash('New passwords do not match.', 'error');
+			flash($_('settings.changePassword.passwordsMismatch'), 'error');
 			return;
 		}
 		if (!isPasswordValid(newPassword)) {
-			flash('Password must be 12+ chars with a number and special character.', 'error');
+			flash($_('settings.changePassword.passwordRequirementsNotMet'), 'error');
 			return;
 		}
 		if (currentPassword === newPassword) {
-			flash('New password must differ from current.', 'error');
+			flash($_('settings.changePassword.passwordSameAsCurrent'), 'error');
 			return;
 		}
 
 		const storedKey = getStoredKey();
 		if (!storedKey) {
-			flash('Encryption key not found. Please log in again.', 'error');
+			flash($_('settings.changePassword.keyNotFound'), 'error');
 			return;
 		}
 		const username = auth.username;
 		if (!username) {
-			flash('Not authenticated.', 'error');
+			flash($_('settings.changePassword.notAuthenticated'), 'error');
 			return;
 		}
 
@@ -87,36 +88,50 @@
 			currentPassword = '';
 			newPassword = '';
 			confirmPassword = '';
-			flash('Password changed successfully.', 'success');
+			flash($_('settings.changePassword.success'), 'success');
 		} catch (err) {
-			flash(err instanceof Error ? err.message : 'Failed to change password.', 'error');
+			flash(
+				err instanceof Error ? err.message : $_('settings.changePassword.changeFailed'),
+				'error'
+			);
 		} finally {
 			changing = false;
 		}
 	}
 </script>
 
-<SettingsCard title="Change Password">
+<SettingsCard title={$_('settings.changePassword.title')}>
 	<Text variant="muted">
-		Changing your password will re-encrypt all your health data with a new key. This may take a
-		moment.
+		{$_('settings.changePassword.description')}
 	</Text>
 	<Input
-		label="Current password"
+		label={$_('settings.changePassword.currentPassword')}
 		id="current-pw"
 		type="password"
 		autocomplete="current-password"
 		bind:value={currentPassword}
 	/>
-	<Input label="New password" id="new-pw" type="password" autocomplete="new-password" bind:value={newPassword} />
-	<Input label="Confirm new password" id="confirm-pw" type="password" autocomplete="new-password" bind:value={confirmPassword} />
+	<Input
+		label={$_('settings.changePassword.newPassword')}
+		id="new-pw"
+		type="password"
+		autocomplete="new-password"
+		bind:value={newPassword}
+	/>
+	<Input
+		label={$_('settings.changePassword.confirmPassword')}
+		id="confirm-pw"
+		type="password"
+		autocomplete="new-password"
+		bind:value={confirmPassword}
+	/>
 	<ul class="requirements">
-		<li class:met={reqs.length}>At least 12 characters</li>
-		<li class:met={reqs.number}>At least one number</li>
-		<li class:met={reqs.special}>At least one special character</li>
+		<li class:met={reqs.length}>{$_('settings.changePassword.requirements.length')}</li>
+		<li class:met={reqs.number}>{$_('settings.changePassword.requirements.number')}</li>
+		<li class:met={reqs.special}>{$_('settings.changePassword.requirements.special')}</li>
 	</ul>
 	<Button type="button" onclick={changePassword} disabled={changing}>
-		{changing ? 'Re-encrypting data…' : 'Change Password'}
+		{changing ? $_('settings.changePassword.changing') : $_('settings.changePassword.change')}
 	</Button>
 	<FlashMessage message={msg} />
 </SettingsCard>

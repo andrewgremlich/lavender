@@ -5,11 +5,8 @@
 	import Button from '$lib/components/Button.svelte';
 	import Input from '$lib/components/Input.svelte';
 	import Text from '$lib/components/Text.svelte';
+	import { _ } from 'svelte-i18n';
 
-	// Two modes:
-	//  - ?setup=1 (post-login): user is already authenticated and just needs to
-	//    generate a recovery code for a legacy account.
-	//  - default: unauthenticated recover-with-code flow for a forgotten password.
 	const isSetupMode = $derived($page.url.searchParams.get('setup') === '1');
 
 	let username = $state('');
@@ -26,14 +23,14 @@
 		event.preventDefault();
 		error = null;
 		if (newPassword !== confirm) {
-			error = 'Passwords do not match';
+			error = $_('auth.recovery.passwordsMismatch');
 			return;
 		}
 		submitting = true;
 		try {
 			generatedCode = await auth.recover(username, recoveryCode, newPassword);
 		} catch (e) {
-			error = e instanceof Error ? e.message : 'Recovery failed';
+			error = e instanceof Error ? e.message : $_('auth.recovery.failed');
 		} finally {
 			submitting = false;
 		}
@@ -45,7 +42,7 @@
 		try {
 			generatedCode = await auth.setupRecovery();
 		} catch (e) {
-			error = e instanceof Error ? e.message : 'Failed to generate recovery code';
+			error = e instanceof Error ? e.message : $_('auth.recovery.setupFailed');
 		} finally {
 			submitting = false;
 		}
@@ -64,47 +61,46 @@
 </script>
 
 <svelte:head>
-	<title>Account recovery — Lavender</title>
+	<title>{$_('auth.recovery.pageTitle')}</title>
 </svelte:head>
 
 <main>
 	{#if generatedCode}
-		<Text as="h1">Save your {isSetupMode ? 'recovery' : 'new recovery'} code</Text>
+		<Text as="h1"
+			>{isSetupMode ? $_('auth.recovery.setupCodeTitle') : $_('auth.recovery.newCodeTitle')}</Text
+		>
 		<p>
-			This code is the <strong>only way</strong> to recover your data if you forget your password. Store
-			it somewhere safe — we cannot show it to you again.
+			This code is the <strong>{$_('auth.recovery.onlyWay')}</strong> to recover your data if you forget
+			your password. Store it somewhere safe — we cannot show it to you again.
 		</p>
 		<div class="code-wrapper">
 			<pre class="code">{generatedCode}</pre>
 			<Button variant="outline" size="sm" type="button" onclick={copyCode}>
-				{copied ? '✓ Copied' : 'Copy'}
+				{copied ? $_('auth.recovery.copied') : $_('auth.recovery.copy')}
 			</Button>
 		</div>
 		<label class="checkbox">
 			<input type="checkbox" bind:checked={acknowledged} />
-			I have saved my recovery code in a safe place.
+			{$_('auth.recovery.acknowledged')}
 		</label>
 		<Button type="button" disabled={!acknowledged} onclick={handleContinue}>
-			Continue to app
+			{$_('auth.recovery.continue')}
 		</Button>
 	{:else if isSetupMode}
-		<Text as="h1">Set up account recovery</Text>
-		<p>
-			Your account doesn't have a recovery code yet. Generate one now so you can restore access if
-			you forget your password.
-		</p>
+		<Text as="h1">{$_('auth.recovery.setupTitle')}</Text>
+		<p>{$_('auth.recovery.setupDescription')}</p>
 		{#if error}
 			<Text variant="error" role="alert">{error}</Text>
 		{/if}
 		<Button type="button" disabled={submitting} onclick={handleSetup}>
-			{submitting ? 'Generating…' : 'Generate recovery code'}
+			{submitting ? $_('auth.recovery.generating') : $_('auth.recovery.generateCode')}
 		</Button>
 	{:else}
-		<Text as="h1">Recover account</Text>
-		<p>Enter your username, recovery code, and a new password.</p>
+		<Text as="h1">{$_('auth.recovery.recoverTitle')}</Text>
+		<p>{$_('auth.recovery.recoverDescription')}</p>
 		<form onsubmit={handleRecover}>
 			<Input
-				label="Username"
+				label={$_('auth.recovery.username')}
 				type="text"
 				autocomplete="username"
 				bind:value={username}
@@ -112,17 +108,17 @@
 				disabled={submitting}
 			/>
 			<Input
-				label="Recovery code"
+				label={$_('auth.recovery.recoveryCode')}
 				type="text"
 				autocomplete="off"
 				spellcheck="false"
-				placeholder="XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX"
+				placeholder={$_('auth.recovery.recoveryCodePlaceholder')}
 				bind:value={recoveryCode}
 				required
 				disabled={submitting}
 			/>
 			<Input
-				label="New password"
+				label={$_('auth.recovery.newPassword')}
 				type="password"
 				autocomplete="new-password"
 				bind:value={newPassword}
@@ -130,7 +126,7 @@
 				disabled={submitting}
 			/>
 			<Input
-				label="Confirm new password"
+				label={$_('auth.recovery.confirmNewPassword')}
 				type="password"
 				autocomplete="new-password"
 				bind:value={confirm}
@@ -141,11 +137,11 @@
 				<Text variant="error" role="alert">{error}</Text>
 			{/if}
 			<Button type="submit" disabled={submitting}>
-				{submitting ? 'Recovering…' : 'Recover account'}
+				{submitting ? $_('auth.recovery.recovering') : $_('auth.recovery.recover')}
 			</Button>
 		</form>
 		<Text class="links">
-			<a href="/auth/login">Back to sign in</a>
+			<a href="/auth/login">{$_('auth.recovery.backToSignIn')}</a>
 		</Text>
 	{/if}
 </main>

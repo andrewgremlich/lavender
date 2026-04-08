@@ -9,16 +9,25 @@
 	import MetricChart from '$lib/components/MetricChart.svelte';
 	import RangeSelector from '$lib/components/RangeSelector.svelte';
 	import Text from '$lib/components/Text.svelte';
+	import { _ } from 'svelte-i18n';
 
 	type Range = '7' | '30' | 'all';
 
-	const legendItems = [
-		{ color: '#7c3aed', label: 'BBT' },
-		{ color: 'rgba(245,158,11,0.6)', label: 'LH Surge', shape: 'square' as const },
-		{ color: '#ec4899', label: 'Ovulation' },
-		{ color: 'rgba(16,185,129,0.4)', label: 'Fertile Window' },
-		{ color: 'rgba(244,114,182,0.5)', label: 'Indicators', shape: 'square' as const }
-	];
+	const legendItems = $derived([
+		{ color: '#7c3aed', label: $_('dashboard.legend.bbt') },
+		{
+			color: 'rgba(245,158,11,0.6)',
+			label: $_('dashboard.legend.lhSurge'),
+			shape: 'square' as const
+		},
+		{ color: '#ec4899', label: $_('dashboard.legend.ovulation') },
+		{ color: 'rgba(16,185,129,0.4)', label: $_('dashboard.legend.fertileWindow') },
+		{
+			color: 'rgba(244,114,182,0.5)',
+			label: $_('dashboard.legend.indicators'),
+			shape: 'square' as const
+		}
+	]);
 
 	let range = $state<Range>('30');
 
@@ -26,7 +35,11 @@
 		settingsApi
 			.get()
 			.then((s) => {
-				if (s.defaultDateRange === '7' || s.defaultDateRange === '30' || s.defaultDateRange === 'all') {
+				if (
+					s.defaultDateRange === '7' ||
+					s.defaultDateRange === '30' ||
+					s.defaultDateRange === 'all'
+				) {
 					range = s.defaultDateRange;
 				}
 			})
@@ -51,20 +64,21 @@
 </script>
 
 <svelte:head>
-	<title>Dashboard — Lavender</title>
+	<title>{$_('dashboard.pageTitle')}</title>
 </svelte:head>
 
-<Text as="h2">Dashboard</Text>
+<Text as="h2">{$_('dashboard.title')}</Text>
 
 {#if entriesStore.loading && entriesStore.entries.length === 0}
-	<Text variant="muted">Loading your data…</Text>
+	<Text variant="muted">{$_('dashboard.loading')}</Text>
 {:else if entriesStore.error}
 	<div class="error">{entriesStore.error}</div>
 {:else if entriesStore.entries.length === 0}
 	<div class="empty">
-		<Text as="h3">No Data Yet</Text>
-		<p>Start tracking your health metrics to see trends and insights.</p>
-		<Button type="button" onclick={() => goto('/app/entry')}>Add Your First Entry</Button>
+		<Text as="h3">{$_('dashboard.noDataYet')}</Text>
+		<p>{$_('dashboard.noDataDescription')}</p>
+		<Button type="button" onclick={() => goto('/app/entry')}>{$_('dashboard.addFirstEntry')}</Button
+		>
 	</div>
 {:else}
 	<RangeSelector value={range} onselect={selectRange} />
@@ -77,9 +91,9 @@
 	</section>
 
 	<section class="entries">
-		<Text as="h3">Recent Entries</Text>
+		<Text as="h3">{$_('dashboard.recentEntries')}</Text>
 		{#if recent.length === 0}
-			<Text variant="muted">No entries in this range.</Text>
+			<Text variant="muted">{$_('dashboard.noEntriesInRange')}</Text>
 		{:else}
 			{#each recent as entry (entry.id)}
 				<EntryCard {entry} />

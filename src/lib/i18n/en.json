@@ -1,0 +1,346 @@
+{
+	"nav": {
+		"dashboard": "Dashboard",
+		"addEntry": "Add Entry",
+		"analytics": "Analytics",
+		"settings": "Settings",
+		"menu": "Menu",
+		"openMenu": "Open menu",
+		"sync": {
+			"synced": "All changes saved",
+			"pending": "Syncing changes…",
+			"error": "Sync error — will retry when online"
+		}
+	},
+	"dashboard": {
+		"title": "Dashboard",
+		"pageTitle": "Dashboard — Lavender",
+		"loading": "Loading your data…",
+		"noDataYet": "No Data Yet",
+		"noDataDescription": "Start tracking your health metrics to see trends and insights.",
+		"addFirstEntry": "Add Your First Entry",
+		"recentEntries": "Recent Entries",
+		"noEntriesInRange": "No entries in this range.",
+		"legend": {
+			"bbt": "BBT",
+			"lhSurge": "LH Surge",
+			"ovulation": "Ovulation",
+			"fertileWindow": "Fertile Window",
+			"indicators": "Indicators"
+		}
+	},
+	"entry": {
+		"pageTitle": "Log Health Data — Lavender",
+		"title": "Log Health Data",
+		"editTitle": "Edit Entry",
+		"date": "Date",
+		"temperature": "Temperature",
+		"bbt": "Basal Body Temperature (°{unit})",
+		"cervicalMucus": "Cervical Mucus",
+		"lhSurge": "LH Surge",
+		"indicators": "Indicators",
+		"periodBleeding": "Period / Bleeding",
+		"flowIntensity": "Flow Intensity",
+		"notes": "Notes",
+		"notesPlaceholder": "Any additional observations...",
+		"save": "Save Entry",
+		"update": "Update Entry",
+		"saving": "Encrypting & saving…",
+		"savedSuccess": "Entry saved successfully!",
+		"updatedSuccess": "Entry updated successfully!",
+		"addAnother": "Add Another",
+		"viewChart": "View Chart",
+		"selectDateError": "Please select a date.",
+		"saveError": "Failed to save entry.",
+		"mucus": {
+			"dry": "Dry",
+			"sticky": "Sticky",
+			"creamy": "Creamy",
+			"watery": "Watery",
+			"eggWhite": "Egg White"
+		},
+		"lh": {
+			"none": "None",
+			"light": "Light",
+			"positive": "Positive"
+		},
+		"flow": {
+			"light": "Light",
+			"medium": "Medium",
+			"heavy": "Heavy"
+		},
+		"bleeding": {
+			"none": "None",
+			"started": "Started",
+			"ended": "Ended"
+		}
+	},
+	"analytics": {
+		"pageTitle": "Analytics — Lavender",
+		"title": "Analytics",
+		"loading": "Loading your data…",
+		"noDataYet": "No Data Yet",
+		"noDataDescription": "Add health entries to see analytics and trends.",
+		"tabs": {
+			"cycleComparison": "Cycle Comparison",
+			"lutealTrends": "Luteal Trends",
+			"predictionAccuracy": "Prediction Accuracy"
+		},
+		"notEnoughData": "Not Enough Data",
+		"luteal": {
+			"notEnoughDataDescription": "Luteal phase trends require at least 2 complete cycles with detected ovulation. Keep logging daily to unlock this view.",
+			"shortPhaseWarning": "Short luteal phase detected in last 2 cycles (<10 days). Consider discussing with a healthcare provider.",
+			"decreasingTrend": "Luteal phase length has been decreasing over the last 3 cycles.",
+			"avgLabel": "Avg Luteal Phase (days)",
+			"lastCycleLabel": "Last Cycle (days)",
+			"cyclesAnalyzed": "Cycles Analyzed"
+		},
+		"accuracy": {
+			"notEnoughDataDescription": "Prediction accuracy requires at least 3 recorded period start dates.",
+			"within2Days": "Within ±2 Days",
+			"avgError": "Avg Error (days)",
+			"maxError": "Max Error (days)"
+		},
+		"comparison": {
+			"notEnoughDataDescription": "Cycle comparison requires at least 2 cycles with both BBT readings and detected ovulation.",
+			"cyclesAvailable": "Cycles Available"
+		}
+	},
+	"settings": {
+		"pageTitle": "Settings — Lavender",
+		"title": "Settings",
+		"logOut": "Log Out",
+		"units": {
+			"title": "Units",
+			"label": "Measurement system",
+			"metric": "Metric (°C, kg, cm)",
+			"us": "US (°F, lb, in)",
+			"saved": "Unit preference saved.",
+			"saveFailed": "Failed to save."
+		},
+		"retention": {
+			"title": "Data Retention",
+			"label": "Auto-delete entries older than",
+			"6months": "6 months",
+			"9months": "9 months",
+			"1year": "1 year",
+			"saved": "Retention period saved.",
+			"saveFailed": "Failed to save."
+		},
+		"language": {
+			"title": "Language",
+			"label": "Display language",
+			"saved": "Language saved."
+		},
+		"export": {
+			"title": "Export Data",
+			"description": "Download all your health entries as a decrypted file for backup or analysis.",
+			"json": "Export JSON",
+			"csv": "Export CSV",
+			"pdf": "Export PDF",
+			"exportedEntries": "Exported {count} entries.",
+			"exportedCsv": "Exported {count} entries as CSV.",
+			"exportedPdf": "Exported {count} entries as PDF.",
+			"exportFailed": "Export failed.",
+			"pdfTitle": "Lavender — Cycle Report",
+			"pdfGenerated": "Generated {date} · {count} entries",
+			"pdfColumns": {
+				"date": "Date",
+				"bbt": "BBT",
+				"mucus": "Mucus",
+				"lh": "LH",
+				"bleeding": "Bleeding",
+				"symptoms": "Symptoms",
+				"notes": "Notes"
+			},
+			"symptoms": {
+				"appetiteChange": "Appetite change",
+				"moodChange": "Mood change",
+				"increasedSexDrive": "Increased sex drive",
+				"breastTenderness": "Breast tenderness",
+				"mildSpotting": "Mild spotting",
+				"heightenedSmell": "Heightened smell",
+				"cervixChanges": "Cervix changes",
+				"fluidRetention": "Fluid retention",
+				"cramping": "Cramping"
+			}
+		},
+		"import": {
+			"title": "Import Data",
+			"description": "Restore entries from a previously exported Lavender JSON or CSV file.",
+			"chooseFile": "Choose file",
+			"noFileSelected": "No file selected",
+			"import": "Import",
+			"importing": "Importing…",
+			"fileAriaLabel": "Select a JSON or CSV file to import",
+			"selectFileError": "Please select a file.",
+			"keyNotFound": "Encryption key not found. Please log in again.",
+			"noValidEntries": "No valid entries found in file.",
+			"unsupportedFileType": "Unsupported file type. Please use .json or .csv.",
+			"invalidJsonFormat": "Invalid JSON format. Expected an \"entries\" array.",
+			"importFailed": "Import failed.",
+			"importedEntries": "Imported {count} entries."
+		},
+		"changePassword": {
+			"title": "Change Password",
+			"description": "Changing your password will re-encrypt all your health data with a new key. This may take a moment.",
+			"currentPassword": "Current password",
+			"newPassword": "New password",
+			"confirmPassword": "Confirm new password",
+			"requirements": {
+				"length": "At least 12 characters",
+				"number": "At least one number",
+				"special": "At least one special character"
+			},
+			"change": "Change Password",
+			"changing": "Re-encrypting data…",
+			"success": "Password changed successfully.",
+			"allFieldsRequired": "All fields are required.",
+			"passwordsMismatch": "New passwords do not match.",
+			"passwordRequirementsNotMet": "Password must be 12+ chars with a number and special character.",
+			"passwordSameAsCurrent": "New password must differ from current.",
+			"keyNotFound": "Encryption key not found. Please log in again.",
+			"notAuthenticated": "Not authenticated.",
+			"changeFailed": "Failed to change password."
+		},
+		"dangerZone": {
+			"title": "Danger Zone",
+			"deleteData": "Delete All Data",
+			"deleteAccount": "Delete Account",
+			"confirmDeleteData": "This will permanently delete all your health entries. This action cannot be undone.",
+			"confirmDeleteAccount": "This will permanently delete your account and all associated data. This cannot be undone.",
+			"yesDeleteData": "Yes, Delete All Data",
+			"yesDeleteAccount": "Yes, Delete My Account",
+			"cancel": "Cancel",
+			"dataDeleted": "All data deleted.",
+			"operationFailed": "Operation failed: {error}"
+		}
+	},
+	"auth": {
+		"login": {
+			"pageTitle": "Sign in — Lavender",
+			"title": "Sign in",
+			"username": "Username",
+			"password": "Password",
+			"submit": "Sign in",
+			"submitting": "Signing in…",
+			"createAccount": "Create an account",
+			"forgotPassword": "Forgot password?",
+			"failed": "Sign-in failed"
+		},
+		"register": {
+			"pageTitle": "Create account — Lavender",
+			"title": "Create account",
+			"username": "Username",
+			"password": "Password",
+			"confirmPassword": "Confirm password",
+			"submit": "Create account",
+			"submitting": "Creating account…",
+			"alreadyHaveAccount": "Already have an account?",
+			"failed": "Registration failed",
+			"passwordsMismatch": "Passwords do not match",
+			"passwordRequirementsNotMet": "Password does not meet all requirements",
+			"requirements": {
+				"length": "At least 12 characters",
+				"number": "At least one number",
+				"special": "At least one special character"
+			},
+			"recoveryCode": {
+				"title": "Save your recovery code",
+				"description": "This code is the {strong} to recover your data if you forget your password. Store it somewhere safe — we cannot show it to you again.",
+				"onlyWay": "only way",
+				"acknowledged": "I have saved my recovery code in a safe place.",
+				"copy": "Copy",
+				"copied": "✓ Copied",
+				"continue": "Continue to app"
+			}
+		},
+		"recovery": {
+			"pageTitle": "Account recovery — Lavender",
+			"recoverTitle": "Recover account",
+			"recoverDescription": "Enter your username, recovery code, and a new password.",
+			"setupTitle": "Set up account recovery",
+			"setupDescription": "Your account doesn't have a recovery code yet. Generate one now so you can restore access if you forget your password.",
+			"newCodeTitle": "Save your new recovery code",
+			"setupCodeTitle": "Save your recovery code",
+			"codeDescription": "This code is the {strong} to recover your data if you forget your password. Store it somewhere safe — we cannot show it to you again.",
+			"onlyWay": "only way",
+			"username": "Username",
+			"recoveryCode": "Recovery code",
+			"recoveryCodePlaceholder": "XXXXXXXX-XXXXXXXX-XXXXXXXX-XXXXXXXX",
+			"newPassword": "New password",
+			"confirmNewPassword": "Confirm new password",
+			"generateCode": "Generate recovery code",
+			"generating": "Generating…",
+			"recover": "Recover account",
+			"recovering": "Recovering…",
+			"backToSignIn": "Back to sign in",
+			"acknowledged": "I have saved my recovery code in a safe place.",
+			"copy": "Copy",
+			"copied": "✓ Copied",
+			"continue": "Continue to app",
+			"passwordsMismatch": "Passwords do not match",
+			"failed": "Recovery failed",
+			"setupFailed": "Failed to generate recovery code"
+		}
+	},
+	"rangeSelector": {
+		"week": "Week",
+		"30days": "30 Days",
+		"all": "All"
+	},
+	"entryCard": {
+		"noDetails": "No details",
+		"noDetailsRecorded": "No details recorded",
+		"editEntry": "Edit entry",
+		"deleteEntry": "Delete entry",
+		"labels": {
+			"basalBodyTemp": "Basal Body Temp",
+			"cervicalMucus": "Cervical Mucus",
+			"lhSurge": "LH Surge",
+			"bleedingSarted": "Bleeding Started",
+			"bleedingEnded": "Bleeding Ended",
+			"flowIntensity": "Flow Intensity",
+			"notes": "Notes"
+		},
+		"mucus": {
+			"dry": "Dry",
+			"sticky": "Sticky",
+			"creamy": "Creamy",
+			"watery": "Watery",
+			"eggWhite": "Egg White"
+		},
+		"flow": {
+			"light": "Light",
+			"medium": "Medium",
+			"heavy": "Heavy"
+		},
+		"lh": {
+			"light": "LH Light",
+			"positive": "LH+"
+		},
+		"period": "Period",
+		"indicators": "{count} indicator",
+		"indicators_plural": "{count} indicators"
+	},
+	"indicators": {
+		"appetiteChange": "Appetite Change",
+		"moodChange": "Mood Change",
+		"increasedSexDrive": "Increased Sex Drive",
+		"breastTenderness": "Breast Tenderness",
+		"mildSpotting": "Mild Spotting",
+		"heightenedSmell": "Heightened Smell",
+		"cervixChanges": "Cervix Changes",
+		"fluidRetention": "Fluid Retention",
+		"cramping": "Cramping"
+	},
+	"common": {
+		"save": "Save",
+		"cancel": "Cancel",
+		"yes": "Yes",
+		"no": "No",
+		"edit": "Edit",
+		"delete": "Delete",
+		"loading": "Loading…"
+	}
+}

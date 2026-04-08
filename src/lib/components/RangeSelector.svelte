@@ -1,8 +1,8 @@
 <script lang="ts">
+	import { _ } from 'svelte-i18n';
 	import Button from './Button.svelte';
 
 	type Range = '7' | '30' | 'all';
-	type RangeOption = { value: Range; label: string };
 
 	type Props = {
 		value: Range;
@@ -11,11 +11,11 @@
 
 	let { value, onselect }: Props = $props();
 
-	const options: RangeOption[] = [
-		{ value: '7', label: 'Week' },
-		{ value: '30', label: '30 Days' },
-		{ value: 'all', label: 'All' }
-	];
+	const options = $derived([
+		{ value: '7' as Range, label: $_('rangeSelector.week') },
+		{ value: '30' as Range, label: $_('rangeSelector.30days') },
+		{ value: 'all' as Range, label: $_('rangeSelector.all') }
+	]);
 </script>
 
 <div class="range-selector">
