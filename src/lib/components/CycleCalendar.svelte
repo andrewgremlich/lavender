@@ -177,6 +177,7 @@
 		grid-template-columns: repeat(7, 1fr);
 		gap: 2px;
 		overflow: hidden;
+		padding: 2px;
 	}
 
 	.day-header {
@@ -197,7 +198,6 @@
 		font-size: var(--text-sm);
 		background: transparent;
 		gap: 1px;
-		overflow: hidden;
 		min-width: 0;
 	}
 

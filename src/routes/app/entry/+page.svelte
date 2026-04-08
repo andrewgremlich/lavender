@@ -261,7 +261,7 @@
 							value="none"
 							bind:group={form.bleedingStatus}
 						/>
-						<span>{$_('entry.bleeding.none')}</span>
+						<span><Icon name="minus" /> {$_('entry.bleeding.none')}</span>
 					</PillOption>
 					<PillOption>
 						<input
@@ -270,7 +270,7 @@
 							value="started"
 							bind:group={form.bleedingStatus}
 						/>
-						<span>{$_('entry.bleeding.started')}</span>
+						<span><Icon name="circle-plus" /> {$_('entry.bleeding.started')}</span>
 					</PillOption>
 					<PillOption>
 						<input
@@ -279,7 +279,7 @@
 							value="ended"
 							bind:group={form.bleedingStatus}
 						/>
-						<span>{$_('entry.bleeding.ended')}</span>
+						<span><Icon name="circle-check" /> {$_('entry.bleeding.ended')}</span>
 					</PillOption>
 				</PillGroup>
 				<label for="flow-section">{$_('entry.flowIntensity')}</label>
