@@ -13,9 +13,19 @@
 		children: Snippet;
 	};
 
-	let { as: tag = 'p', variant = 'default', class: className = '', children, ...rest }: Props = $props();
+	let {
+		as: tag = 'p',
+		variant = 'default',
+		class: className = '',
+		children,
+		...rest
+	}: Props = $props();
 </script>
 
-<svelte:element this={tag} class="text text-{tag} {variant !== 'default' ? `text-${variant}` : ''} {className}" {...rest}>
+<svelte:element
+	this={tag}
+	class="text text-{tag} {variant !== 'default' ? `text-${variant}` : ''} {className}"
+	{...rest}
+>
 	{@render children()}
 </svelte:element>

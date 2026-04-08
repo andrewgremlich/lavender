@@ -39,7 +39,11 @@
 						label: 'Prediction Error (days)',
 						data: errors,
 						backgroundColor: errors.map((e) =>
-							Math.abs(e) <= 2 ? 'rgba(16,185,129,0.7)' : Math.abs(e) <= 5 ? 'rgba(245,158,11,0.7)' : 'rgba(239,68,68,0.7)'
+							Math.abs(e) <= 2
+								? 'rgba(16,185,129,0.7)'
+								: Math.abs(e) <= 5
+									? 'rgba(245,158,11,0.7)'
+									: 'rgba(239,68,68,0.7)'
 						),
 						borderColor: errors.map((e) =>
 							Math.abs(e) <= 2 ? '#10b981' : Math.abs(e) <= 5 ? '#f59e0b' : '#ef4444'

@@ -1,7 +1,12 @@
 <script lang="ts">
 	import { authApi, setToken } from '$lib/client/api';
 	import { auth } from '$lib/client/auth.svelte';
-	import { deriveKeyFromPassword, deriveLegacyKey, storeKey, storeLegacyKey } from '$lib/client/crypto';
+	import {
+		deriveKeyFromPassword,
+		deriveLegacyKey,
+		storeKey,
+		storeLegacyKey
+	} from '$lib/client/crypto';
 	import Button from './Button.svelte';
 	import Input from './Input.svelte';
 	import Text from './Text.svelte';

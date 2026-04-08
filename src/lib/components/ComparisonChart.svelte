@@ -67,12 +67,18 @@
 			(d.data as (number | null)[]).filter((v): v is number => v !== null)
 		);
 		const buffer = isUS ? 0.5 : 0.3;
-		const yMin = allTemps.length > 0
-			? Math.floor((Math.min(...allTemps) - buffer) * 10) / 10
-			: isUS ? 96 : 35.5;
-		const yMax = allTemps.length > 0
-			? Math.ceil((Math.max(...allTemps) + buffer) * 10) / 10
-			: isUS ? 100 : 37.5;
+		const yMin =
+			allTemps.length > 0
+				? Math.floor((Math.min(...allTemps) - buffer) * 10) / 10
+				: isUS
+					? 96
+					: 35.5;
+		const yMax =
+			allTemps.length > 0
+				? Math.ceil((Math.max(...allTemps) + buffer) * 10) / 10
+				: isUS
+					? 100
+					: 37.5;
 
 		const { text, grid } = getColors(canvas);
 

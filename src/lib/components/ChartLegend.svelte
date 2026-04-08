@@ -15,10 +15,7 @@
 <div class="legend">
 	{#each items as item (item.label)}
 		<span>
-			<span
-				class="dot"
-				class:square={item.shape === 'square'}
-				style="background:{item.color}"
+			<span class="dot" class:square={item.shape === 'square'} style="background:{item.color}"
 			></span>
 			{item.label}
 		</span>

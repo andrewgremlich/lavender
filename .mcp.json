@@ -1,20 +1,20 @@
 {
-  "mcpServers": {
-    "cloudflare": {
-      "command": "npx",
-      "args": ["mcp-remote", "https://mcp.cloudflare.com/mcp"]
-    },
-    "context7": {
-      "command": "npx",
-      "args": ["-y", "@upstash/context7-mcp"]
-    },
-    "playwright": {
-      "command": "npx",
-      "args": ["@playwright/mcp@latest", "--headless", "--browser", "chromium"]
-    },
-    "svelte-docs": {
-      "command": "npx",
-      "args": ["-y", "mcp-svelte-docs"]
-    }
-  }
+	"mcpServers": {
+		"cloudflare": {
+			"command": "npx",
+			"args": ["mcp-remote", "https://mcp.cloudflare.com/mcp"]
+		},
+		"context7": {
+			"command": "npx",
+			"args": ["-y", "@upstash/context7-mcp"]
+		},
+		"playwright": {
+			"command": "npx",
+			"args": ["@playwright/mcp@latest", "--headless", "--browser", "chromium"]
+		},
+		"svelte-docs": {
+			"command": "npx",
+			"args": ["-y", "mcp-svelte-docs"]
+		}
+	}
 }

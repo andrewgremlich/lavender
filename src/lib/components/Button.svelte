@@ -22,7 +22,14 @@
 		children: Snippet;
 	};
 
-	let { variant = 'primary', size = 'md', active = false, class: className = '', children, ...rest }: Props = $props();
+	let {
+		variant = 'primary',
+		size = 'md',
+		active = false,
+		class: className = '',
+		children,
+		...rest
+	}: Props = $props();
 </script>
 
 <button class="btn btn-{variant} size-{size} {className}" class:active {...rest}>

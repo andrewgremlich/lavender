@@ -9,6 +9,7 @@ You are a D1/SQLite migration specialist for the Lavender health tracker project
 ## Schema overview
 
 Three tables (read `migrations/` for exact current state before writing):
+
 - `users` — id, username, password_hash, salt, recovery_code_hash, recovery_code_salt, wrapped_encryption_key, wrapped_encryption_key_iv
 - `user_settings` — user_id (FK → users CASCADE), data_retention_days (default 180), default_date_range (default '30')
 - `health_entries` — id, user_id (FK → users CASCADE), encrypted_data, iv, expires_at, created_at
