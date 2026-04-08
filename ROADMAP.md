@@ -85,12 +85,12 @@ Allow visitors to explore the full app without registering. The demo account is 
 
 **Implementation approach:**
 - Seed a `demo` user in D1 with a fixed, published password and a pre-generated encryption key stored in env (so seeded entries can be decrypted by the client)
-- Add a `is_demo` flag to the `users` table (`INTEGER NOT NULL DEFAULT 0`)
+- Add a `role` column to the `users` table (`TEXT NOT NULL DEFAULT 'user'`), with values `'user'` | `'demo'` | `'admin'`
 - On every `GET /api/metrics` for a demo user, discard any entries whose `expires_at` is within the session window (i.e. written this session) and return only the seeded baseline entries — effectively making all writes invisible after the session ends
 - Alternatively (simpler): all writes to demo's `/api/metrics` succeed with 200 but are no-ops on the server side — entries are never persisted to D1, only reflected back in the response for that request
 - Add a "Try it out" button on the landing page that logs the visitor in as the demo user
 - Show a persistent banner inside `/app` when logged in as demo: "You're exploring as a guest. [Create an account] to save your data."
-- Demo account cannot change password, cannot export data, cannot delete account — these endpoints return 403 for `is_demo` users
+- Demo account cannot change password, cannot export data, cannot delete account — these endpoints return 403 for `role = 'demo'` users
 - Seeded entries should cover a realistic 2–3 cycle dataset (can reuse the seed script output)
 
 ### 13. Landing Page SEO & "Why Privacy Matters"
