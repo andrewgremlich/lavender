@@ -112,6 +112,8 @@ Allow visitors to explore the full app without registering. The demo account is 
   - Server-side role check in `+page.server.ts` load function; redirect non-admins
 
 ### 16. Community Posts (Feature Requests & Q&A)
+- Feature requests are features already labeled and will be upvoted. I would control the feature request list.
+- Q&A is asking users what list of features would they want. Like A., B., C. features.
 - Add a unified `community_posts` table in D1 (`id`, `user_id`, `type` (`feature_request` | `question`), `title`, `description`, `votes`, `created_at`) — single table for both feature requests and Q&A
 - Add a `community_post_votes` junction table (`user_id`, `post_id`, unique constraint) to enforce one vote per user
 - Voting requires authentication (only registered users can vote)
