@@ -110,6 +110,7 @@ Allow visitors to explore the full app without registering. The demo account is 
 ### 13. Landing Page SEO & "Why Privacy Matters"
 - Rebuild the `/` route as a proper marketing landing page with SEO meta tags (title, description, Open Graph, Twitter Card, canonical URL, structured data via JSON-LD)
 - Add a "Why Privacy Matters" section — static copy explaining E2EE as the key differentiator vs other fertility trackers
+- Add a disclosure of what data is stored and why, and if it's encrypted or not. Provide examples of cipher text with the encryption method.
 - Dynamic Open Graph image generated via Cloudflare Worker showing live spots-remaining count for compelling social shares
 - Server-side render the page via `+page.server.ts` `load` function for SEO
 
