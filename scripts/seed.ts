@@ -1,17 +1,26 @@
 /**
- * Seed script that creates a test user and populates ~3 full menstrual cycles
+ * Seed script that creates a test user and populates ~6 full menstrual cycles
  * of health data, covering all tracked features: BBT, cervical mucus,
  * indicators, bleeding/flow, and notes.
  *
- * Usage: npx tsx scripts/seed.ts
- * Requires the dev server running at http://localhost:5173
+ * Writes directly to D1 via `wrangler d1 execute` — no HTTP API used.
+ *
+ * Usage:
+ *   pnpm seed           # seeds local D1
+ *   pnpm seed --remote  # seeds remote D1
  */
 
-const API_BASE = "http://localhost:5173/api";
-const USERNAME = "seeduser";
-const PASSWORD = "seedpassword!123456"; // 6DB98CAC-7E8889E6-349B100E-CD627513
+import { execSync } from "node:child_process";
 
-// ── Crypto helpers (mirrors src/client/crypto/encryption.ts) ────────────────
+const USERNAME = "seeduser";
+const PASSWORD = "seedpassword!123456";
+const DB_NAME = "lavender-db";
+const RETENTION_DAYS = 180;
+
+const isRemote = process.argv.includes("--remote");
+const wranglerFlag = isRemote ? "--remote" : "--local";
+
+// ── Crypto helpers ───────────────────────────────────────────────────────────
 
 async function deriveKeyFromPassword(
 	password: string,
@@ -45,11 +54,11 @@ async function importKey(base64Key: string): Promise<CryptoKey> {
 		keyBytes,
 		{ name: "AES-GCM", length: 256 },
 		false,
-		["encrypt", "decrypt"],
+		["encrypt"],
 	);
 }
 
-async function encrypt(
+async function encryptEntry(
 	data: string,
 	key: CryptoKey,
 ): Promise<{ encrypted: string; iv: string }> {
@@ -66,32 +75,45 @@ async function encrypt(
 	};
 }
 
-// ── API helpers ─────────────────────────────────────────────────────────────
-
-async function request<T>(
-	path: string,
-	options: RequestInit & { token?: string } = {},
-): Promise<T> {
-	const { token, ...fetchOptions } = options;
-	const headers: Record<string, string> = {
-		"Content-Type": "application/json",
-		...((fetchOptions.headers as Record<string, string>) || {}),
-	};
-	if (token) headers.Authorization = `Bearer ${token}`;
-
-	const response = await fetch(`${API_BASE}${path}`, {
-		...fetchOptions,
-		headers,
-	});
-
-	if (!response.ok) {
-		const body = await response.text();
-		throw new Error(`HTTP ${response.status}: ${body}`);
-	}
-	return response.json() as Promise<T>;
+async function hashPassword(password: string, salt: string): Promise<string> {
+	const enc = new TextEncoder();
+	const key = await crypto.subtle.importKey(
+		"raw",
+		enc.encode(password),
+		"PBKDF2",
+		false,
+		["deriveBits"],
+	);
+	const bits = await crypto.subtle.deriveBits(
+		{ name: "PBKDF2", salt: enc.encode(salt), iterations: 100000, hash: "SHA-256" },
+		key,
+		256,
+	);
+	return btoa(String.fromCharCode(...new Uint8Array(bits)));
 }
 
-// ── Date helpers ────────────────────────────────────────────────────────────
+function generateSalt(): string {
+	return btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(16))));
+}
+
+// ── D1 helpers ───────────────────────────────────────────────────────────────
+
+function d1(sql: string) {
+	execSync(
+		`wrangler d1 execute ${DB_NAME} ${wranglerFlag} --command ${JSON.stringify(sql)}`,
+		{ stdio: "inherit" },
+	);
+}
+
+function d1Query<T>(sql: string): T[] {
+	const result = execSync(
+		`wrangler d1 execute ${DB_NAME} ${wranglerFlag} --json --command ${JSON.stringify(sql)}`,
+	);
+	const parsed = JSON.parse(result.toString()) as Array<{ results: T[] }>;
+	return parsed[0]?.results ?? [];
+}
+
+// ── Date helpers ─────────────────────────────────────────────────────────────
 
 function addDays(dateStr: string, days: number): string {
 	const d = new Date(`${dateStr}T00:00:00`);
@@ -103,7 +125,11 @@ function todayStr(): string {
 	return new Date().toISOString().split("T")[0];
 }
 
-// ── Cycle data generation ───────────────────────────────────────────────────
+function expiresAt(days = RETENTION_DAYS): string {
+	return new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString();
+}
+
+// ── Cycle data generation ────────────────────────────────────────────────────
 
 type MucusType = "dry" | "sticky" | "creamy" | "watery" | "eggWhite";
 type FlowType = "light" | "medium" | "heavy";
@@ -128,45 +154,27 @@ interface HealthEntry {
 	notes?: string;
 }
 
-/** Small random jitter for realistic BBT readings */
 function jitter(base: number, range: number): number {
 	return Math.round((base + (Math.random() - 0.5) * range) * 100) / 100;
 }
 
-/**
- * Generate one full menstrual cycle of entries starting from `startDate`.
- * Models a realistic cycle:
- *   Days 1-5:   Menstruation (bleeding)
- *   Days 6-9:   Follicular (dry/sticky mucus, low temp)
- *   Days 10-13: Fertile window (watery/egg-white mucus, indicators ramp up)
- *   Day 14:     Ovulation (LH surge, temp dip then shift)
- *   Days 15+:   Luteal phase (elevated temp, dry/sticky mucus)
- *
- * BBT ranges are deliberately well-separated so the thermal shift algorithm
- * reliably fires: follicular ~36.1-36.25°C, luteal ~36.65-36.8°C.
- */
 function generateCycle(startDate: string, cycleLength: number): HealthEntry[] {
 	const entries: HealthEntry[] = [];
-	const ovulationDay = cycleLength - 14; // ~day 14 for a 28-day cycle
+	const ovulationDay = cycleLength - 14;
 
 	for (let day = 0; day < cycleLength; day++) {
 		const date = addDays(startDate, day);
-		const cycleDay = day + 1; // 1-based
+		const cycleDay = day + 1;
 		const entry: HealthEntry = { date };
 
-		// ── BBT ──
-		// Follicular: tight low band (36.10–36.25°C) so coverline stays low.
-		// Shift day: a clear jump to 36.55–36.65°C, well above coverline + 0.2.
-		// Luteal: elevated band (36.65–36.80°C) sustained for confirmation.
 		if (cycleDay <= ovulationDay) {
-			entry.basalBodyTemp = jitter(36.175, 0.15); // 36.10–36.25
+			entry.basalBodyTemp = jitter(36.175, 0.15);
 		} else if (cycleDay === ovulationDay + 1) {
-			entry.basalBodyTemp = jitter(36.6, 0.1);   // 36.55–36.65 (thermal shift)
+			entry.basalBodyTemp = jitter(36.6, 0.1);
 		} else {
-			entry.basalBodyTemp = jitter(36.725, 0.15); // 36.65–36.80
+			entry.basalBodyTemp = jitter(36.725, 0.15);
 		}
 
-		// ── Menstruation (days 1-5) ──
 		if (cycleDay === 1) {
 			entry.bleedingStart = true;
 			entry.bleedingFlow = "medium";
@@ -185,9 +193,8 @@ function generateCycle(startDate: string, cycleLength: number): HealthEntry[] {
 			entry.bleedingFlow = "light";
 		}
 
-		// ── Cervical mucus progression ──
 		if (cycleDay <= 5) {
-			// During period - skip mucus
+			// skip during period
 		} else if (cycleDay <= 8) {
 			entry.cervicalMucus = "dry";
 		} else if (cycleDay <= 10) {
@@ -195,7 +202,6 @@ function generateCycle(startDate: string, cycleLength: number): HealthEntry[] {
 		} else if (cycleDay <= 12) {
 			entry.cervicalMucus = "creamy";
 		} else if (cycleDay <= ovulationDay + 1) {
-			// Peak fertility mucus
 			entry.cervicalMucus = cycleDay === ovulationDay ? "eggWhite" : "watery";
 		} else if (cycleDay <= ovulationDay + 3) {
 			entry.cervicalMucus = "creamy";
@@ -205,7 +211,6 @@ function generateCycle(startDate: string, cycleLength: number): HealthEntry[] {
 			entry.cervicalMucus = "dry";
 		}
 
-		// ── Indicators around fertile window / ovulation ──
 		if (cycleDay >= ovulationDay - 3 && cycleDay <= ovulationDay + 1) {
 			entry.increasedSexDrive = true;
 			entry.cervixChanges = true;
@@ -230,8 +235,6 @@ function generateCycle(startDate: string, cycleLength: number): HealthEntry[] {
 			entry.mildSpotting = true;
 			entry.notes = "LH declining. Mild ovulation spotting observed.";
 		}
-
-		// ── Luteal phase indicators ──
 		if (cycleDay >= ovulationDay + 5 && cycleDay <= ovulationDay + 10) {
 			entry.breastTenderness = true;
 		}
@@ -251,95 +254,92 @@ function generateCycle(startDate: string, cycleLength: number): HealthEntry[] {
 	return entries;
 }
 
-/**
- * Generate 6 full cycles of data ending roughly around today.
- * 6 cycles gives:
- *   - Luteal trends: 5+ data points
- *   - Prediction accuracy: 4 prediction records (needs ≥3 period starts)
- *   - Cycle comparison: up to 5 overlaid cycles
- */
 function generateAllEntries(): HealthEntry[] {
 	const today = todayStr();
-	// Varied lengths (26–32 days) for realistic luteal/cycle spread
 	const cycleLengths = [28, 26, 30, 27, 32, 29];
 	const totalDays = cycleLengths.reduce((a, b) => a + b, 0);
-
-	// Start far enough back that the last cycle ends near today
 	const startDate = addDays(today, -(totalDays - 5));
 
 	const allEntries: HealthEntry[] = [];
 	let currentStart = startDate;
-
 	for (const len of cycleLengths) {
 		allEntries.push(...generateCycle(currentStart, len));
 		currentStart = addDays(currentStart, len);
 	}
-
-	// Filter out any entries in the future
 	return allEntries.filter((e) => e.date <= today);
 }
 
-// ── Main ────────────────────────────────────────────────────────────────────
+// ── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
-	console.log("Seeding Lavender with test data...\n");
+	console.log(`Seeding Lavender with test data (${isRemote ? "remote" : "local"})...\n`);
 
-	// 1. Register or login
-	let token: string;
-	try {
-		const res = await request<{ token: string }>("/auth/register", {
-			method: "POST",
-			body: JSON.stringify({ username: USERNAME, password: PASSWORD }),
-		});
-		token = res.token;
-		console.log(`Created user "${USERNAME}"`);
-	} catch {
-		const res = await request<{ token: string }>("/auth/login", {
-			method: "POST",
-			body: JSON.stringify({ username: USERNAME, password: PASSWORD }),
-		});
-		token = res.token;
-		console.log(`Logged in as "${USERNAME}" (already exists)`);
+	// 1. Upsert the seed user row directly in D1.
+	const existing = d1Query<{ id: string }>(
+		`SELECT id FROM users WHERE username = '${USERNAME}'`,
+	);
+
+	let userId: string;
+	const salt = generateSalt();
+	const passwordHash = await hashPassword(PASSWORD, salt);
+
+	if (existing.length > 0) {
+		userId = existing[0].id;
+		d1(`UPDATE users SET password_hash = '${passwordHash}', salt = '${salt}' WHERE id = '${userId}'`);
+		console.log(`Updated existing user "${USERNAME}" (id: ${userId})`);
+	} else {
+		userId = crypto.randomUUID();
+		d1(
+			`INSERT INTO users (id, username, password_hash, salt) VALUES ('${userId}', '${USERNAME}', '${passwordHash}', '${salt}')`,
+		);
+		d1(`INSERT OR IGNORE INTO user_settings (user_id) VALUES ('${userId}')`);
+		console.log(`Created user "${USERNAME}" (id: ${userId})`);
 	}
 
-	// 2. Clear existing entries
-	try {
-		await request("/metrics", { method: "DELETE", token });
-		console.log("Cleared existing entries.");
-	} catch {
-		// No entries to clear
-	}
+	// 2. Clear existing entries.
+	d1(`DELETE FROM health_entries WHERE user_id = '${userId}'`);
+	console.log("Cleared existing entries.");
 
-	// 3. Derive encryption key and import it
+	// 3. Derive encryption key.
 	const base64Key = await deriveKeyFromPassword(PASSWORD, USERNAME);
 	const cryptoKey = await importKey(base64Key);
 
-	// 4. Generate and upload entries
+	// 4. Encrypt and insert entries in batches.
 	const entries = generateAllEntries();
 	console.log(`\nGenerating ${entries.length} entries across ~6 cycles...\n`);
 
+	const BATCH = 20;
 	let count = 0;
-	for (const entry of entries) {
-		const { encrypted, iv } = await encrypt(JSON.stringify(entry), cryptoKey);
-		await request("/metrics", {
-			method: "POST",
-			body: JSON.stringify({ encryptedData: encrypted, iv }),
-			token,
-		});
-		count++;
-		if (count % 10 === 0) {
-			process.stdout.write(`  ${count}/${entries.length} entries created\r`);
+
+	for (let i = 0; i < entries.length; i += BATCH) {
+		const batch = entries.slice(i, i + BATCH);
+		const values: string[] = [];
+
+		for (const entry of batch) {
+			const { encrypted, iv } = await encryptEntry(JSON.stringify(entry), cryptoKey);
+			const id = crypto.randomUUID();
+			const createdAt = new Date().toISOString();
+			const exp = expiresAt();
+			const safeEncrypted = encrypted.replace(/'/g, "''");
+			const safeIv = iv.replace(/'/g, "''");
+			values.push(
+				`('${id}', '${userId}', '${safeEncrypted}', '${safeIv}', '${createdAt}', '${exp}')`,
+			);
 		}
+
+		d1(
+			`INSERT INTO health_entries (id, user_id, encrypted_data, iv, created_at, expires_at) VALUES ${values.join(", ")}`,
+		);
+
+		count += batch.length;
+		process.stdout.write(`  ${count}/${entries.length} entries created\r`);
 	}
 
-	console.log(`  ${count}/${entries.length} entries created.`);
+	console.log(`\n  ${count}/${entries.length} entries created.`);
 	console.log("\nSeed complete!");
 	console.log(`\nLogin credentials:`);
 	console.log(`  Username: ${USERNAME}`);
 	console.log(`  Password: ${PASSWORD}`);
-	console.log(
-		`\nThe encryption key is derived from the password, so just log in normally.`,
-	);
 }
 
 main().catch((err) => {
