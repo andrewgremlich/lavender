@@ -3,7 +3,7 @@
 // operations. Handles token + encryption key persistence via the api and
 // crypto modules; UI never touches sessionStorage or crypto directly.
 
-import { authApi, clearToken, getToken, setToken } from './api';
+import { authApi, clearToken, getToken, setToken, settingsApi } from './api';
 import {
 	clearStoredKey,
 	decrypt,
@@ -206,6 +206,7 @@ export const auth = {
 	logout(): void {
 		clearToken();
 		clearStoredKey();
+		settingsApi.clearCache();
 		localStorage.removeItem(VERIFY_KEY);
 		state.username = null;
 		state.loggedIn = false;

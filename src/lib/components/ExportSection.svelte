@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { PDF, StandardFonts, rgb } from '@libpdf/core';
 	import Chart from 'chart.js/auto';
-	import { metricsApi } from '$lib/client/api';
 	import { decrypt, getStoredKey, importKey } from '$lib/client/crypto';
+	import { metricsStore } from '$lib/services/metrics-store';
 	import { getCycleSegments, toFertilityEntry } from '$lib/utils/fertility';
 	import { celsiusToFahrenheit, getUnitSystem } from '$lib/utils/units';
 	import { _ } from 'svelte-i18n';
@@ -20,7 +20,7 @@
 	async function decryptAll() {
 		const storedKey = getStoredKey();
 		if (!storedKey) throw new Error($_('settings.import.keyNotFound'));
-		const entries = await metricsApi.getAll();
+		const entries = await metricsStore.getAll();
 		const key = await importKey(storedKey);
 		return Promise.all(
 			entries.map(async (entry) => {

@@ -114,11 +114,27 @@ export const metricsApi = {
 	deleteAll: () => request<{ message: string }>('/metrics', { method: 'DELETE' })
 };
 
+let settingsCache: { value: UserSettings; expiresAt: number } | null = null;
+const SETTINGS_TTL_MS = 5 * 60 * 1000;
+
 export const settingsApi = {
-	get: () => request<UserSettings>('/settings'),
-	update: (patch: Partial<UserSettings>) =>
-		request<UserSettings>('/settings', {
+	get: async () => {
+		if (settingsCache && Date.now() < settingsCache.expiresAt) {
+			return settingsCache.value;
+		}
+		const value = await request<UserSettings>('/settings');
+		settingsCache = { value, expiresAt: Date.now() + SETTINGS_TTL_MS };
+		return value;
+	},
+	update: async (patch: Partial<UserSettings>) => {
+		const value = await request<UserSettings>('/settings', {
 			method: 'PUT',
 			body: JSON.stringify(patch)
-		})
+		});
+		settingsCache = { value, expiresAt: Date.now() + SETTINGS_TTL_MS };
+		return value;
+	},
+	clearCache: () => {
+		settingsCache = null;
+	}
 };
