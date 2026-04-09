@@ -8,6 +8,8 @@ import type { EncryptedEntry } from '$lib/types';
 
 const MAX_ENCRYPTED_DATA = 100000;
 const MAX_IV = 100;
+// Hard backstop: 1/day × 365 days (max retention policy)
+const MAX_ENTRIES_PER_USER = 365;
 
 export const GET: RequestHandler = async (event) => {
 	const { db } = getPlatform(event);
@@ -57,6 +59,15 @@ export const POST: RequestHandler = async (event) => {
 		const fakeId = generateId();
 		const fakeExpiresAt = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString();
 		return json({ id: fakeId, createdAt: new Date().toISOString(), expiresAt: fakeExpiresAt }, { status: 201 });
+	}
+
+	const { count } = await db
+		.prepare('SELECT COUNT(*) as count FROM health_entries WHERE user_id = ?')
+		.bind(userId)
+		.first<{ count: number }>() ?? { count: 0 };
+
+	if (count >= MAX_ENTRIES_PER_USER) {
+		return json({ error: 'Entry limit reached' }, { status: 429 });
 	}
 
 	const settings = await db
