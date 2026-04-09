@@ -10,7 +10,7 @@ export const PUT: RequestHandler = async (event) => {
 	const { db } = getPlatform(event);
 	const authResult = requireUser(event);
 	if (authResult instanceof Response) return authResult;
-	const { userId } = authResult;
+	const { userId, role } = authResult;
 
 	const entryId = event.params.id;
 	const { encryptedData, iv } = (await event.request.json()) as {
@@ -23,6 +23,11 @@ export const PUT: RequestHandler = async (event) => {
 	}
 	if (encryptedData.length > MAX_ENCRYPTED_DATA || iv.length > MAX_IV) {
 		return json({ error: 'Payload too large' }, { status: 413 });
+	}
+
+	// Demo users: no-op.
+	if (role === 'demo') {
+		return json({ message: 'Updated' });
 	}
 
 	const existing = await db
@@ -46,9 +51,15 @@ export const DELETE: RequestHandler = async (event) => {
 	const { db } = getPlatform(event);
 	const authResult = requireUser(event);
 	if (authResult instanceof Response) return authResult;
-	const { userId } = authResult;
+	const { userId, role } = authResult;
 
 	const entryId = event.params.id;
+
+	// Demo users: no-op.
+	if (role === 'demo') {
+		return json({ message: 'Deleted' });
+	}
+
 	await db
 		.prepare('DELETE FROM health_entries WHERE id = ? AND user_id = ?')
 		.bind(entryId, userId)

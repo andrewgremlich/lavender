@@ -1,3 +1,11 @@
 # node -e "console.log(require('crypto').randomBytes(48).toString('base64url'))"
+# Copy this file to .dev.vars and fill in the values.
+# .dev.vars is git-ignored and used by wrangler for local development.
 
-JWT_SECRET=change-me-to-a-random-secret-at-least-32-chars
+# Required: at least 32 characters
+JWT_SECRET=your-local-dev-secret-at-least-32-chars
+
+# Required for the demo/guest account feature (step 12).
+# Must match the DEMO_PASSWORD constant in scripts/seed-demo.ts.
+# For production, set this via: wrangler secret put DEMO_PASSWORD
+DEMO_PASSWORD=lavender-demo-2026!

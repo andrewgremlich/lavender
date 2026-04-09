@@ -29,6 +29,12 @@
 
 {#if auth.loggedIn}
 	<PasswordGate>
+		{#if auth.isDemo}
+			<div class="demo-banner" role="status">
+				You're exploring as a guest.
+				<a href="/auth/register">Create an account</a> to save your data.
+			</div>
+		{/if}
 		<div class="app-shell">
 			<NavBar />
 			<main class="content">
@@ -39,6 +45,22 @@
 {/if}
 
 <style>
+	.demo-banner {
+		position: sticky;
+		top: 0;
+		z-index: 100;
+		background: var(--color-primary-alpha);
+		border-bottom: 2px solid var(--color-primary);
+		padding: var(--space-sm) var(--space-md);
+		text-align: center;
+		font-size: var(--text-sm);
+	}
+
+	.demo-banner a {
+		color: var(--color-primary);
+		font-weight: 600;
+	}
+
 	.app-shell {
 		display: flex;
 		flex-direction: column;

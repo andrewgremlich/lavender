@@ -26,15 +26,20 @@ export interface EncryptedEntry {
 	expiresAt: string;
 }
 
+export type DateRange = '7' | '30' | 'all';
+
 export interface UserSettings {
 	dataRetentionDays: number;
-	defaultDateRange: '7' | '30' | 'all';
+	defaultDateRange: DateRange;
 }
+
+export type Role = 'user' | 'demo' | 'admin';
 
 export interface AuthResponse {
 	token: string;
 	username: string;
 	hasRecovery: boolean;
+	role?: Role;
 }
 
 export interface ApiError {

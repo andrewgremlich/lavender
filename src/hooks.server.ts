@@ -1,6 +1,7 @@
 import type { Handle, HandleServerError } from '@sveltejs/kit';
 import { sequence } from '@sveltejs/kit/hooks';
 import { verifyJwt } from '$lib/server/jwt';
+import type { Role } from '$lib/types';
 
 /**
  * Rate limit: 100 requests per 15-minute window per IP, keyed in KV.
@@ -17,7 +18,11 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 		if (secret) {
 			const payload = await verifyJwt(header.slice(7), secret);
 			if (payload) {
-				event.locals.user = { userId: payload.sub, username: payload.username };
+				event.locals.user = {
+					userId: payload.sub,
+					username: payload.username,
+					role: ((payload.role as string) ?? 'user') as Role
+				};
 			}
 		}
 	}

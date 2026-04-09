@@ -24,6 +24,7 @@
 
 	function needsVerification(): boolean {
 		if (typeof localStorage === 'undefined') return false;
+		if (auth.isDemo) return false;
 		const last = localStorage.getItem(VERIFY_KEY);
 		if (!last) return true;
 		return Date.now() - Number(last) > VERIFY_INTERVAL_MS;
@@ -37,8 +38,10 @@
 	}
 
 	// Fresh login/register already proved identity — mark as verified.
+	// Demo users skip the gate entirely.
 	$effect(() => {
 		if (!gated) return;
+		if (auth.isDemo) { gated = false; return; }
 		const last = localStorage.getItem(VERIFY_KEY);
 		if (last && Date.now() - Number(last) <= VERIFY_INTERVAL_MS) {
 			gated = false;

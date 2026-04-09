@@ -38,7 +38,7 @@ export const POST: RequestHandler = async (event) => {
 	const { db } = getPlatform(event);
 	const authResult = requireUser(event);
 	if (authResult instanceof Response) return authResult;
-	const { userId } = authResult;
+	const { userId, role } = authResult;
 
 	const { encryptedData, iv } = (await event.request.json()) as {
 		encryptedData?: string;
@@ -50,6 +50,13 @@ export const POST: RequestHandler = async (event) => {
 	}
 	if (encryptedData.length > MAX_ENCRYPTED_DATA || iv.length > MAX_IV) {
 		return json({ error: 'Payload too large' }, { status: 413 });
+	}
+
+	// Demo users: succeed with 201 but never persist to D1.
+	if (role === 'demo') {
+		const fakeId = generateId();
+		const fakeExpiresAt = new Date(Date.now() + 180 * 24 * 60 * 60 * 1000).toISOString();
+		return json({ id: fakeId, createdAt: new Date().toISOString(), expiresAt: fakeExpiresAt }, { status: 201 });
 	}
 
 	const settings = await db
@@ -80,7 +87,12 @@ export const DELETE: RequestHandler = async (event) => {
 	const { db } = getPlatform(event);
 	const authResult = requireUser(event);
 	if (authResult instanceof Response) return authResult;
-	const { userId } = authResult;
+	const { userId, role } = authResult;
+
+	// Demo users: no-op.
+	if (role === 'demo') {
+		return json({ message: 'All entries deleted' });
+	}
 
 	await db.prepare('DELETE FROM health_entries WHERE user_id = ?').bind(userId).run();
 

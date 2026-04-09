@@ -1,6 +1,6 @@
 import { json } from '@sveltejs/kit';
 import type { RequestHandler } from './$types';
-import { requireUser } from '$lib/server/auth';
+import { requireNonDemoUser } from '$lib/server/auth';
 import { generateSalt, hashPassword, timingSafeEqual } from '$lib/server/crypto';
 import { getPlatform } from '$lib/server/db';
 import { signJwt } from '$lib/server/jwt';
@@ -15,7 +15,7 @@ interface PasswordBody {
 
 export const PUT: RequestHandler = async (event) => {
 	const { db, jwtSecret } = getPlatform(event);
-	const authResult = requireUser(event);
+	const authResult = requireNonDemoUser(event);
 	if (authResult instanceof Response) return authResult;
 	const { userId } = authResult;
 

@@ -79,19 +79,33 @@ I don't know if this would be valuable.
 
 ## Phase 5: Marketing & Growth
 
-### 12. Demo / Guest Account
+### 12. Demo / Guest Account ✅
 
 Allow visitors to explore the full app without registering. The demo account is a real user account (so all existing UI paths work unchanged) but writes are ephemeral.
 
-**Implementation approach:**
-- Seed a `demo` user in D1 with a fixed, published password and a pre-generated encryption key stored in env (so seeded entries can be decrypted by the client)
-- Add a `role` column to the `users` table (`TEXT NOT NULL DEFAULT 'user'`), with values `'user'` | `'demo'` | `'admin'`
-- On every `GET /api/metrics` for a demo user, discard any entries whose `expires_at` is within the session window (i.e. written this session) and return only the seeded baseline entries — effectively making all writes invisible after the session ends
-- Alternatively (simpler): all writes to demo's `/api/metrics` succeed with 200 but are no-ops on the server side — entries are never persisted to D1, only reflected back in the response for that request
-- Add a "Try it out" button on the landing page that logs the visitor in as the demo user
-- Show a persistent banner inside `/app` when logged in as demo: "You're exploring as a guest. [Create an account] to save your data."
-- Demo account cannot change password, cannot export data, cannot delete account — these endpoints return 403 for `role = 'demo'` users
-- Seeded entries should cover a realistic 2–3 cycle dataset (can reuse the seed script output)
+**Implementation:**
+- `migrations/0004_add-role.sql` — adds `role TEXT NOT NULL DEFAULT 'user'` to `users` table (values: `'user'` | `'demo'` | `'admin'`)
+- `src/lib/server/auth.ts` — added `requireNonDemoUser()` helper that returns 403 for demo-role users
+- `src/routes/api/auth/demo-login/+server.ts` — dedicated endpoint: validates demo user against `DEMO_PASSWORD` env var, issues a JWT with `role: 'demo'`
+- `src/routes/api/auth/login/+server.ts` — `role` is now included in the JWT payload and login response
+- `src/hooks.server.ts` — reads `role` from JWT into `event.locals.user`
+- `src/routes/api/metrics/+server.ts` and `src/routes/api/metrics/[id]/+server.ts` — all writes (POST/PUT/DELETE) are no-ops for demo users: succeed with 200/201 but never touch D1
+- `src/routes/api/auth/password/+server.ts` and `src/routes/api/auth/account/+server.ts` — use `requireNonDemoUser`, returning 403
+- `src/lib/client/auth.svelte.ts` — added `auth.role`, `auth.isDemo`, and `auth.demoLogin()` (derives encryption key from the public demo password so seeded entries decrypt correctly)
+- `src/lib/client/api.ts` — added `authApi.demoLogin()`
+- `src/lib/components/PasswordGate.svelte` — bypasses the 24h re-verification gate for demo users
+- `src/routes/+page.svelte` — "Try it out" outline button alongside "Sign in"; calls `auth.demoLogin()` on click
+- `src/routes/app/+layout.svelte` — sticky demo banner: "You're exploring as a guest. [Create an account] to save your data."
+- `src/routes/app/settings/+page.svelte` — hides `ChangePasswordSection` and `DangerZoneSection` for demo users, shows a placeholder card instead
+- `scripts/seed-demo.ts` — seeds the demo user with 6 realistic cycles of data; prints the wrangler command to set `role='demo'` after seeding
+- `package.json` — added `pnpm seed:demo` script
+- `.dev.vars.example` — documents `JWT_SECRET` and `DEMO_PASSWORD` (value: `lavender-demo-2026!`)
+
+**To activate:**
+1. `pnpm db:migrate:local` (or `:remote`)
+2. Add `DEMO_PASSWORD=lavender-demo-2026!` to `.dev.vars`
+3. `pnpm seed:demo`
+4. `wrangler d1 execute lavender-db --local --command "UPDATE users SET role='demo' WHERE username='demo';"`
 
 ### 13. Landing Page SEO & "Why Privacy Matters"
 - Rebuild the `/` route as a proper marketing landing page with SEO meta tags (title, description, Open Graph, Twitter Card, canonical URL, structured data via JSON-LD)

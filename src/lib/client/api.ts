@@ -95,7 +95,8 @@ export const authApi = {
 			method: 'PUT',
 			body: JSON.stringify({ oldPassword, newPassword, reEncryptedEntries })
 		}),
-	deleteAccount: () => request<{ message: string }>('/auth/account', { method: 'DELETE' })
+	deleteAccount: () => request<{ message: string }>('/auth/account', { method: 'DELETE' }),
+	demoLogin: () => request<AuthResponse>('/auth/demo-login', { method: 'POST' })
 };
 
 export const metricsApi = {

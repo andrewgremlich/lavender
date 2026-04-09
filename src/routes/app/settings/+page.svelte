@@ -116,8 +116,17 @@
 
 <ExportSection />
 <ImportSection />
-<ChangePasswordSection />
-<DangerZoneSection />
+{#if !auth.isDemo}
+	<ChangePasswordSection />
+	<DangerZoneSection />
+{:else}
+	<SettingsCard title="Account">
+		<Text variant="muted">
+			Password and account management are not available in guest mode.
+			<a href="/auth/register">Create an account</a> to access these features.
+		</Text>
+	</SettingsCard>
+{/if}
 
 <style>
 	.header {

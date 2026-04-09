@@ -5,7 +5,7 @@ declare global {
 	namespace App {
 		// interface Error {}
 		interface Locals {
-			user?: { userId: string; username: string };
+			user?: { userId: string; username: string; role: 'user' | 'demo' | 'admin' };
 		}
 		// interface PageData {}
 		// interface PageState {}
@@ -14,6 +14,7 @@ declare global {
 				lavender_db: D1Database;
 				JWT_SECRET: string;
 				RATE_LIMIT_KV: KVNamespace;
+				DEMO_PASSWORD: string;
 			};
 			context: {
 				waitUntil(promise: Promise<unknown>): void;
