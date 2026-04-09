@@ -66,6 +66,12 @@
 	let saved = $state(false);
 	let submitting = $state(false);
 
+	// If there's already an entry for the selected date (and we're not editing it),
+	// prompt the user to edit that entry instead of creating a duplicate.
+	const existingForDate = $derived(
+		!editId ? entriesStore.entryForDate(form.date) : null
+	);
+
 	$effect(() => {
 		const raw = sessionStorage.getItem('lavender_edit_entry');
 		if (!raw) return;
@@ -180,6 +186,24 @@
 					<Button type="button" onclick={addAnother}>{$_('entry.addAnother')}</Button>
 				{/if}
 				<Button type="button" onclick={() => goto('/app')}>{$_('entry.viewChart')}</Button>
+			</div>
+		</div>
+	{:else if existingForDate}
+		<div class="msg warning">
+			You already have an entry for {form.date}. Would you like to edit it instead?
+			<div class="success-actions">
+				<Button
+					type="button"
+					onclick={() => {
+						sessionStorage.setItem(
+							'lavender_edit_entry',
+							JSON.stringify({ ...existingForDate })
+						);
+						location.reload();
+					}}
+				>
+					Edit existing entry
+				</Button>
 			</div>
 		</div>
 	{:else}
@@ -331,6 +355,12 @@
 		background: var(--color-error-bg);
 		color: var(--color-error);
 		border: 1px solid var(--color-error);
+	}
+
+	.msg.warning {
+		background: var(--color-warning-bg, #fef9c3);
+		color: var(--color-warning, #854d0e);
+		border: 1px solid var(--color-warning, #854d0e);
 	}
 
 	.msg.success {

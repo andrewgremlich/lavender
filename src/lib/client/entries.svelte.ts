@@ -93,6 +93,11 @@ export const entriesStore = {
 		return state.error;
 	},
 
+	/** Returns the existing entry for a given date, or null if none. */
+	entryForDate(date: string): HealthEntry | null {
+		return state.entries.find((e) => e.date === date) ?? null;
+	},
+
 	async load(): Promise<void> {
 		const storedKey = getStoredKey();
 		if (!storedKey) {
