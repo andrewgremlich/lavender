@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { page } from '$app/stores';
 	import { sync } from '$lib/client/sync.svelte';
+	import { entriesStore } from '$lib/client/entries.svelte';
 	import { _ } from 'svelte-i18n';
 	import Button from './Button.svelte';
 	import Icon from './Icon.svelte';
@@ -8,10 +9,16 @@
 
 	let menuOpen = $state(false);
 
+	const hasEnoughForAnalytics = $derived(
+		entriesStore.entries.filter((e) => e.bleedingStart).length >= 2
+	);
+
 	const routes = $derived([
 		{ href: '/app', icon: 'house', label: $_('nav.dashboard') },
 		{ href: '/app/entry', icon: 'circle-plus', label: $_('nav.addEntry') },
-		{ href: '/app/analytics', icon: 'trending-up', label: $_('nav.analytics'), desktop: true },
+		...(hasEnoughForAnalytics
+			? [{ href: '/app/analytics', icon: 'trending-up', label: $_('nav.analytics'), desktop: true }]
+			: []),
 		{ href: '/app/settings', icon: 'settings', label: $_('nav.settings'), desktop: true }
 	]);
 

@@ -81,6 +81,7 @@
 		"loading": "Chargement de vos données…",
 		"noDataYet": "Aucune donnée",
 		"noDataDescription": "Ajoutez des entrées de santé pour voir les analyses et tendances.",
+		"needsTwoCycles": "Les analyses nécessitent au moins 2 cycles enregistrés. Continuez à suivre pour débloquer cette vue.",
 		"tabs": {
 			"cycleComparison": "Comparaison des cycles",
 			"lutealTrends": "Tendances lutéales",

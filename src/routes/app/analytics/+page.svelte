@@ -63,8 +63,8 @@
 	<Text variant="muted">{$_('analytics.loading')}</Text>
 {:else if entriesStore.entries.length === 0}
 	<div class="empty">
-		<Text as="h3">{$_('dashboard.noDataYet')}</Text>
-		<p>{$_('analytics.noDataDescription')}</p>
+		<Text as="h3">{$_('analytics.notEnoughData')}</Text>
+		<p>{$_('analytics.needsTwoCycles')}</p>
 	</div>
 {:else}
 	<div class="tab-bar">

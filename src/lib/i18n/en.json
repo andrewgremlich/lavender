@@ -81,6 +81,7 @@
 		"loading": "Loading your data…",
 		"noDataYet": "No Data Yet",
 		"noDataDescription": "Add health entries to see analytics and trends.",
+		"needsTwoCycles": "Analytics requires at least 2 logged cycles. Keep tracking to unlock this view.",
 		"tabs": {
 			"cycleComparison": "Cycle Comparison",
 			"lutealTrends": "Luteal Trends",
