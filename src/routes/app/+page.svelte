@@ -3,14 +3,14 @@
 	import { goto } from '$app/navigation';
 	import { settingsApi } from '$lib/client/api';
 	import { entriesStore } from '$lib/client/entries.svelte';
-	import Button from '$lib/components/Button.svelte';
-	import ChartLegend from '$lib/components/ChartLegend.svelte';
-	import CycleCalendar from '$lib/components/CycleCalendar.svelte';
-	import EntryCard from '$lib/components/EntryCard.svelte';
-	import Logo from '$lib/components/Logo.svelte';
-	import MetricChart from '$lib/components/MetricChart.svelte';
-	import RangeSelector from '$lib/components/RangeSelector.svelte';
-	import Text from '$lib/components/Text.svelte';
+	import Button from '$lib/components/ui/Button.svelte';
+	import ChartLegend from '$lib/components/charts/ChartLegend.svelte';
+	import CycleCalendar from '$lib/components/display/CycleCalendar.svelte';
+	import EntryCard from '$lib/components/display/EntryCard.svelte';
+	import Logo from '$lib/components/layout/Logo.svelte';
+	import MetricChart from '$lib/components/charts/MetricChart.svelte';
+	import RangeSelector from '$lib/components/forms/RangeSelector.svelte';
+	import Text from '$lib/components/ui/Text.svelte';
 	import { _ } from 'svelte-i18n';
 
 	type Range = '7' | '30' | 'all';

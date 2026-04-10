@@ -2,9 +2,9 @@
 	import { goto } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { auth } from '$lib/client/auth.svelte';
-	import Button from '$lib/components/Button.svelte';
-	import Input from '$lib/components/Input.svelte';
-	import Text from '$lib/components/Text.svelte';
+	import Button from '$lib/components/ui/Button.svelte';
+	import Input from '$lib/components/forms/Input.svelte';
+	import Text from '$lib/components/ui/Text.svelte';
 	import { _ } from 'svelte-i18n';
 
 	const isSetupMode = $derived($page.url.searchParams.get('setup') === '1');

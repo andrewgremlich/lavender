@@ -3,8 +3,8 @@
 	import { auth } from '$lib/client/auth.svelte';
 	import { entriesStore } from '$lib/client/entries.svelte';
 	import { syncEngine } from '$lib/services/sync-engine';
-	import NavBar from '$lib/components/NavBar.svelte';
-	import PasswordGate from '$lib/components/PasswordGate.svelte';
+	import NavBar from '$lib/components/layout/NavBar.svelte';
+	import PasswordGate from '$lib/components/ui/PasswordGate.svelte';
 
 	let { children } = $props();
 

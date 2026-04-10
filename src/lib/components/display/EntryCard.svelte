@@ -4,8 +4,8 @@
 	import { countIndicators, INDICATORS } from '$lib/utils/indicators';
 	import { celsiusToFahrenheit, getUnitSystem } from '$lib/utils/units';
 	import { _ } from 'svelte-i18n';
-	import Button from './Button.svelte';
-	import Icon from './Icon.svelte';
+	import Button from '$lib/components/ui/Button.svelte';
+	import Icon from '$lib/components/ui/Icon.svelte';
 
 	type Props = { entry: HealthEntry };
 	let { entry }: Props = $props();

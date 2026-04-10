@@ -1,6 +1,6 @@
 <script lang="ts">
-	import Icon from '$lib/components/Icon.svelte';
-	import Button from '$lib/components/Button.svelte';
+	import Icon from '$lib/components/ui/Icon.svelte';
+	import Button from '$lib/components/ui/Button.svelte';
 	import type { FertilityIndicators } from '$lib/utils/fertility';
 
 	type Props = {

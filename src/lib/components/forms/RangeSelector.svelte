@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { _ } from 'svelte-i18n';
-	import Button from './Button.svelte';
+	import Button from '$lib/components/ui/Button.svelte';
 
 	type Range = '7' | '30' | 'all';
 

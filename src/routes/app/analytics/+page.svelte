@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { entriesStore } from '$lib/client/entries.svelte';
-	import AccuracyChart from '$lib/components/AccuracyChart.svelte';
-	import Button from '$lib/components/Button.svelte';
-	import ComparisonChart from '$lib/components/ComparisonChart.svelte';
-	import LutealChart from '$lib/components/LutealChart.svelte';
-	import StatCard from '$lib/components/StatCard.svelte';
-	import StatsRow from '$lib/components/StatsRow.svelte';
-	import Text from '$lib/components/Text.svelte';
+	import AccuracyChart from '$lib/components/charts/AccuracyChart.svelte';
+	import Button from '$lib/components/ui/Button.svelte';
+	import ComparisonChart from '$lib/components/charts/ComparisonChart.svelte';
+	import LutealChart from '$lib/components/charts/LutealChart.svelte';
+	import StatCard from '$lib/components/display/StatCard.svelte';
+	import StatsRow from '$lib/components/layout/StatsRow.svelte';
+	import Text from '$lib/components/ui/Text.svelte';
 	import {
 		getCycleDetails,
 		getCycleSegments,

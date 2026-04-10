@@ -1,8 +1,8 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { auth } from '$lib/client/auth.svelte';
-	import Logo from '$lib/components/Logo.svelte';
-	import Text from '$lib/components/Text.svelte';
+	import Logo from '$lib/components/layout/Logo.svelte';
+	import Text from '$lib/components/ui/Text.svelte';
 
 	$effect(() => {
 		if (auth.loggedIn) goto('/app', { replaceState: true });

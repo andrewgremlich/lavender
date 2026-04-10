@@ -3,9 +3,9 @@
 	import { sync } from '$lib/client/sync.svelte';
 	import { entriesStore } from '$lib/client/entries.svelte';
 	import { _ } from 'svelte-i18n';
-	import Button from './Button.svelte';
-	import Icon from './Icon.svelte';
-	import Logo from './Logo.svelte';
+	import Button from '$lib/components/ui/Button.svelte';
+	import Icon from '$lib/components/ui/Icon.svelte';
+	import Logo from '$lib/components/layout/Logo.svelte';
 
 	let menuOpen = $state(false);
 

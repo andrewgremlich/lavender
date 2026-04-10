@@ -4,9 +4,9 @@
 	import { entriesStore } from '$lib/client/entries.svelte';
 	import { metricsStore } from '$lib/services/metrics-store';
 	import { _ } from 'svelte-i18n';
-	import Button from './Button.svelte';
-	import FlashMessage from './FlashMessage.svelte';
-	import SettingsCard from './SettingsCard.svelte';
+	import Button from '$lib/components/ui/Button.svelte';
+	import FlashMessage from '$lib/components/display/FlashMessage.svelte';
+	import SettingsCard from '$lib/components/layout/SettingsCard.svelte';
 
 	let msg = $state<{ text: string; type: 'success' | 'error' } | null>(null);
 	let importing = $state(false);

@@ -1,12 +1,12 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
 	import { entriesStore } from '$lib/client/entries.svelte';
-	import Button from '$lib/components/Button.svelte';
-	import Icon from '$lib/components/Icon.svelte';
-	import Input from '$lib/components/Input.svelte';
-	import PillGroup from '$lib/components/PillGroup.svelte';
-	import PillOption from '$lib/components/PillOption.svelte';
-	import Text from '$lib/components/Text.svelte';
+	import Button from '$lib/components/ui/Button.svelte';
+	import Icon from '$lib/components/ui/Icon.svelte';
+	import Input from '$lib/components/forms/Input.svelte';
+	import PillGroup from '$lib/components/ui/PillGroup.svelte';
+	import PillOption from '$lib/components/ui/PillOption.svelte';
+	import Text from '$lib/components/ui/Text.svelte';
 	import type { HealthEntryData } from '$lib/types';
 	import { INDICATORS } from '$lib/utils/indicators';
 	import { celsiusToFahrenheit, fahrenheitToCelsius, getUnitSystem } from '$lib/utils/units';

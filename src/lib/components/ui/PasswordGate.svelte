@@ -7,9 +7,9 @@
 		storeKey,
 		storeLegacyKey
 	} from '$lib/client/crypto';
-	import Button from './Button.svelte';
-	import Input from './Input.svelte';
-	import Text from './Text.svelte';
+	import Button from '$lib/components/ui/Button.svelte';
+	import Input from '$lib/components/forms/Input.svelte';
+	import Text from '$lib/components/ui/Text.svelte';
 	import type { Snippet } from 'svelte';
 
 	type Props = { children: Snippet };

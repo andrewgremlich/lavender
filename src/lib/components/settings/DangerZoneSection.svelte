@@ -5,8 +5,8 @@
 	import { entriesStore } from '$lib/client/entries.svelte';
 	import { metricsStore } from '$lib/services/metrics-store';
 	import { _ } from 'svelte-i18n';
-	import Button from './Button.svelte';
-	import SettingsCard from './SettingsCard.svelte';
+	import Button from '$lib/components/ui/Button.svelte';
+	import SettingsCard from '$lib/components/layout/SettingsCard.svelte';
 
 	let confirmDeleteData = $state(false);
 	let confirmDeleteAccount = $state(false);

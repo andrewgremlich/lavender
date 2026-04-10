@@ -6,14 +6,14 @@
 	import { SUPPORTED_LOCALES, getStoredLocale, storeLocale, type SupportedLocale } from '$lib/i18n';
 	import { metricsStore } from '$lib/services/metrics-store';
 	import { getUnitSystem, setUnitSystem, type UnitSystem } from '$lib/utils/units';
-	import Button from '$lib/components/Button.svelte';
-	import FlashMessage from '$lib/components/FlashMessage.svelte';
-	import SettingsCard from '$lib/components/SettingsCard.svelte';
-	import Text from '$lib/components/Text.svelte';
-	import ExportSection from '$lib/components/ExportSection.svelte';
-	import ImportSection from '$lib/components/ImportSection.svelte';
-	import ChangePasswordSection from '$lib/components/ChangePasswordSection.svelte';
-	import DangerZoneSection from '$lib/components/DangerZoneSection.svelte';
+	import Button from '$lib/components/ui/Button.svelte';
+	import FlashMessage from '$lib/components/display/FlashMessage.svelte';
+	import SettingsCard from '$lib/components/layout/SettingsCard.svelte';
+	import Text from '$lib/components/ui/Text.svelte';
+	import ExportSection from '$lib/components/settings/ExportSection.svelte';
+	import ImportSection from '$lib/components/settings/ImportSection.svelte';
+	import ChangePasswordSection from '$lib/components/settings/ChangePasswordSection.svelte';
+	import DangerZoneSection from '$lib/components/settings/DangerZoneSection.svelte';
 	import { _, locale } from 'svelte-i18n';
 
 	let unitSystem = $state<UnitSystem>(getUnitSystem());

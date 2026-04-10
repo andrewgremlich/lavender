@@ -1,7 +1,7 @@
 <script lang="ts">
 	import Chart, { type TooltipItem } from 'chart.js/auto';
 	import { onDestroy } from 'svelte';
-	import Button from './Button.svelte';
+	import Button from '$lib/components/ui/Button.svelte';
 	import { celsiusToFahrenheit, getUnitSystem } from '$lib/utils/units';
 	import type { getCycleSegments } from '$lib/utils/fertility';
 

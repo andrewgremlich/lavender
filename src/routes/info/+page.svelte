@@ -1,5 +1,5 @@
 <script lang="ts">
-	import Text from '$lib/components/Text.svelte';
+	import Text from '$lib/components/ui/Text.svelte';
 </script>
 
 <svelte:head>

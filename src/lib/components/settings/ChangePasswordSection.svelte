@@ -10,11 +10,11 @@
 		storeKey
 	} from '$lib/client/crypto';
 	import { _ } from 'svelte-i18n';
-	import Button from './Button.svelte';
-	import FlashMessage from './FlashMessage.svelte';
-	import Input from './Input.svelte';
-	import SettingsCard from './SettingsCard.svelte';
-	import Text from './Text.svelte';
+	import Button from '$lib/components/ui/Button.svelte';
+	import FlashMessage from '$lib/components/display/FlashMessage.svelte';
+	import Input from '$lib/components/forms/Input.svelte';
+	import SettingsCard from '$lib/components/layout/SettingsCard.svelte';
+	import Text from '$lib/components/ui/Text.svelte';
 
 	let msg = $state<{ text: string; type: 'success' | 'error' } | null>(null);
 	let currentPassword = $state('');

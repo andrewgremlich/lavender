@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import Text from './Text.svelte';
+	import Text from '$lib/components/ui/Text.svelte';
 
 	type Props = {
 		title: string;
