@@ -16,3 +16,9 @@ Feedback from women is very welcome!
 - Zero third-party data sharing
 - Local-first architecture
 - Open source for full transparency
+
+## competition
+
+https://helloclue.com/
+
+https://flo.health/
