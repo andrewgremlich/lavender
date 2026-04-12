@@ -3,6 +3,7 @@
 	import { auth } from '$lib/client/auth.svelte';
 	import Logo from '$lib/components/layout/Logo.svelte';
 	import Text from '$lib/components/ui/Text.svelte';
+	import { _ } from 'svelte-i18n';
 
 	let { data } = $props();
 
@@ -20,7 +21,7 @@
 			await auth.demoLogin();
 			await goto('/app', { replaceState: true });
 		} catch (e) {
-			demoError = e instanceof Error ? e.message : 'Could not start demo';
+			demoError = e instanceof Error ? e.message : $_('home.demoError');
 		} finally {
 			tryingDemo = false;
 		}
@@ -28,8 +29,8 @@
 
 	const ogDescription = $derived(
 		data.spotsRemaining > 0
-			? `Your cycle data belongs to you. Everything is encrypted before it leaves your device. ${data.spotsRemaining} free sync spots remaining.`
-			: 'Your cycle data belongs to you. Everything is encrypted before it leaves your device.',
+			? $_('home.ogDescriptionWithSpots', { values: { count: data.spotsRemaining } })
+			: $_('home.ogDescriptionFull'),
 	);
 
 	const jsonLd = $derived(JSON.stringify({
@@ -59,17 +60,14 @@
 </script>
 
 <svelte:head>
-	<title>Lavender — Private Fertility Tracker, End-to-End Encrypted</title>
-	<meta
-		name="description"
-		content="Track your cycle with complete privacy. Lavender encrypts all health data on your device — the server never sees your information. AES-256-GCM, no third-party analytics."
-	/>
+	<title>{$_('home.pageTitle')}</title>
+	<meta name="description" content={$_('home.metaDescription')} />
 	<link rel="canonical" href="{data.origin}/" />
 
 	<!-- Open Graph -->
 	<meta property="og:type" content="website" />
 	<meta property="og:site_name" content="Lavender" />
-	<meta property="og:title" content="Lavender — Private Fertility Tracker" />
+	<meta property="og:title" content={$_('home.ogTitle')} />
 	<meta property="og:description" content={ogDescription} />
 	<meta property="og:url" content="{data.origin}/" />
 	<meta property="og:image" content="{data.origin}/og" />
@@ -77,13 +75,13 @@
 	<meta property="og:image:height" content="630" />
 	<meta
 		property="og:image:alt"
-		content="Lavender — {data.spotsRemaining} free spots remaining for cross-device sync"
+		content={$_('home.ogImageAlt', { values: { count: data.spotsRemaining } })}
 	/>
 
 	<!-- Twitter Card -->
 	<meta name="twitter:card" content="summary_large_image" />
-	<meta name="twitter:title" content="Lavender — Private Fertility Tracker" />
-	<meta name="twitter:description" content="E2EE cycle tracking. Your health data stays yours." />
+	<meta name="twitter:title" content={$_('home.twitterTitle')} />
+	<meta name="twitter:description" content={$_('home.twitterDescription')} />
 	<meta name="twitter:image" content="{data.origin}/og" />
 
 	<!-- JSON-LD structured data -->
@@ -95,13 +93,12 @@
 	<Logo size="xl" class="hero-logo" />
 	<Text as="h1">Lavender</Text>
 	<Text variant="muted">
-		A gentle companion for your personal wellness journey. Track, reflect, and bloom at your own
-		rhythm. <a href="/info">About Lavender</a>
+		{$_('home.tagline')} <a href="/info">{$_('home.aboutLink')}</a>
 	</Text>
 	<div class="cta-group">
-		<a href="/auth/login" class="cta">Sign in</a>
+		<a href="/auth/login" class="cta">{$_('home.signIn')}</a>
 		<button class="cta-secondary" onclick={handleDemoLogin} disabled={tryingDemo}>
-			{tryingDemo ? 'Starting…' : 'Try it out'}
+			{tryingDemo ? $_('home.starting') : $_('home.tryItOut')}
 		</button>
 	</div>
 	{#if demoError}
@@ -112,37 +109,23 @@
 <div class="marketing">
 	<!-- Why Privacy Matters -->
 	<section id="why-privacy" class="marketing-section">
-		<h2 class="section-title">Why privacy matters here</h2>
-		<p class="section-lead">
-			Fertility and cycle data is among the most sensitive personal information you can share. Most
-			apps monetize it. Lavender doesn't — because we can't.
-		</p>
+		<h2 class="section-title">{$_('home.privacy.title')}</h2>
+		<p class="section-lead">{$_('home.privacy.lead')}</p>
 		<div class="cards">
 			<div class="card">
 				<div class="card-icon" aria-hidden="true">🔑</div>
-				<h3>Your key, your data</h3>
-				<p>
-					Encryption happens on your device before anything is sent. We use AES-256-GCM with a key
-					derived from your password via PBKDF2 (100,000 iterations, SHA-256). The key never reaches
-					our servers — not even we can read your entries.
-				</p>
+				<h3>{$_('home.privacy.card1Title')}</h3>
+				<p>{$_('home.privacy.card1Body')}</p>
 			</div>
 			<div class="card">
 				<div class="card-icon" aria-hidden="true">🚫</div>
-				<h3>No trackers. No ads.</h3>
-				<p>
-					Lavender has no third-party analytics, no advertising SDK, and no telemetry that leaves
-					your device. Most fertility apps profit from selling cycle data. We don't.
-				</p>
+				<h3>{$_('home.privacy.card2Title')}</h3>
+				<p>{$_('home.privacy.card2Body')}</p>
 			</div>
 			<div class="card">
 				<div class="card-icon" aria-hidden="true">🔒</div>
-				<h3>Forget your password? That's the point.</h3>
-				<p>
-					There's no "forgot password" flow that could expose your records — we don't have them. A
-					recovery code lets you regain access without any server-side decryption. Lose both and your
-					data is gone. That's intentional.
-				</p>
+				<h3>{$_('home.privacy.card3Title')}</h3>
+				<p>{$_('home.privacy.card3Body')}</p>
 			</div>
 		</div>
 
@@ -159,32 +142,32 @@
 				</thead>
 				<tbody>
 					<tr>
-						<td>Encrypted on device</td>
+						<td>{$_('home.privacy.compareRow1')}</td>
 						<td class="yes">✓</td>
 						<td class="no">✗</td>
 						<td class="no">✗</td>
 						<td class="no">✗</td>
 					</tr>
 					<tr>
-						<td>Server sees health data</td>
-						<td class="yes">Never</td>
-						<td class="no">Yes</td>
-						<td class="no">Yes</td>
-						<td class="no">Yes</td>
+						<td>{$_('home.privacy.compareRow2')}</td>
+						<td class="yes">{$_('home.privacy.compareNever')}</td>
+						<td class="no">{$_('home.privacy.compareYes')}</td>
+						<td class="no">{$_('home.privacy.compareYes')}</td>
+						<td class="no">{$_('home.privacy.compareYes')}</td>
 					</tr>
 					<tr>
-						<td>Third-party analytics</td>
-						<td class="yes">None</td>
-						<td class="no">Yes</td>
-						<td class="no">Yes</td>
-						<td class="no">Yes</td>
+						<td>{$_('home.privacy.compareRow3')}</td>
+						<td class="yes">{$_('home.privacy.compareNone')}</td>
+						<td class="no">{$_('home.privacy.compareYes')}</td>
+						<td class="no">{$_('home.privacy.compareYes')}</td>
+						<td class="no">{$_('home.privacy.compareYes')}</td>
 					</tr>
 					<tr>
-						<td>Password reset exposes records</td>
-						<td class="yes">Impossible</td>
-						<td class="no">Yes</td>
-						<td class="no">Yes</td>
-						<td class="no">Yes</td>
+						<td>{$_('home.privacy.compareRow4')}</td>
+						<td class="yes">{$_('home.privacy.compareImpossible')}</td>
+						<td class="no">{$_('home.privacy.compareYes')}</td>
+						<td class="no">{$_('home.privacy.compareYes')}</td>
+						<td class="no">{$_('home.privacy.compareYes')}</td>
 					</tr>
 				</tbody>
 			</table>
@@ -193,81 +176,51 @@
 
 	<!-- What We Store -->
 	<section id="what-we-store" class="marketing-section alt">
-		<h2 class="section-title">What we actually store</h2>
-		<p class="section-lead">
-			Full transparency on every piece of data that touches our servers — and whether it's readable
-			by anyone.
-		</p>
+		<h2 class="section-title">{$_('home.dataStore.title')}</h2>
+		<p class="section-lead">{$_('home.dataStore.lead')}</p>
 
 		<div class="table-wrap">
 			<table class="data-table">
 				<thead>
 					<tr>
-						<th>Data</th>
-						<th>Encrypted?</th>
-						<th>Notes</th>
+						<th>{$_('home.dataStore.colData')}</th>
+						<th>{$_('home.dataStore.colEncrypted')}</th>
+						<th>{$_('home.dataStore.colNotes')}</th>
 					</tr>
 				</thead>
 				<tbody>
 					<tr>
-						<td>Health entries<br /><small>BBT, bleeding, symptoms, mucus, notes</small></td>
-						<td><span class="badge badge-yes">Yes — AES-256-GCM</span></td>
-						<td>Server stores opaque ciphertext only</td>
+						<td>{$_('home.dataStore.row1Data')}<br /><small>{$_('home.dataStore.row1DataSub')}</small></td>
+						<td><span class="badge badge-yes">{$_('home.dataStore.row1Encrypted')}</span></td>
+						<td>{$_('home.dataStore.row1Notes')}</td>
 					</tr>
 					<tr>
-						<td>IV per entry</td>
-						<td><span class="badge badge-no">No</span></td>
-						<td>12 random bytes required to decrypt; harmless without the key</td>
+						<td>{$_('home.dataStore.row2Data')}</td>
+						<td><span class="badge badge-no">{$_('home.dataStore.row2Encrypted')}</span></td>
+						<td>{$_('home.dataStore.row2Notes')}</td>
 					</tr>
 					<tr>
-						<td>Entry expiry date</td>
-						<td><span class="badge badge-no">No</span></td>
-						<td>Server uses this to auto-delete entries past your retention window</td>
+						<td>{$_('home.dataStore.row3Data')}</td>
+						<td><span class="badge badge-no">{$_('home.dataStore.row3Encrypted')}</span></td>
+						<td>{$_('home.dataStore.row3Notes')}</td>
 					</tr>
 					<tr>
-						<td>Username</td>
-						<td><span class="badge badge-no">No</span></td>
-						<td>Login identity; not linked to personal info</td>
+						<td>{$_('home.dataStore.row4Data')}</td>
+						<td><span class="badge badge-no">{$_('home.dataStore.row4Encrypted')}</span></td>
+						<td>{$_('home.dataStore.row4Notes')}</td>
 					</tr>
 					<tr>
-						<td>Password</td>
-						<td><span class="badge badge-hash">Bcrypt hash</span></td>
-						<td>Plaintext never stored or transmitted after hashing</td>
+						<td>{$_('home.dataStore.row5Data')}</td>
+						<td><span class="badge badge-hash">{$_('home.dataStore.row5Encrypted')}</span></td>
+						<td>{$_('home.dataStore.row5Notes')}</td>
 					</tr>
 					<tr>
-						<td>Wrapped encryption key</td>
-						<td><span class="badge badge-yes">Yes — AES-wrapped</span></td>
-						<td>Stored only if you set up a recovery code; recovery code never sent to server</td>
+						<td>{$_('home.dataStore.row6Data')}</td>
+						<td><span class="badge badge-yes">{$_('home.dataStore.row6Encrypted')}</span></td>
+						<td>{$_('home.dataStore.row6Notes')}</td>
 					</tr>
 				</tbody>
 			</table>
-		</div>
-
-		<div class="cipher-example">
-			<h3 class="cipher-title">What the server actually sees</h3>
-			<p class="cipher-subtitle">Representative example — not real data</p>
-			<div class="cipher-block">
-				<div class="cipher-row">
-					<span class="cipher-label">What you type</span>
-					<code class="cipher-value"
-						>&#123; "date": "2026-04-03", "basalBodyTemp": 36.7, "bleedingStart": true, "bleedingFlow":
-						"medium", "notes": "Day 1 of cycle" &#125;</code
-					>
-				</div>
-				<div class="cipher-row">
-					<span class="cipher-label">What the server stores</span>
-					<code class="cipher-value"
-						>&#123; "encryptedData": "a3Fz9P+k2mWq8vNcXe1oLs7Yw4HrBt6jMpDnQeRzUf...", "iv":
-						"R7xQ2pLm9vKs3nJe" &#125;</code
-					>
-				</div>
-				<div class="cipher-row">
-					<span class="cipher-label">Encryption method</span>
-					<code class="cipher-value"
-						>AES-256-GCM · key via PBKDF2 (100,000 × SHA-256) · key lives in sessionStorage only</code
-					>
-				</div>
-			</div>
 		</div>
 	</section>
 
@@ -277,25 +230,25 @@
 			<div class="free-tier-count">{data.spotsRemaining}</div>
 			<div class="free-tier-label">
 				{#if data.spotsRemaining > 0}
-					free cross-device sync spots remaining
+					{$_('home.freeTier.spotsRemaining')}
 				{:else}
-					free tier is full
+					{$_('home.freeTier.tierFull')}
 				{/if}
 			</div>
 			<p class="free-tier-desc">
 				{#if data.spotsRemaining > 0}
-					The first 100 users get cross-device sync free, forever. After that it will be paywalled.
+					{$_('home.freeTier.descWithSpots')}
 				{:else}
-					The free tier is full. Cross-device sync will be available as a paid feature.
+					{$_('home.freeTier.descFull')}
 				{/if}
 			</p>
-			<a href="/auth/register" class="cta">Claim your spot</a>
+			<a href="/auth/register" class="cta">{$_('home.freeTier.claimSpot')}</a>
 		</div>
 	</section>
 
 	<footer class="landing-footer">
-		<a href="/info">Detailed methodology &amp; calculations →</a>
-		<a href="/auth/register">Create an account</a>
+		<a href="/info">{$_('home.footer.methodology')}</a>
+		<a href="/auth/register">{$_('home.footer.createAccount')}</a>
 	</footer>
 </div>
 
@@ -526,54 +479,6 @@
 	.badge-hash {
 		background: #fef9c3;
 		color: #854d0e;
-	}
-
-	/* Ciphertext example */
-	.cipher-example {
-		background: var(--color-surface);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-lg);
-		padding: var(--space-lg);
-	}
-	.cipher-title {
-		font-size: var(--text-lg);
-		font-weight: 600;
-		color: var(--color-text);
-		margin-bottom: 0.25rem;
-	}
-	.cipher-subtitle {
-		font-size: var(--text-sm);
-		color: var(--color-text-muted);
-		margin-bottom: var(--space-md);
-	}
-	.cipher-block {
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-md);
-	}
-	.cipher-row {
-		display: flex;
-		flex-direction: column;
-		gap: 0.25rem;
-	}
-	.cipher-label {
-		font-size: var(--text-xs, 0.75rem);
-		font-weight: 600;
-		color: var(--color-primary);
-		text-transform: uppercase;
-		letter-spacing: 0.05em;
-	}
-	.cipher-value {
-		display: block;
-		font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
-		font-size: 0.8rem;
-		color: #f3f4f6;
-		background: #1e1e2e;
-		padding: var(--space-sm) var(--space-md);
-		border-radius: var(--radius-md);
-		overflow-x: auto;
-		white-space: pre-wrap;
-		word-break: break-all;
 	}
 
 	/* Free tier callout */
