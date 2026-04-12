@@ -1,6 +1,6 @@
 import type { PageServerLoad } from './$types';
 
-const FREE_TIER_LIMIT = 100;
+const FREE_TIER_LIMIT = 25;
 const PRODUCTION_ORIGIN = 'https://lavender.app';
 
 export const load: PageServerLoad = async (event) => {
