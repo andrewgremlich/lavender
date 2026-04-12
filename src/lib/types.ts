@@ -34,7 +34,7 @@ export interface UserSettings {
 	defaultDateRange: DateRange;
 }
 
-export type Role = 'user' | 'demo' | 'admin';
+export type Role = 'user' | 'demo' | 'admin' | 'banned';
 
 export interface AuthResponse {
 	token: string;

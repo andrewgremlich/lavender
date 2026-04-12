@@ -13,6 +13,9 @@ export function requireUser(event: RequestEvent): AuthUser | Response {
 	if (!user) {
 		return json({ error: 'Unauthorized' }, { status: 401 });
 	}
+	if (user.role === 'banned') {
+		return json({ error: 'Account suspended' }, { status: 403 });
+	}
 	return user;
 }
 

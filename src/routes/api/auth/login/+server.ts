@@ -25,6 +25,10 @@ export const POST: RequestHandler = async (event) => {
 		return json({ error: 'Invalid credentials' }, { status: 401 });
 	}
 
+	if (user.role === 'banned') {
+		return json({ error: 'Account suspended' }, { status: 403 });
+	}
+
 	const passwordHash = await hashPassword(password, user.salt);
 	if (!timingSafeEqual(passwordHash, user.password_hash)) {
 		return json({ error: 'Invalid credentials' }, { status: 401 });
