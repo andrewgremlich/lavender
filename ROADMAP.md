@@ -107,12 +107,15 @@ Allow visitors to explore the full app without registering. The demo account is 
 3. `pnpm seed:demo`
 4. `wrangler d1 execute lavender-db --local --command "UPDATE users SET role='demo' WHERE username='demo';"`
 
-### 13. Landing Page SEO & "Why Privacy Matters"
-- Rebuild the `/` route as a proper marketing landing page with SEO meta tags (title, description, Open Graph, Twitter Card, canonical URL, structured data via JSON-LD)
-- Add a "Why Privacy Matters" section — static copy explaining E2EE as the key differentiator vs other fertility trackers
-- Add a disclosure of what data is stored and why, and if it's encrypted or not. Provide examples of cipher text with the encryption method.
-- Dynamic Open Graph image generated via Cloudflare Worker showing live spots-remaining count for compelling social shares
-- Server-side render the page via `+page.server.ts` `load` function for SEO
+### 13. Landing Page SEO & "Why Privacy Matters" ✅
+- `src/routes/+page.server.ts` — SSR load function queries D1 for real user count (excludes demo/banned); returns `userCount`, `spotsRemaining`, `origin` to the page
+- `src/routes/og/+server.ts` — Cloudflare Worker endpoint returning a branded 1200×630 SVG OG image with live spots-remaining count; 5-minute edge cache
+- `src/routes/+page.svelte` — full `<svelte:head>` with title, description, canonical URL, og:* (type/site_name/title/description/url/image/alt), twitter:card/title/description/image, and JSON-LD `WebApplication` schema
+- "Why Privacy Matters" section — 3 cards (your key, no trackers, password design) + comparison table vs Clue/Flo/Natural Cycles
+- "What We Store" section — full disclosure table (what's encrypted vs not, why) + representative ciphertext example showing plaintext → AES-256-GCM ciphertext + IV
+- "Free Tier" callout — live `spotsRemaining` counter driven by SSR data
+- `src/app.html` — global OG fallback meta tags (og:site_name, og:type, twitter:card)
+- **Note on Twitter/X:** SVG og:images don't render on Twitter; upgrade path is satori+resvg-wasm if needed
 
 ### 14. Live User Count & Free Tier
 - Use the existing `users` table for user count (`SELECT COUNT(*) FROM users`) — no new table needed
