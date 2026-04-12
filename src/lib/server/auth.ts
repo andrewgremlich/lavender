@@ -28,3 +28,15 @@ export function requireNonDemoUser(event: RequestEvent): AuthUser | Response {
 	}
 	return result;
 }
+
+/**
+ * Like requireUser but requires the admin role, returning 403 for non-admins.
+ */
+export function requireAdmin(event: RequestEvent): AuthUser | Response {
+	const result = requireUser(event);
+	if (result instanceof Response) return result;
+	if (result.role !== 'admin') {
+		return json({ error: 'Forbidden' }, { status: 403 });
+	}
+	return result;
+}
