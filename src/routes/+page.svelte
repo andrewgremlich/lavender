@@ -174,56 +174,6 @@
 		</div>
 	</section>
 
-	<!-- What We Store -->
-	<section id="what-we-store" class="marketing-section alt">
-		<h2 class="section-title">{$_('home.dataStore.title')}</h2>
-		<p class="section-lead">{$_('home.dataStore.lead')}</p>
-
-		<div class="table-wrap">
-			<table class="data-table">
-				<thead>
-					<tr>
-						<th>{$_('home.dataStore.colData')}</th>
-						<th>{$_('home.dataStore.colEncrypted')}</th>
-						<th>{$_('home.dataStore.colNotes')}</th>
-					</tr>
-				</thead>
-				<tbody>
-					<tr>
-						<td>{$_('home.dataStore.row1Data')}<br /><small>{$_('home.dataStore.row1DataSub')}</small></td>
-						<td><span class="badge badge-yes">{$_('home.dataStore.row1Encrypted')}</span></td>
-						<td>{$_('home.dataStore.row1Notes')}</td>
-					</tr>
-					<tr>
-						<td>{$_('home.dataStore.row2Data')}</td>
-						<td><span class="badge badge-no">{$_('home.dataStore.row2Encrypted')}</span></td>
-						<td>{$_('home.dataStore.row2Notes')}</td>
-					</tr>
-					<tr>
-						<td>{$_('home.dataStore.row3Data')}</td>
-						<td><span class="badge badge-no">{$_('home.dataStore.row3Encrypted')}</span></td>
-						<td>{$_('home.dataStore.row3Notes')}</td>
-					</tr>
-					<tr>
-						<td>{$_('home.dataStore.row4Data')}</td>
-						<td><span class="badge badge-no">{$_('home.dataStore.row4Encrypted')}</span></td>
-						<td>{$_('home.dataStore.row4Notes')}</td>
-					</tr>
-					<tr>
-						<td>{$_('home.dataStore.row5Data')}</td>
-						<td><span class="badge badge-hash">{$_('home.dataStore.row5Encrypted')}</span></td>
-						<td>{$_('home.dataStore.row5Notes')}</td>
-					</tr>
-					<tr>
-						<td>{$_('home.dataStore.row6Data')}</td>
-						<td><span class="badge badge-yes">{$_('home.dataStore.row6Encrypted')}</span></td>
-						<td>{$_('home.dataStore.row6Notes')}</td>
-					</tr>
-				</tbody>
-			</table>
-		</div>
-	</section>
-
 	<!-- Free Tier Callout -->
 	<section id="free-tier" class="marketing-section">
 		<div class="free-tier-card">
@@ -419,66 +369,6 @@
 	}
 	.compare-table td.no {
 		color: #dc2626;
-	}
-
-	/* Data table */
-	.table-wrap {
-		overflow-x: auto;
-		border-radius: var(--radius-lg);
-		border: 1px solid var(--color-border);
-		margin-bottom: var(--space-xl);
-	}
-	.data-table {
-		width: 100%;
-		border-collapse: collapse;
-		font-size: var(--text-sm);
-	}
-	.data-table th {
-		padding: var(--space-sm) var(--space-md);
-		background: var(--color-surface-raised, var(--color-surface));
-		font-weight: 600;
-		color: var(--color-text);
-		border-bottom: 1px solid var(--color-border);
-		text-align: left;
-	}
-	.data-table td {
-		padding: var(--space-sm) var(--space-md);
-		border-bottom: 1px solid var(--color-border);
-		color: var(--color-text-muted);
-		vertical-align: top;
-	}
-	.data-table tr:last-child td {
-		border-bottom: none;
-	}
-	.data-table td:first-child {
-		font-weight: 500;
-		color: var(--color-text);
-	}
-	.data-table small {
-		display: block;
-		font-weight: 400;
-		color: var(--color-text-muted);
-		margin-top: 2px;
-	}
-	.badge {
-		display: inline-block;
-		padding: 2px 8px;
-		border-radius: 9999px;
-		font-size: 0.75rem;
-		font-weight: 600;
-		white-space: nowrap;
-	}
-	.badge-yes {
-		background: #dcfce7;
-		color: #15803d;
-	}
-	.badge-no {
-		background: #fee2e2;
-		color: #b91c1c;
-	}
-	.badge-hash {
-		background: #fef9c3;
-		color: #854d0e;
 	}
 
 	/* Free tier callout */
