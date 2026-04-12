@@ -391,13 +391,15 @@ function identifyPeriodDays(entries: EntryWithTemp[]): PeriodResult {
 			periodDays.add(entry.date);
 		} else if (entry.bleedingEnd) {
 			if (currentBleedingStart) {
-				const gap = daysBetween(currentBleedingStart, entry.date);
+				const gap = Math.min(daysBetween(currentBleedingStart, entry.date), MAX_PERIOD_DAYS);
 				for (let d = 0; d <= gap; d++) {
 					periodDays.add(addDaysToStr(currentBleedingStart, d));
 				}
 				periodLengths.push(gap + 1);
+			} else {
+				// No matching start: mark end day as a period day
+				periodDays.add(entry.date);
 			}
-			periodDays.add(entry.date);
 			currentBleedingStart = null;
 		} else if (currentBleedingStart && entry.bleedingFlow != null) {
 			const elapsed = daysBetween(currentBleedingStart, entry.date);

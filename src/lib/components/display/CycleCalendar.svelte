@@ -22,8 +22,8 @@
 		if (fertility.periodDays.has(dateStr)) classes.push('period');
 		else if (fertility.ovulationDays.has(dateStr)) classes.push('ovulation');
 		else if (fertility.fertileWindowDays.has(dateStr)) classes.push('fertile');
-		else if (fertility.predictedPeriodDays.has(dateStr)) classes.push('predicted-period');
 		else if (fertility.predictedOvulationDays.has(dateStr)) classes.push('predicted-ovulation');
+		else if (fertility.predictedPeriodDays.has(dateStr)) classes.push('predicted-period');
 		else if (fertility.predictedFertileDays.has(dateStr)) classes.push('predicted-fertile');
 		return classes;
 	}
@@ -144,8 +144,10 @@
 		<div class="legend-item"><span class="swatch period"></span> Period</div>
 		<div class="legend-item"><span class="swatch fertile"></span> Fertile</div>
 		<div class="legend-item"><span class="swatch ovulation"></span> Ovulation</div>
-		<div class="legend-item"><span class="swatch predicted"></span> Predicted</div>
-		<div class="legend-item"><span class="swatch intimacy"><Icon name="heart" size={10} strokeWidth={2} /></span> Intimacy</div>
+		<div class="legend-item"><span class="swatch predicted-period"></span> Predicted Period</div>
+		<div class="legend-item"><span class="swatch predicted-fertile"></span> Predicted Fertile</div>
+		<div class="legend-item"><span class="swatch intimacy"><Icon name="heart" size={10} strokeWidth={2} /><Icon name="shield-off" size={8} strokeWidth={2} /></span> Unprotected</div>
+		<div class="legend-item"><span class="swatch intimacy"><Icon name="heart" size={10} strokeWidth={2} /><Icon name="shield" size={8} strokeWidth={2} /></span> Protected</div>
 	</div>
 
 	{#if fertility.averageCycleLength}
@@ -234,18 +236,40 @@
 		color: var(--cal-ovulation-text, #5b21b6);
 	}
 
-	.day-cell.predicted-period,
-	.day-cell.predicted-ovulation,
-	.day-cell.predicted-fertile {
-		background: repeating-linear-gradient(
+	.day-cell.predicted-period {
+		background-color: var(--cal-period-bg, #fee2e2);
+		background-image: repeating-linear-gradient(
 			45deg,
-			var(--cal-period-bg, #fee2e2),
-			var(--cal-period-bg, #fee2e2) 3px,
-			var(--cal-predicted-stripe, #fecaca) 3px,
-			var(--cal-predicted-stripe, #fecaca) 6px
+			transparent 0px,
+			transparent 4px,
+			rgba(0, 0, 0, 0.2) 4px,
+			rgba(0, 0, 0, 0.2) 7px
 		);
 		color: var(--cal-period-text, #991b1b);
-		opacity: 0.7;
+	}
+
+	.day-cell.predicted-ovulation {
+		background-color: var(--cal-ovulation-bg, #ede9fe);
+		background-image: repeating-linear-gradient(
+			45deg,
+			transparent 0px,
+			transparent 4px,
+			rgba(0, 0, 0, 0.2) 4px,
+			rgba(0, 0, 0, 0.2) 7px
+		);
+		color: var(--cal-ovulation-text, #5b21b6);
+	}
+
+	.day-cell.predicted-fertile {
+		background-color: var(--cal-fertile-bg, #ecfdf5);
+		background-image: repeating-linear-gradient(
+			45deg,
+			transparent 0px,
+			transparent 4px,
+			rgba(0, 0, 0, 0.2) 4px,
+			rgba(0, 0, 0, 0.2) 7px
+		);
+		color: var(--cal-fertile-text, #065f46);
 	}
 
 	.day-number {
@@ -322,13 +346,25 @@
 		justify-content: center;
 		color: #e11d48;
 	}
-	.swatch.predicted {
-		background: repeating-linear-gradient(
+	.swatch.predicted-period {
+		background-color: var(--cal-period-bg, #fee2e2);
+		background-image: repeating-linear-gradient(
 			45deg,
-			var(--cal-period-bg, #fee2e2),
-			var(--cal-period-bg, #fee2e2) 3px,
-			var(--cal-predicted-stripe, #fecaca) 3px,
-			var(--cal-predicted-stripe, #fecaca) 6px
+			transparent 0px,
+			transparent 4px,
+			rgba(0, 0, 0, 0.2) 4px,
+			rgba(0, 0, 0, 0.2) 7px
+		);
+	}
+
+	.swatch.predicted-fertile {
+		background-color: var(--cal-fertile-bg, #ecfdf5);
+		background-image: repeating-linear-gradient(
+			45deg,
+			transparent 0px,
+			transparent 4px,
+			rgba(0, 0, 0, 0.2) 4px,
+			rgba(0, 0, 0, 0.2) 7px
 		);
 	}
 
