@@ -119,14 +119,19 @@ Allow visitors to explore the full app without registering. The demo account is 
 - Landing page displays a live user count with a "free spots remaining" counter (first 100 users get cross-device sync free; after that it's paywalled)
 - Create `GET /api/subscribers` endpoint returning current user count (public)
 
-### 15. User Roles & Admin Panel
-- Add a `role` column to the `users` table (`TEXT NOT NULL DEFAULT 'user'`, values: `user` | `admin`) via migration
-- Admin panel at `/app/admin` — accessible only to users with `role = 'admin'`
-  - CRUD management for community posts (edit, delete, change type)
-  - View and manage user list
-    - Delete user
-    - Ban user
-  - Server-side role check in `+page.server.ts` load function; redirect non-admins
+### 15. User Roles & Admin Panel ✅
+
+- `role` column already present from step 12 migration (`'user' | 'demo' | 'admin'`); extended with `'banned'`
+- `src/lib/types.ts` — `Role = 'user' | 'demo' | 'admin' | 'banned'`
+- `src/app.d.ts` — `App.Locals.user.role` updated to include `'banned'`
+- `src/lib/server/auth.ts` — `requireUser()` returns 403 for banned accounts; all downstream guards inherit this
+- `src/routes/api/auth/login/+server.ts` — rejects banned users before issuing a JWT
+- `src/routes/api/admin/users/+server.ts` — `GET` returns all users (id, username, role, created_at); admin only
+- `src/routes/api/admin/users/[id]/+server.ts` — `DELETE` removes user; `PATCH` updates role; both guard against self-targeting
+- `src/lib/client/api.ts` — `adminApi` with `getUsers`, `deleteUser`, `setUserRole`; `AdminUser` interface
+- `src/routes/app/admin/+page.svelte` — user table with ban/unban, promote/demote, delete; client-side role guard redirects non-admins to `/app`; community posts section stubbed pending step 16
+- `src/lib/components/layout/NavBar.svelte` — Admin nav link visible only when `auth.role === 'admin'`
+- No migration needed — ban encoded as `role = 'banned'` in existing TEXT column
 
 ### 16. Community Posts (Feature Requests & Q&A)
 - Feature requests are features already labeled and will be upvoted. I would control the feature request list.
