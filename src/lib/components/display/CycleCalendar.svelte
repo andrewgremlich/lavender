@@ -126,14 +126,14 @@
 							<Icon name="egg" size={40} strokeWidth={1.5} />
 							<span class="egg-day">{cell.day}</span>
 						</span>
+					{:else if intimacyType}
+						<span class="intimacy-fill {intimacyType}" aria-label="Intimacy ({intimacyType})">
+							<span class="intimacy-half"><Icon name="heart" strokeWidth={1.5} /></span>
+							<span class="intimacy-half"><Icon name={intimacyType === 'protected' ? 'shield' : 'shield-off'} strokeWidth={1.5} /></span>
+							<span class="egg-day">{cell.day}</span>
+						</span>
 					{:else}
 						<span class="day-number">{cell.day}</span>
-					{/if}
-					{#if intimacyType}
-						<span class="intimacy-badge" aria-label="Intimacy ({intimacyType})">
-							<Icon name="heart" size={12} strokeWidth={2} />
-							<Icon name={intimacyType === 'protected' ? 'shield' : 'shield-off'} size={10} strokeWidth={2} />
-						</span>
 					{/if}
 				</div>
 			{/if}
@@ -298,15 +298,29 @@
 		line-height: 1;
 	}
 
-	.intimacy-badge {
-		position: absolute;
-		bottom: 2px;
-		right: 2px;
+	.intimacy-fill {
+		position: relative;
+		display: flex;
+		flex-direction: row;
+		align-items: center;
+		justify-content: center;
+		width: 100%;
+		height: 100%;
+		color: white;
+		gap: 0;
+	}
+
+	.intimacy-half {
 		display: flex;
 		align-items: center;
-		gap: 1px;
-		color: #e11d48;
-		line-height: 1;
+		justify-content: center;
+		width: 50%;
+		height: 100%;
+	}
+
+	.intimacy-half :global(svg) {
+		width: 90%;
+		height: 90%;
 	}
 
 	.legend {
@@ -344,7 +358,8 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
-		color: #e11d48;
+		color: white;
+		background: #888;
 	}
 	.swatch.predicted-period {
 		background-color: var(--cal-period-bg, #fee2e2);
