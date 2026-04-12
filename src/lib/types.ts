@@ -15,6 +15,7 @@ export interface HealthEntryData {
 	bleedingStart?: boolean;
 	bleedingEnd?: boolean;
 	bleedingFlow?: 'light' | 'medium' | 'heavy';
+	intimacy?: 'unprotected' | 'protected';
 	notes?: string;
 }
 

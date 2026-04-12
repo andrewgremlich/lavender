@@ -85,6 +85,14 @@
 		return entriesStore.entries.filter((e) => e.date >= cutoffStr);
 	});
 
+	const intimacyDays = $derived.by(() => {
+		const map = new Map<string, 'unprotected' | 'protected'>();
+		for (const e of entriesStore.entries) {
+			if (e.intimacy) map.set(e.date, e.intimacy);
+		}
+		return map;
+	});
+
 	const recent = $derived(filtered.slice(-10).reverse());
 </script>
 
@@ -115,7 +123,7 @@
 	<ChartLegend items={legendItems} />
 
 	<section class="calendar-section">
-		<CycleCalendar fertility={entriesStore.fertility} view={range === '7' ? 'week' : 'month'} />
+		<CycleCalendar fertility={entriesStore.fertility} {intimacyDays} view={range === '7' ? 'week' : 'month'} />
 	</section>
 
 	<section class="entries">

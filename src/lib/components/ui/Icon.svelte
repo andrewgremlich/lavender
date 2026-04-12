@@ -7,6 +7,7 @@
 	import Droplet from '@lucide/svelte/icons/droplet';
 	import Droplets from '@lucide/svelte/icons/droplets';
 	import Egg from '@lucide/svelte/icons/egg';
+	import Heart from '@lucide/svelte/icons/heart';
 	import House from '@lucide/svelte/icons/house';
 	import Info from '@lucide/svelte/icons/info';
 	import LogOut from '@lucide/svelte/icons/log-out';
@@ -15,6 +16,8 @@
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import Save from '@lucide/svelte/icons/save';
 	import Settings from '@lucide/svelte/icons/settings';
+	import Shield from '@lucide/svelte/icons/shield';
+	import ShieldOff from '@lucide/svelte/icons/shield-off';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import TrendingUp from '@lucide/svelte/icons/trending-up';
 	import type { Component } from 'svelte';
@@ -28,6 +31,7 @@
 		droplet: Droplet,
 		droplets: Droplets,
 		egg: Egg,
+		heart: Heart,
 		house: House,
 		info: Info,
 		'log-out': LogOut,
@@ -36,6 +40,8 @@
 		pencil: Pencil,
 		save: Save,
 		settings: Settings,
+		shield: Shield,
+		'shield-off': ShieldOff,
 		'trash-2': Trash2,
 		'trending-up': TrendingUp
 	};

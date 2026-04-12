@@ -20,6 +20,7 @@
 		lhSurge: string;
 		bleedingStatus: 'none' | 'started' | 'ended';
 		bleedingFlow: string;
+		intimacy: string;
 		notes: string;
 		indicators: Record<string, boolean>;
 	};
@@ -44,6 +45,11 @@
 		{ value: 'heavy', icon: 'droplets', label: $_('entry.flow.heavy') }
 	] as const);
 
+	const INTIMACY_OPTIONS = $derived([
+		{ value: 'unprotected', icon: 'shield-off', label: $_('entry.intimacy.unprotected') },
+		{ value: 'protected', icon: 'shield', label: $_('entry.intimacy.protected') }
+	] as const);
+
 	const today = new Date().toISOString().split('T')[0];
 
 	function blankForm(): Form {
@@ -54,6 +60,7 @@
 			lhSurge: '',
 			bleedingStatus: 'none',
 			bleedingFlow: '',
+			intimacy: '',
 			notes: '',
 			indicators: Object.fromEntries(INDICATORS.map((i) => [i.key, false]))
 		};
@@ -90,6 +97,7 @@
 			if (parsed.bleedingStart) next.bleedingStatus = 'started';
 			else if (parsed.bleedingEnd) next.bleedingStatus = 'ended';
 			if (parsed.bleedingFlow) next.bleedingFlow = parsed.bleedingFlow;
+			if (parsed.intimacy) next.intimacy = parsed.intimacy;
 			if (parsed.notes) next.notes = parsed.notes;
 			for (const ind of INDICATORS) {
 				if ((parsed as unknown as Record<string, unknown>)[ind.key]) {
@@ -133,6 +141,7 @@
 		if (form.bleedingStatus === 'ended') entry.bleedingEnd = true;
 		if (form.bleedingFlow)
 			entry.bleedingFlow = form.bleedingFlow as HealthEntryData['bleedingFlow'];
+		if (form.intimacy) entry.intimacy = form.intimacy as HealthEntryData['intimacy'];
 		if (form.notes.trim()) entry.notes = form.notes.trim();
 		return entry;
 	}
@@ -315,6 +324,23 @@
 								name="bleedingFlow"
 								value={opt.value}
 								bind:group={form.bleedingFlow}
+							/>
+							<span><Icon name={opt.icon} /> {opt.label}</span>
+						</PillOption>
+					{/each}
+				</PillGroup>
+			</details>
+
+			<details>
+				<summary>{$_('entry.intimacy.title')}</summary>
+				<PillGroup row>
+					{#each INTIMACY_OPTIONS as opt (opt.value)}
+						<PillOption>
+							<input
+								type="radio"
+								name="intimacy"
+								value={opt.value}
+								bind:group={form.intimacy}
 							/>
 							<span><Icon name={opt.icon} /> {opt.label}</span>
 						</PillOption>
