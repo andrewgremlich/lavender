@@ -124,6 +124,8 @@ Allow visitors to explore the full app without registering. The demo account is 
 - Admin panel at `/app/admin` — accessible only to users with `role = 'admin'`
   - CRUD management for community posts (edit, delete, change type)
   - View and manage user list
+    - Delete user
+    - Ban user
   - Server-side role check in `+page.server.ts` load function; redirect non-admins
 
 ### 16. Community Posts (Feature Requests & Q&A)
