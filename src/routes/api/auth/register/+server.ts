@@ -4,6 +4,7 @@ import { getPlatform } from '$lib/server/db';
 import { generateId, generateSalt, hashPassword } from '$lib/server/crypto';
 import { signJwt } from '$lib/server/jwt';
 import { validatePassword, validateUsername } from '$lib/server/validation';
+import { verifyTurnstile } from '$lib/server/turnstile';
 
 interface RegisterBody {
 	username?: string;
@@ -12,10 +13,11 @@ interface RegisterBody {
 	wrappedEncryptionKeyIv?: string;
 	recoveryCodeHash?: string;
 	recoveryCodeSalt?: string;
+	turnstileToken?: string;
 }
 
 export const POST: RequestHandler = async (event) => {
-	const { db, jwtSecret } = getPlatform(event);
+	const { db, jwtSecret, env } = getPlatform(event);
 	const body: RegisterBody = await event.request.json();
 	const {
 		username,
@@ -23,8 +25,20 @@ export const POST: RequestHandler = async (event) => {
 		wrappedEncryptionKey,
 		wrappedEncryptionKeyIv,
 		recoveryCodeHash,
-		recoveryCodeSalt
+		recoveryCodeSalt,
+		turnstileToken
 	} = body;
+
+	if (env.TURNSTILE_SECRET_KEY) {
+		if (!turnstileToken) {
+			return json({ error: 'CAPTCHA required' }, { status: 400 });
+		}
+		const ip = event.request.headers.get('CF-Connecting-IP') ?? '';
+		const captcha = await verifyTurnstile(turnstileToken, env.TURNSTILE_SECRET_KEY, ip);
+		if (!captcha.success) {
+			return json({ error: 'CAPTCHA verification failed' }, { status: 400 });
+		}
+	}
 
 	if (!username || !password) {
 		return json({ error: 'Username and password required' }, { status: 400 });

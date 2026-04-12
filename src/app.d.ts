@@ -15,6 +15,7 @@ declare global {
 				JWT_SECRET: string;
 				RATE_LIMIT_KV: KVNamespace;
 				DEMO_PASSWORD: string;
+				TURNSTILE_SECRET_KEY: string;
 			};
 			context: {
 				waitUntil(promise: Promise<unknown>): void;
