@@ -9,3 +9,5 @@ JWT_SECRET=your-local-dev-secret-at-least-32-chars
 # Must match the DEMO_PASSWORD constant in scripts/seed-demo.ts.
 # For production, set this via: wrangler secret put DEMO_PASSWORD
 DEMO_PASSWORD=lavender-demo-2026!
+PUBLIC_TURNSTILE_SITE_KEY=1x00000000000000000000AA
+TURNSTILE_SECRET_KEY=1x0000000000000000000000000000000AA

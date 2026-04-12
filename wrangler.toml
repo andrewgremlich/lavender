@@ -11,6 +11,9 @@ directory = ".svelte-kit/cloudflare"
 binding = "ASSETS"
 not_found_handling = "single-page-application"
 
+[vars]
+PUBLIC_TURNSTILE_SITE_KEY = "0x4AAAAAAC8fCbOduAqwe7HJ"
+
 [[d1_databases]]
 binding = "lavender_db"
 database_name = "lavender-db"
