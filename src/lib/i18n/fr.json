@@ -73,6 +73,11 @@
 			"none": "Aucun",
 			"started": "Commencé",
 			"ended": "Terminé"
+		},
+		"intimacy": {
+			"title": "Intimité",
+			"unprotected": "Non protégé",
+			"protected": "Protégé"
 		}
 	},
 	"analytics": {
@@ -303,6 +308,7 @@
 			"bleedingSarted": "Saignement commencé",
 			"bleedingEnded": "Saignement terminé",
 			"flowIntensity": "Intensité du flux",
+			"intimacy": "Intimité",
 			"notes": "Notes"
 		},
 		"mucus": {
@@ -320,6 +326,10 @@
 		"lh": {
 			"light": "LH Léger",
 			"positive": "LH+"
+		},
+		"intimacy": {
+			"unprotected": "Non protégé",
+			"protected": "Protégé"
 		},
 		"period": "Règles",
 		"indicators": "{count} indicateur",

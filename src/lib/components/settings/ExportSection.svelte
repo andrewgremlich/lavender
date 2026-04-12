@@ -90,6 +90,7 @@
 		'bleedingStart',
 		'bleedingEnd',
 		'bleedingFlow',
+		'intimacy',
 		'notes'
 	];
 

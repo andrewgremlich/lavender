@@ -25,6 +25,10 @@
 		medium: $_('entryCard.flow.medium'),
 		heavy: $_('entryCard.flow.heavy')
 	});
+	const INTIMACY_LABELS = $derived<Record<string, string>>({
+		unprotected: $_('entryCard.intimacy.unprotected'),
+		protected: $_('entryCard.intimacy.protected')
+	});
 	const LH_LABELS = $derived<Record<number, string>>({
 		1: $_('entryCard.lh.light'),
 		2: $_('entryCard.lh.positive')
@@ -50,6 +54,9 @@
 		if (entry.bleedingStart || entry.bleedingFlow) {
 			const flow = entry.bleedingFlow ? ` (${FLOW_LABELS[entry.bleedingFlow]})` : '';
 			out.push({ text: `${$_('entryCard.period')}${flow}`, kind: 'bleeding' });
+		}
+		if (entry.intimacy) {
+			out.push({ text: INTIMACY_LABELS[entry.intimacy] ?? entry.intimacy });
 		}
 		const indCount = countIndicators(entry as unknown as Record<string, unknown>);
 		if (indCount > 0) {
@@ -88,6 +95,12 @@
 			if ((entry as unknown as Record<string, unknown>)[ind.key]) {
 				rows.push({ label: $_(`indicators.${ind.key}`), value: 'Yes' });
 			}
+		}
+		if (entry.intimacy) {
+			rows.push({
+				label: $_('entryCard.labels.intimacy'),
+				value: INTIMACY_LABELS[entry.intimacy] ?? entry.intimacy
+			});
 		}
 		if (entry.bleedingStart)
 			rows.push({ label: $_('entryCard.labels.bleedingSarted'), value: 'Yes' });
