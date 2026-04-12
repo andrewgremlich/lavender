@@ -200,12 +200,12 @@
 	}
 
 	.day-cell {
-		position: relative;
-		aspect-ratio: 1;
 		display: flex;
-		flex-direction: column;
 		align-items: center;
 		justify-content: center;
+		
+		position: relative;
+		aspect-ratio: 1;
 		border-radius: var(--radius-sm);
 		font-size: var(--text-sm);
 		background: transparent;
@@ -279,11 +279,13 @@
 
 	.ovulation-egg {
 		position: relative;
+		
 		display: flex;
 		align-items: center;
 		justify-content: center;
-		width: 100%;
-		height: 100%;
+
+		width: 90%;
+		height: 90%;
 	}
 
 	.ovulation-egg :global(svg) {
@@ -299,11 +301,11 @@
 	}
 
 	.intimacy-fill {
-		position: relative;
 		display: flex;
-		flex-direction: row;
 		align-items: center;
-		justify-content: center;
+		justify-content: space-around;
+		
+		position: relative;
 		width: 100%;
 		height: 100%;
 		color: white;
@@ -313,14 +315,14 @@
 	.intimacy-half {
 		display: flex;
 		align-items: center;
-		justify-content: center;
-		width: 50%;
+		justify-content: space-evenly;
+		width: 40%;
 		height: 100%;
 	}
 
 	.intimacy-half :global(svg) {
-		width: 90%;
-		height: 90%;
+		width: 80%;
+		height: 80%;
 	}
 
 	.legend {

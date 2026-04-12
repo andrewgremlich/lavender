@@ -8,6 +8,12 @@ importers:
 
   .:
     dependencies:
+      '@fontsource/merriweather':
+        specifier: ^5.2.11
+        version: 5.2.11
+      '@fontsource/merriweather-sans':
+        specifier: ^5.2.7
+        version: 5.2.7
       '@libpdf/core':
         specifier: ^0.3.4
         version: 0.3.4
@@ -571,6 +577,12 @@ packages:
     peerDependenciesMeta:
       '@noble/hashes':
         optional: true
+
+  '@fontsource/merriweather-sans@5.2.7':
+    resolution: {integrity: sha512-QqwHyvp6KbcJ/ebnxWn33JzmeSDAMvi/EZmHwegELJc7JGuHaSRIh2/CC1H5KMP4Ez8Zyu/8GD3xxeTiQPt/sw==}
+
+  '@fontsource/merriweather@5.2.11':
+    resolution: {integrity: sha512-ZiIMeUh5iT8d73o6xlSF8GKgjV5pgiFrufYc5jZTVAfExtWKqM2vQHnsqXSFMv4ELhAcjt6Vf+5T3oVGXhAizQ==}
 
   '@formatjs/ecma402-abstract@2.3.6':
     resolution: {integrity: sha512-HJnTFeRM2kVFVr5gr5kH1XP6K0JcJtE7Lzvtr3FS/so5f1kpsqqqxy5JF+FRaO6H2qmcMfAUIox7AJteieRtVw==}
@@ -2855,6 +2867,10 @@ snapshots:
   '@exodus/bytes@1.15.0(@noble/hashes@2.0.1)':
     optionalDependencies:
       '@noble/hashes': 2.0.1
+
+  '@fontsource/merriweather-sans@5.2.7': {}
+
+  '@fontsource/merriweather@5.2.11': {}
 
   '@formatjs/ecma402-abstract@2.3.6':
     dependencies:

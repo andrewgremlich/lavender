@@ -23,6 +23,8 @@
 		"knip": "knip"
 	},
 	"dependencies": {
+		"@fontsource/merriweather": "^5.2.11",
+		"@fontsource/merriweather-sans": "^5.2.7",
 		"@libpdf/core": "^0.3.4",
 		"@lucide/svelte": "^1.7.0",
 		"chart.js": "^4.5.1",
