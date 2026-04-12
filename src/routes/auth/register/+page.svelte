@@ -1,10 +1,14 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
+	import { onMount } from 'svelte';
+	import { env } from '$env/dynamic/public';
 	import { auth } from '$lib/client/auth.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Input from '$lib/components/forms/Input.svelte';
 	import Text from '$lib/components/ui/Text.svelte';
 	import { _ } from 'svelte-i18n';
+
+	const turnstileSiteKey = env.PUBLIC_TURNSTILE_SITE_KEY;
 
 	let username = $state('');
 	let password = $state('');
@@ -14,6 +18,21 @@
 	let recoveryCode = $state<string | null>(null);
 	let acknowledged = $state(false);
 	let copied = $state(false);
+	let turnstileToken = $state('');
+
+	onMount(() => {
+		if (!turnstileSiteKey) return;
+		(window as unknown as Record<string, unknown>).onTurnstileSuccess = (token: string) => {
+			turnstileToken = token;
+		};
+		(window as unknown as Record<string, unknown>).onTurnstileExpired = () => {
+			turnstileToken = '';
+		};
+		return () => {
+			delete (window as unknown as Record<string, unknown>).onTurnstileSuccess;
+			delete (window as unknown as Record<string, unknown>).onTurnstileExpired;
+		};
+	});
 
 	const reqs = $derived({
 		length: password.length >= 12,
@@ -22,6 +41,7 @@
 	});
 
 	const allMet = $derived(reqs.length && reqs.number && reqs.special);
+	const captchaReady = $derived(!turnstileSiteKey || !!turnstileToken);
 
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
@@ -36,7 +56,7 @@
 		}
 		submitting = true;
 		try {
-			recoveryCode = await auth.register(username, password);
+			recoveryCode = await auth.register(username, password, turnstileToken || undefined);
 		} catch (e) {
 			error = e instanceof Error ? e.message : $_('auth.register.failed');
 		} finally {
@@ -58,6 +78,9 @@
 
 <svelte:head>
 	<title>{$_('auth.register.pageTitle')}</title>
+	{#if turnstileSiteKey}
+		<script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+	{/if}
 </svelte:head>
 
 <main>
@@ -112,10 +135,18 @@
 				required
 				disabled={submitting}
 			/>
+			{#if turnstileSiteKey}
+				<div
+					class="cf-turnstile"
+					data-sitekey={turnstileSiteKey}
+					data-callback="onTurnstileSuccess"
+					data-expired-callback="onTurnstileExpired"
+				></div>
+			{/if}
 			{#if error}
 				<Text variant="error" role="alert">{error}</Text>
 			{/if}
-			<Button type="submit" disabled={submitting}>
+			<Button type="submit" disabled={submitting || !captchaReady}>
 				{submitting ? $_('auth.register.submitting') : $_('auth.register.submit')}
 			</Button>
 		</form>

@@ -48,10 +48,15 @@ interface RecoverySetupPayload {
 }
 
 export const authApi = {
-	register: (username: string, password: string, recovery: RecoverySetupPayload) =>
+	register: (
+		username: string,
+		password: string,
+		recovery: RecoverySetupPayload,
+		turnstileToken?: string
+	) =>
 		request<AuthResponse>('/auth/register', {
 			method: 'POST',
-			body: JSON.stringify({ username, password, ...recovery })
+			body: JSON.stringify({ username, password, ...recovery, turnstileToken })
 		}),
 	recoverySetup: (payload: RecoverySetupPayload) =>
 		request<{ message: string }>('/auth/recovery-setup', {

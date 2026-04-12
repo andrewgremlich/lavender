@@ -95,19 +95,24 @@ export const auth = {
 	 * wraps the key with it, and stores everything server-side.
 	 * Returns the recovery code — the caller MUST show it to the user.
 	 */
-	async register(username: string, password: string): Promise<string> {
+	async register(username: string, password: string, turnstileToken?: string): Promise<string> {
 		const encryptionKey = await deriveKeyFromPassword(password, username);
 		const recoveryCode = generateRecoveryCode();
 		const { wrapped, iv } = await wrapEncryptionKey(encryptionKey, recoveryCode);
 		const recoverySalt = generateClientSalt();
 		const recoveryCodeHash = await hashWithSalt(recoveryCode, recoverySalt);
 
-		const result = await authApi.register(username, password, {
-			wrappedEncryptionKey: wrapped,
-			wrappedEncryptionKeyIv: iv,
-			recoveryCodeHash,
-			recoveryCodeSalt: recoverySalt
-		});
+		const result = await authApi.register(
+			username,
+			password,
+			{
+				wrappedEncryptionKey: wrapped,
+				wrappedEncryptionKeyIv: iv,
+				recoveryCodeHash,
+				recoveryCodeSalt: recoverySalt
+			},
+			turnstileToken
+		);
 		setToken(result.token);
 		storeKey(encryptionKey);
 		state.username = result.username;
