@@ -1,7 +1,7 @@
 // Fetch wrapper that auto-attaches the session JWT.
 // Ported from legacy/src/client/services/api.ts.
 
-import type { AuthResponse, EncryptedEntry, UserSettings } from '$lib/types';
+import type { AuthResponse, EncryptedEntry, Role, UserSettings } from '$lib/types';
 
 const API_BASE = '/api';
 const TOKEN_KEY = 'lavender_token';
@@ -143,4 +143,21 @@ export const settingsApi = {
 	clearCache: () => {
 		settingsCache = null;
 	}
+};
+
+export interface AdminUser {
+	id: string;
+	username: string;
+	role: Role;
+	created_at: string;
+}
+
+export const adminApi = {
+	getUsers: () => request<AdminUser[]>('/admin/users'),
+	deleteUser: (id: string) => request<{ message: string }>(`/admin/users/${id}`, { method: 'DELETE' }),
+	setUserRole: (id: string, role: Role) =>
+		request<{ message: string; role: Role }>(`/admin/users/${id}`, {
+			method: 'PATCH',
+			body: JSON.stringify({ role })
+		})
 };

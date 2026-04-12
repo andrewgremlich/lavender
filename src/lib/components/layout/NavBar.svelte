@@ -2,6 +2,7 @@
 	import { page } from '$app/stores';
 	import { sync } from '$lib/client/sync.svelte';
 	import { entriesStore } from '$lib/client/entries.svelte';
+	import { auth } from '$lib/client/auth.svelte';
 	import { _ } from 'svelte-i18n';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
@@ -19,7 +20,8 @@
 		...(hasEnoughForAnalytics
 			? [{ href: '/app/analytics', icon: 'trending-up', label: $_('nav.analytics'), desktop: true }]
 			: []),
-		{ href: '/app/settings', icon: 'settings', label: $_('nav.settings'), desktop: true }
+		{ href: '/app/settings', icon: 'settings', label: $_('nav.settings'), desktop: true },
+		...(auth.role === 'admin' ? [{ href: '/app/admin', icon: 'shield', label: 'Admin', desktop: true }] : [])
 	]);
 
 	const syncTitle = $derived(
