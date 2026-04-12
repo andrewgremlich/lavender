@@ -5,10 +5,11 @@
 
 	type Props = {
 		fertility: FertilityIndicators;
+		intimacyDays?: Map<string, 'unprotected' | 'protected'>;
 		view?: 'week' | 'month';
 	};
 
-	let { fertility, view = 'month' }: Props = $props();
+	let { fertility, intimacyDays = new Map(), view = 'month' }: Props = $props();
 
 	let current = $state(new Date());
 
@@ -118,6 +119,7 @@
 				{@const isOvulation =
 					fertility.ovulationDays.has(cell.dateStr) ||
 					fertility.predictedOvulationDays.has(cell.dateStr)}
+				{@const intimacyType = intimacyDays.get(cell.dateStr)}
 				<div class="day-cell {classes.join(' ')}" title={tooltip}>
 					{#if isOvulation}
 						<span class="ovulation-egg" aria-label="Ovulation">
@@ -126,6 +128,14 @@
 						</span>
 					{:else}
 						<span class="day-number">{cell.day}</span>
+					{/if}
+					{#if intimacyType}
+						<span class="intimacy-badge" aria-label="Intimacy ({intimacyType})">
+							<Icon name="heart" size={12} strokeWidth={2} />
+							{#if intimacyType === 'protected'}
+								<Icon name="shield" size={10} strokeWidth={2} />
+							{/if}
+						</span>
 					{/if}
 				</div>
 			{/if}
@@ -137,6 +147,7 @@
 		<div class="legend-item"><span class="swatch fertile"></span> Fertile</div>
 		<div class="legend-item"><span class="swatch ovulation"></span> Ovulation</div>
 		<div class="legend-item"><span class="swatch predicted"></span> Predicted</div>
+		<div class="legend-item"><span class="swatch intimacy"><Icon name="heart" size={10} strokeWidth={2} /></span> Intimacy</div>
 	</div>
 
 	{#if fertility.averageCycleLength}
@@ -189,6 +200,7 @@
 	}
 
 	.day-cell {
+		position: relative;
 		aspect-ratio: 1;
 		display: flex;
 		flex-direction: column;
@@ -264,6 +276,17 @@
 		line-height: 1;
 	}
 
+	.intimacy-badge {
+		position: absolute;
+		bottom: 2px;
+		right: 2px;
+		display: flex;
+		align-items: center;
+		gap: 1px;
+		color: #e11d48;
+		line-height: 1;
+	}
+
 	.legend {
 		display: flex;
 		flex-wrap: wrap;
@@ -294,6 +317,12 @@
 	}
 	.swatch.ovulation {
 		background: var(--cal-ovulation-bg, #ede9fe);
+	}
+	.swatch.intimacy {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		color: #e11d48;
 	}
 	.swatch.predicted {
 		background: repeating-linear-gradient(
