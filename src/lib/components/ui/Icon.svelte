@@ -17,6 +17,7 @@
 	import Save from '@lucide/svelte/icons/save';
 	import Settings from '@lucide/svelte/icons/settings';
 	import Shield from '@lucide/svelte/icons/shield';
+	import ShieldOff from '@lucide/svelte/icons/shield-off';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import TrendingUp from '@lucide/svelte/icons/trending-up';
 	import type { Component } from 'svelte';
@@ -40,6 +41,7 @@
 		save: Save,
 		settings: Settings,
 		shield: Shield,
+		'shield-off': ShieldOff,
 		'trash-2': Trash2,
 		'trending-up': TrendingUp
 	};

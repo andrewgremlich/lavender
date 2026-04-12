@@ -46,7 +46,7 @@
 	] as const);
 
 	const INTIMACY_OPTIONS = $derived([
-		{ value: 'unprotected', icon: 'heart', label: $_('entry.intimacy.unprotected') },
+		{ value: 'unprotected', icon: 'shield-off', label: $_('entry.intimacy.unprotected') },
 		{ value: 'protected', icon: 'shield', label: $_('entry.intimacy.protected') }
 	] as const);
 

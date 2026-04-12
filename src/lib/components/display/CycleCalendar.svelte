@@ -132,9 +132,7 @@
 					{#if intimacyType}
 						<span class="intimacy-badge" aria-label="Intimacy ({intimacyType})">
 							<Icon name="heart" size={12} strokeWidth={2} />
-							{#if intimacyType === 'protected'}
-								<Icon name="shield" size={10} strokeWidth={2} />
-							{/if}
+							<Icon name={intimacyType === 'protected' ? 'shield' : 'shield-off'} size={10} strokeWidth={2} />
 						</span>
 					{/if}
 				</div>
