@@ -6,10 +6,13 @@
 	import '../app.css';
 	import '../reset.css';
 	import { setupI18n } from '$lib/i18n';
+	import { waitLocale } from 'svelte-i18n';
 
 	setupI18n();
 
 	let { children } = $props();
 </script>
 
-{@render children()}
+{#await waitLocale() then}
+	{@render children()}
+{/await}

@@ -24,6 +24,7 @@ const config = {
 				'img-src': ['self', 'data:', 'blob:'],
 				'connect-src': ['self', 'https://challenges.cloudflare.com'],
 				'frame-src': ['https://challenges.cloudflare.com'],
+				'font-src': ['self'],
 				'worker-src': ['self'],
 				'base-uri': ['self'],
 				'form-action': ['self'],
