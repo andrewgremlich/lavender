@@ -364,36 +364,100 @@
 		"ogImageAlt": "Lavender — {count} lugares gratuitos restantes para sincronización entre dispositivos",
 		"twitterTitle": "Lavender — Rastreador de fertilidad privado",
 		"twitterDescription": "Seguimiento del ciclo E2EE. Tus datos de salud son tuyos.",
-		"tagline": "Un compañero gentil para tu viaje de bienestar personal. Registra, reflexiona y florece a tu propio ritmo.",
+		"appClaim": "Registra tu ciclo con calma. Tus datos son tuyos.",
+		"tagline": "Lavender cifra todo en tu dispositivo antes de que llegue a ningún servidor. No podemos leer tus datos — ni nadie más.",
+		"taglineSubhead": "Ciclo, señales de fertilidad, síntomas — todo registrado de forma privada. Sin anuncios, sin intermediarios de datos, sin ruido.",
 		"aboutLink": "Acerca de Lavender",
 		"signIn": "Iniciar sesión",
 		"tryItOut": "Pruébalo",
 		"starting": "Iniciando…",
 		"demoError": "No se pudo iniciar la demo",
+		"trust": {
+			"encryption": "Cifrado AES-256-GCM",
+			"noAnalytics": "Sin análisis de terceros",
+			"openMethodology": "Metodología abierta",
+			"offline": "Funciona sin conexión",
+			"autoDelete": "Eliminación automática configurable"
+		},
+		"useCases": {
+			"title": "¿Para quién es Lavender?",
+			"ttc": {
+				"title": "Intentando concebir",
+				"body": "Registra la temperatura basal y los picos de LH juntos. Lavender confirma la ovulación de forma retrospectiva usando la regla 3 sobre 6 — el mismo método que usan los educadores en conciencia de fertilidad."
+			},
+			"fam": {
+				"title": "Planificación familiar natural",
+				"body": "Usa el método sintotérmico con confianza. Sin suscripción, sin algoritmo opaco. Tu ventana fértil se calcula a partir de tus propios datos, no de un promedio poblacional."
+			},
+			"awareness": {
+				"title": "Conciencia hormonal",
+				"body": "Sigue tu ciclo junto con el estado de ánimo, el apetito, la energía y los síntomas físicos. Entiende tus patrones sin que tus datos sean monetizados."
+			}
+		},
+		"tracking": {
+			"title": "Qué puedes registrar",
+			"lead": "Un solo lugar para los datos que realmente importan.",
+			"group": {
+				"cycle": "Ciclo",
+				"fertility": "Señales de fertilidad",
+				"symptoms": "Síntomas",
+				"intimacy": "Intimidad"
+			},
+			"methodologyLink": "Cómo calculamos tu ventana fértil →"
+		},
+		"howItWorks": {
+			"title": "Cómo funciona",
+			"step1Title": "Crea tu cuenta",
+			"step1Body": "Tu contraseña se convierte en tu clave de cifrado. Permanece en tu dispositivo — nunca la recibimos ni la almacenamos.",
+			"step2Title": "Registra tus observaciones diariamente",
+			"step2Body": "Temperatura basal, moco cervical, pruebas de LH, sangrado, síntomas — lo que rastrees. Todo se cifra antes de salir de tu dispositivo.",
+			"step3Title": "Ve tus patrones",
+			"step3Body": "Ventanas fértiles previstas, tendencias de duración del ciclo, confirmación de ovulación — todo calculado en tu dispositivo tras el descifrado."
+		},
 		"privacy": {
-			"title": "Por qué importa la privacidad aquí",
-			"lead": "Los datos de fertilidad y ciclo son de los más sensibles que puedes compartir. La mayoría de las aplicaciones los monetizan. Lavender no — porque no puede.",
+			"title": "Una privacidad en la que puedes confiar",
+			"lead": "Los datos de ciclo y fertilidad son personales. Lavender está diseñado para que ni siquiera nosotros podamos acceder a ellos — por diseño, no por política.",
 			"card1Title": "Tu clave, tus datos",
-			"card1Body": "El cifrado ocurre en tu dispositivo antes de enviar nada. Usamos AES-256-GCM con una clave derivada de tu contraseña mediante PBKDF2 (100.000 iteraciones, SHA-256). La clave nunca llega a nuestros servidores — ni siquiera nosotros podemos leer tus entradas.",
+			"card1Body": "El cifrado ocurre en tu dispositivo antes de enviar nada. Usamos AES-256-GCM con una clave derivada de tu contraseña mediante PBKDF2 (100.000 iteraciones, SHA-256). La clave nunca sale de tu dispositivo.",
 			"card2Title": "Sin rastreadores. Sin anuncios.",
-			"card2Body": "Lavender no tiene análisis de terceros, ni SDK de publicidad, ni telemetría que salga de tu dispositivo. La mayoría de las aplicaciones de fertilidad se benefician vendiendo datos del ciclo. Nosotros no.",
-			"card3Title": "¿Olvidaste tu contraseña? Ese es el punto.",
-			"card3Body": "No hay flujo de «contraseña olvidada» que pueda exponer tus registros — no los tenemos. Un código de recuperación te permite recuperar el acceso sin descifrado del lado del servidor. Si pierdes ambos, tus datos desaparecen. Es intencional.",
+			"card2Body": "Lavender no tiene análisis de terceros, ni SDK de publicidad, ni telemetría. Tus datos nunca se usan para venderte nada — aquí ni en ningún otro lugar.",
+			"card3Title": "Recuperación de contraseña que te protege",
+			"card3Body": "No hay restablecimiento de contraseña en el servidor que pueda exponer tus registros — no los tenemos. Un código de recuperación te permite recuperar el acceso en cualquier momento. Guárdalo en un lugar seguro junto con tu contraseña.",
 			"compareRow1": "Cifrado en el dispositivo",
-			"compareRow2": "El servidor ve datos de salud",
+			"compareRow2": "El servidor puede leer los datos",
 			"compareRow3": "Análisis de terceros",
-			"compareRow4": "El restablecimiento de contraseña expone registros",
+			"compareRow4": "Restablecimiento de contraseña en el servidor",
 			"compareNever": "Nunca",
 			"compareNone": "Ninguno",
 			"compareImpossible": "Imposible",
-			"compareYes": "Sí"
+			"compareYes": "Sí",
+			"compareRow5": "Eliminación automática configurable",
+			"compareRow5Lavender": "6–12 meses"
 		},
 		"freeTier": {
 			"spotsRemaining": "lugares gratuitos de sincronización entre dispositivos restantes",
 			"tierFull": "el nivel gratuito está lleno",
-			"descWithSpots": "Los primeros 25 usuarios obtienen sincronización entre dispositivos gratis, para siempre. Después será de pago.",
+			"descWithSpots": "Los primeros 25 usuarios obtienen sincronización entre dispositivos gratis, para siempre. Los planes de pago se introducirán después del lanzamiento.",
 			"descFull": "El nivel gratuito está lleno. La sincronización entre dispositivos estará disponible como función de pago.",
 			"claimSpot": "Reclama tu lugar"
+		},
+		"pricing": {
+			"title": "Precios",
+			"comingSoon": "Detalles de precios próximamente.",
+			"freeTierNote": "La sincronización entre dispositivos es gratuita para los primeros 25 usuarios, para siempre. Los planes de pago se anunciarán antes del lanzamiento."
+		},
+		"faq": {
+			"title": "Preguntas frecuentes",
+			"q1": "¿Qué pasa si olvido mi contraseña?",
+			"a1": "Tu contraseña es tu clave de cifrado — nunca la almacenamos. Si la olvidas, tu código de recuperación te permite establecer una nueva contraseña y recuperar el acceso. Guarda ambos en un lugar seguro; si los pierdes, tus datos no pueden recuperarse. Esa es la naturaleza del cifrado de extremo a extremo.",
+			"q2": "¿Puede Lavender leer mis datos de salud?",
+			"a2": "No. Todos los datos se cifran en tu dispositivo antes de enviarse. Nuestros servidores solo almacenan blobs cifrados opacos. No tenemos capacidad técnica para leer tus entradas.",
+			"q3": "¿Funciona Lavender sin conexión?",
+			"a3": "Sí. La aplicación funciona sin conexión y sincroniza los cambios al reconectarse. Los datos se almacenan localmente en tu navegador y se cifran antes de cualquier sincronización.",
+			"q4": "¿Se comparten mis datos con terceros?",
+			"a4": "Nunca. Lavender no tiene análisis de terceros, ni SDK de publicidad, ni telemetría. No vendemos, compartimos ni monetizamos tus datos de ninguna forma.",
+			"q5": "¿Cuánto tiempo se conservan mis datos?",
+			"a5": "Tú lo controlas. El período de retención predeterminado es de 180 días, pero puedes configurarlo a 6, 9 o 12 meses en la configuración. Las entradas más antiguas que tu límite se eliminan automáticamente."
 		},
 		"footer": {
 			"methodology": "Metodología detallada y cálculos →",

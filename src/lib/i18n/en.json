@@ -364,36 +364,100 @@
 		"ogImageAlt": "Lavender — {count} free spots remaining for cross-device sync",
 		"twitterTitle": "Lavender — Private Fertility Tracker",
 		"twitterDescription": "E2EE cycle tracking. Your health data stays yours.",
-		"tagline": "A gentle companion for your personal wellness journey. Track, reflect, and bloom at your own rhythm.",
+		"appClaim": "Track your cycles calmly. Your data stays yours.",
+		"tagline": "Lavender encrypts everything on your device before it reaches a server. We can't read your data — and neither can anyone else.",
+		"taglineSubhead": "Periods, fertility signals, symptoms — all tracked privately. No ads, no data brokers, no noise.",
 		"aboutLink": "About Lavender",
 		"signIn": "Sign in",
 		"tryItOut": "Try it out",
 		"starting": "Starting…",
 		"demoError": "Could not start demo",
+		"trust": {
+			"encryption": "AES-256-GCM encrypted",
+			"noAnalytics": "No third-party analytics",
+			"openMethodology": "Open methodology",
+			"offline": "Offline capable",
+			"autoDelete": "Configurable auto-deletion"
+		},
+		"useCases": {
+			"title": "Who is Lavender for?",
+			"ttc": {
+				"title": "Trying to Conceive",
+				"body": "Track BBT and LH surges together. Lavender confirms ovulation retrospectively using the 3-over-6 rule — the same method used by fertility awareness educators."
+			},
+			"fam": {
+				"title": "Natural Family Planning",
+				"body": "Use the Sympto-thermal method with confidence. No subscription required, no algorithm you can't audit. Your fertile window is calculated from your own data, not a population average."
+			},
+			"awareness": {
+				"title": "Hormonal Awareness",
+				"body": "Track your cycle alongside mood, appetite, energy, and physical symptoms. Understand your patterns without your data being monetized."
+			}
+		},
+		"tracking": {
+			"title": "What you can track",
+			"lead": "One place for the data that actually matters to you.",
+			"group": {
+				"cycle": "Cycle",
+				"fertility": "Fertility Signals",
+				"symptoms": "Symptoms",
+				"intimacy": "Intimacy"
+			},
+			"methodologyLink": "How we calculate your fertile window →"
+		},
+		"howItWorks": {
+			"title": "How it works",
+			"step1Title": "Create your account",
+			"step1Body": "Your password becomes your encryption key. It stays on your device — we never receive or store it.",
+			"step2Title": "Log your observations daily",
+			"step2Body": "BBT, cervical mucus, LH tests, bleeding, symptoms — whatever you track. Everything is encrypted before it leaves your device.",
+			"step3Title": "See your patterns",
+			"step3Body": "Predicted fertile windows, cycle length trends, ovulation confirmation — all calculated on your device after decryption."
+		},
 		"privacy": {
-			"title": "Why privacy matters here",
-			"lead": "Fertility and cycle data is among the most sensitive personal information you can share. Most apps monetize it. Lavender doesn't — because we can't.",
+			"title": "Privacy you can actually rely on",
+			"lead": "Cycle and fertility data is personal. Lavender is built so that even we can't access it — by design, not policy.",
 			"card1Title": "Your key, your data",
-			"card1Body": "Encryption happens on your device before anything is sent. We use AES-256-GCM with a key derived from your password via PBKDF2 (100,000 iterations, SHA-256). The key never reaches our servers — not even we can read your entries.",
+			"card1Body": "Encryption happens on your device before anything is sent. We use AES-256-GCM with a key derived from your password via PBKDF2 (100,000 iterations, SHA-256). The key never leaves your device.",
 			"card2Title": "No trackers. No ads.",
-			"card2Body": "Lavender has no third-party analytics, no advertising SDK, and no telemetry that leaves your device. Most fertility apps profit from selling cycle data. We don't.",
-			"card3Title": "Forget your password? That's the point.",
-			"card3Body": "There's no \"forgot password\" flow that could expose your records — we don't have them. A recovery code lets you regain access without any server-side decryption. Lose both and your data is gone. That's intentional.",
+			"card2Body": "Lavender has no third-party analytics, no advertising SDK, and no telemetry. Your data is never used to sell you anything — here or anywhere else.",
+			"card3Title": "Password recovery that protects you",
+			"card3Body": "There's no server-side password reset that could expose your records — we don't hold them. A recovery code lets you regain access at any time. Keep it somewhere safe alongside your password.",
 			"compareRow1": "Encrypted on device",
-			"compareRow2": "Server sees health data",
+			"compareRow2": "Server can read health data",
 			"compareRow3": "Third-party analytics",
-			"compareRow4": "Password reset exposes records",
+			"compareRow4": "Server-side password reset",
 			"compareNever": "Never",
 			"compareNone": "None",
 			"compareImpossible": "Impossible",
-			"compareYes": "Yes"
+			"compareYes": "Yes",
+			"compareRow5": "Configurable auto-deletion",
+			"compareRow5Lavender": "6–12 months"
 		},
 		"freeTier": {
 			"spotsRemaining": "free cross-device sync spots remaining",
 			"tierFull": "free tier is full",
-			"descWithSpots": "The first 25 users get cross-device sync free, forever. After that it will be paywalled.",
+			"descWithSpots": "The first 25 users get cross-device sync free, forever. Paid plans will be introduced after launch.",
 			"descFull": "The free tier is full. Cross-device sync will be available as a paid feature.",
 			"claimSpot": "Claim your spot"
+		},
+		"pricing": {
+			"title": "Pricing",
+			"comingSoon": "Pricing details coming soon.",
+			"freeTierNote": "Cross-device sync is free for the first 25 users, forever. Paid plans will be announced before launch."
+		},
+		"faq": {
+			"title": "Frequently Asked Questions",
+			"q1": "What happens if I forget my password?",
+			"a1": "Your password is your encryption key — we never store it. If you forget it, your recovery code lets you set a new password and restore access. Keep both somewhere safe; if you lose both, your data can't be recovered. That's the nature of true end-to-end encryption.",
+			"q2": "Can Lavender read my health data?",
+			"a2": "No. All data is encrypted on your device using a key derived from your password before it is sent anywhere. Our servers store only opaque encrypted blobs. We have no technical ability to read your entries.",
+			"q3": "Does Lavender work offline?",
+			"a3": "Yes. The app works offline and syncs changes when you reconnect. Data is stored locally in your browser and encrypted before any sync occurs.",
+			"q4": "Is my data ever shared with third parties?",
+			"a4": "Never. Lavender has no third-party analytics, no advertising SDK, and no telemetry. We do not sell, share, or monetize your data in any form.",
+			"q5": "How long is my data kept?",
+			"a5": "You control this. The default retention period is 180 days, but you can configure it to 6, 9, or 12 months in settings. Entries older than your chosen limit are automatically deleted."
 		},
 		"footer": {
 			"methodology": "Detailed methodology & calculations →",

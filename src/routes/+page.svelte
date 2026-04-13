@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { auth } from '$lib/client/auth.svelte';
 	import Logo from '$lib/components/layout/Logo.svelte';
+	import Icon from '$lib/components/ui/Icon.svelte';
 	import Text from '$lib/components/ui/Text.svelte';
 	import { _ } from 'svelte-i18n';
 
@@ -92,9 +93,9 @@
 <main>
 	<Logo size="xl" class="hero-logo" />
 	<Text as="h1">Lavender</Text>
-	<Text variant="muted">
-		{$_('home.tagline')} <a href="/info">{$_('home.aboutLink')}</a>
-	</Text>
+	<p class="app-claim">{$_('home.appClaim')}</p>
+	<Text variant="muted">{$_('home.tagline')}</Text>
+	<p class="tagline-subhead">{$_('home.taglineSubhead')}</p>
 	<div class="cta-group">
 		<a href="/auth/login" class="cta">{$_('home.signIn')}</a>
 		<button class="cta-secondary" onclick={handleDemoLogin} disabled={tryingDemo}>
@@ -104,9 +105,133 @@
 	{#if demoError}
 		<Text variant="error">{demoError}</Text>
 	{/if}
+	<div class="trust-bar">
+		<span class="trust-item"><Icon name="shield" size={14} />{$_('home.trust.encryption')}</span>
+		<span class="trust-item"><Icon name="shield-off" size={14} />{$_('home.trust.noAnalytics')}</span>
+		<span class="trust-item"><a href="/info"><Icon name="info" size={14} />{$_('home.trust.openMethodology')}</a></span>
+		<span class="trust-item"><Icon name="trending-up" size={14} />{$_('home.trust.offline')}</span>
+		<span class="trust-item"><Icon name="trash-2" size={14} />{$_('home.trust.autoDelete')}</span>
+	</div>
 </main>
 
 <div class="marketing">
+	<!-- Who Is This For -->
+	<section id="use-cases" class="marketing-section">
+		<h2 class="section-title">{$_('home.useCases.title')}</h2>
+		<div class="cards">
+			<div class="card">
+				<div class="card-icon" aria-hidden="true">🌱</div>
+				<h3>{$_('home.useCases.ttc.title')}</h3>
+				<p>{$_('home.useCases.ttc.body')}</p>
+			</div>
+			<div class="card">
+				<div class="card-icon" aria-hidden="true">📐</div>
+				<h3>{$_('home.useCases.fam.title')}</h3>
+				<p>{$_('home.useCases.fam.body')}</p>
+			</div>
+			<div class="card">
+				<div class="card-icon" aria-hidden="true">📈</div>
+				<h3>{$_('home.useCases.awareness.title')}</h3>
+				<p>{$_('home.useCases.awareness.body')}</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- What You Track -->
+	<section id="what-you-track" class="marketing-section alt">
+		<h2 class="section-title">{$_('home.tracking.title')}</h2>
+		<p class="section-lead">{$_('home.tracking.lead')}</p>
+		<div class="tracking-groups">
+			<div class="tracking-group">
+				<h3 class="tracking-group-title">{$_('home.tracking.group.cycle')}</h3>
+				<div class="tracking-pills">
+					<span class="pill">{$_('entry.periodBleeding')}</span>
+					<span class="pill">{$_('entry.bleeding.started')}</span>
+					<span class="pill">{$_('entry.bleeding.ended')}</span>
+					<span class="pill">{$_('entry.flowIntensity')}</span>
+				</div>
+			</div>
+			<div class="tracking-group">
+				<h3 class="tracking-group-title">{$_('home.tracking.group.fertility')}</h3>
+				<div class="tracking-pills">
+					<span class="pill">{$_('entryCard.labels.basalBodyTemp')}</span>
+					<span class="pill">{$_('entry.mucus.dry')}</span>
+					<span class="pill">{$_('entry.mucus.sticky')}</span>
+					<span class="pill">{$_('entry.mucus.creamy')}</span>
+					<span class="pill">{$_('entry.mucus.watery')}</span>
+					<span class="pill">{$_('entry.mucus.eggWhite')}</span>
+					<span class="pill">{$_('entry.lhSurge')}</span>
+				</div>
+			</div>
+			<div class="tracking-group">
+				<h3 class="tracking-group-title">{$_('home.tracking.group.symptoms')}</h3>
+				<div class="tracking-pills">
+					<span class="pill">{$_('indicators.moodChange')}</span>
+					<span class="pill">{$_('indicators.appetiteChange')}</span>
+					<span class="pill">{$_('indicators.breastTenderness')}</span>
+					<span class="pill">{$_('indicators.cramping')}</span>
+					<span class="pill">{$_('indicators.mildSpotting')}</span>
+					<span class="pill">{$_('indicators.fluidRetention')}</span>
+					<span class="pill">{$_('indicators.cervixChanges')}</span>
+					<span class="pill">{$_('indicators.heightenedSmell')}</span>
+					<span class="pill">{$_('indicators.increasedSexDrive')}</span>
+				</div>
+			</div>
+			<div class="tracking-group">
+				<h3 class="tracking-group-title">{$_('home.tracking.group.intimacy')}</h3>
+				<div class="tracking-pills">
+					<span class="pill">{$_('entry.intimacy.unprotected')}</span>
+					<span class="pill">{$_('entry.intimacy.protected')}</span>
+				</div>
+			</div>
+		</div>
+		<p class="methodology-link"><a href="/info">{$_('home.tracking.methodologyLink')}</a></p>
+	</section>
+
+	<!-- How It Works -->
+	<section id="how-it-works" class="marketing-section">
+		<h2 class="section-title">{$_('home.howItWorks.title')}</h2>
+		<div class="cards">
+			<div class="card">
+				<div class="card-step" aria-hidden="true">1</div>
+				<h3>{$_('home.howItWorks.step1Title')}</h3>
+				<p>{$_('home.howItWorks.step1Body')}</p>
+			</div>
+			<div class="card">
+				<div class="card-step" aria-hidden="true">2</div>
+				<h3>{$_('home.howItWorks.step2Title')}</h3>
+				<p>{$_('home.howItWorks.step2Body')}</p>
+			</div>
+			<div class="card">
+				<div class="card-step" aria-hidden="true">3</div>
+				<h3>{$_('home.howItWorks.step3Title')}</h3>
+				<p>{$_('home.howItWorks.step3Body')}</p>
+			</div>
+		</div>
+	</section>
+
+	<!-- Free Tier Callout (moved up) -->
+	<section id="free-tier" class="marketing-section">
+		<div class="free-tier-card">
+			<div class="free-tier-count">{data.spotsRemaining}</div>
+			<div class="free-tier-label">
+				{#if data.spotsRemaining > 0}
+					{$_('home.freeTier.spotsRemaining')}
+				{:else}
+					{$_('home.freeTier.tierFull')}
+				{/if}
+			</div>
+			<p class="free-tier-desc">
+				{#if data.spotsRemaining > 0}
+					{$_('home.freeTier.descWithSpots')}
+				{:else}
+					{$_('home.freeTier.descFull')}
+				{/if}
+			</p>
+			<a href="/auth/register" class="cta">{$_('home.freeTier.claimSpot')}</a>
+		</div>
+	</section>
+
 	<!-- Why Privacy Matters -->
 	<section id="why-privacy" class="marketing-section">
 		<h2 class="section-title">{$_('home.privacy.title')}</h2>
@@ -169,30 +294,35 @@
 						<td class="no">{$_('home.privacy.compareYes')}</td>
 						<td class="no">{$_('home.privacy.compareYes')}</td>
 					</tr>
+					<tr>
+						<td>{$_('home.privacy.compareRow5')}</td>
+						<td class="yes">{$_('home.privacy.compareRow5Lavender')}</td>
+						<td class="no">{$_('common.no')}</td>
+						<td class="no">{$_('common.no')}</td>
+						<td class="no">{$_('common.no')}</td>
+					</tr>
 				</tbody>
 			</table>
 		</div>
 	</section>
 
-	<!-- Free Tier Callout -->
-	<section id="free-tier" class="marketing-section">
-		<div class="free-tier-card">
-			<div class="free-tier-count">{data.spotsRemaining}</div>
-			<div class="free-tier-label">
-				{#if data.spotsRemaining > 0}
-					{$_('home.freeTier.spotsRemaining')}
-				{:else}
-					{$_('home.freeTier.tierFull')}
-				{/if}
-			</div>
-			<p class="free-tier-desc">
-				{#if data.spotsRemaining > 0}
-					{$_('home.freeTier.descWithSpots')}
-				{:else}
-					{$_('home.freeTier.descFull')}
-				{/if}
-			</p>
-			<a href="/auth/register" class="cta">{$_('home.freeTier.claimSpot')}</a>
+	<!-- Pricing -->
+	<section id="pricing" class="marketing-section alt">
+		<h2 class="section-title">{$_('home.pricing.title')}</h2>
+		<p class="pricing-coming-soon">{$_('home.pricing.comingSoon')}</p>
+		<p class="section-lead">{$_('home.pricing.freeTierNote')}</p>
+	</section>
+
+	<!-- FAQ -->
+	<section id="faq" class="marketing-section">
+		<h2 class="section-title">{$_('home.faq.title')}</h2>
+		<div class="faq-list">
+			{#each [1, 2, 3, 4, 5] as n}
+				<details class="faq-item">
+					<summary class="faq-question">{$_(`home.faq.q${n}`)}</summary>
+					<p class="faq-answer">{$_(`home.faq.a${n}`)}</p>
+				</details>
+			{/each}
 		</div>
 	</section>
 
@@ -417,5 +547,176 @@
 	}
 	.landing-footer a:hover {
 		text-decoration: underline;
+	}
+
+	/* App claim */
+	.app-claim {
+		font-size: var(--text-2xl, 1.75rem);
+		font-weight: 700;
+		color: var(--color-primary);
+		margin: var(--space-sm) 0 var(--space-md);
+		line-height: 1.2;
+	}
+
+	/* Hero additions */
+	.tagline-subhead {
+		font-size: var(--text-sm);
+		color: var(--color-text-muted);
+		margin-top: var(--space-sm);
+		line-height: 1.5;
+	}
+
+	/* Trust bar */
+	.trust-bar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		justify-content: center;
+		gap: var(--space-md);
+		margin-top: var(--space-xl);
+		padding-top: var(--space-lg);
+		border-top: 1px solid var(--color-border);
+	}
+	.trust-item {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+		font-size: var(--text-xs, 0.75rem);
+		color: var(--color-text-muted);
+		white-space: nowrap;
+	}
+	.trust-item a {
+		display: inline-flex;
+		align-items: center;
+		gap: 0.3rem;
+		color: var(--color-text-muted);
+		text-decoration: none;
+	}
+	.trust-item a:hover {
+		color: var(--color-primary);
+	}
+
+	/* Card step number */
+	.card-step {
+		width: 2rem;
+		height: 2rem;
+		border-radius: 50%;
+		background: var(--color-primary);
+		color: var(--color-text-inverse);
+		font-size: var(--text-sm);
+		font-weight: 700;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		margin-bottom: var(--space-sm);
+	}
+
+	/* Tracking groups */
+	.tracking-groups {
+		display: grid;
+		grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+		gap: var(--space-lg);
+		margin-bottom: var(--space-lg);
+	}
+	.tracking-group {
+		background: var(--color-background, #fff);
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		padding: var(--space-md);
+	}
+	.tracking-group-title {
+		font-size: var(--text-sm);
+		font-weight: 600;
+		color: var(--color-text-muted);
+		text-transform: uppercase;
+		letter-spacing: 0.05em;
+		margin-bottom: var(--space-sm);
+	}
+	.tracking-pills {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-xs);
+	}
+	.pill {
+		font-size: var(--text-xs, 0.75rem);
+		background: var(--color-primary-alpha);
+		color: var(--color-primary);
+		border-radius: var(--radius-md);
+		padding: 0.2rem 0.6rem;
+		white-space: nowrap;
+	}
+	.methodology-link {
+		text-align: center;
+		font-size: var(--text-sm);
+		margin-top: var(--space-md);
+	}
+	.methodology-link a {
+		color: var(--color-primary);
+		text-decoration: none;
+	}
+	.methodology-link a:hover {
+		text-decoration: underline;
+	}
+
+	/* Pricing */
+	.pricing-coming-soon {
+		font-size: var(--text-xl, 1.25rem);
+		font-weight: 600;
+		color: var(--color-text);
+		text-align: center;
+		margin-bottom: var(--space-sm);
+	}
+
+	/* FAQ */
+	.faq-list {
+		max-width: 52rem;
+		margin: 0 auto;
+		display: flex;
+		flex-direction: column;
+		gap: var(--space-sm);
+	}
+	.faq-item {
+		border: 1px solid var(--color-border);
+		border-radius: var(--radius-lg);
+		overflow: hidden;
+	}
+	.faq-item[open] {
+		border-color: var(--color-primary);
+	}
+	.faq-question {
+		list-style: none;
+		padding: var(--space-md) var(--space-lg);
+		font-weight: 600;
+		font-size: var(--text-base, 1rem);
+		color: var(--color-text);
+		cursor: pointer;
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-md);
+		background: var(--color-surface);
+	}
+	.faq-question::-webkit-details-marker {
+		display: none;
+	}
+	.faq-question::after {
+		content: '+';
+		font-size: 1.25rem;
+		font-weight: 400;
+		color: var(--color-primary);
+		flex-shrink: 0;
+	}
+	.faq-item[open] .faq-question::after {
+		content: '−';
+	}
+	.faq-question:hover {
+		background: var(--color-primary-alpha);
+	}
+	.faq-answer {
+		padding: var(--space-md) var(--space-lg);
+		font-size: var(--text-sm);
+		color: var(--color-text-muted);
+		line-height: 1.7;
+		border-top: 1px solid var(--color-border);
 	}
 </style>

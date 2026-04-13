@@ -364,36 +364,100 @@
 		"ogImageAlt": "Lavender — {count} places gratuites restantes pour la synchronisation multi-appareils",
 		"twitterTitle": "Lavender — Suivi de fertilité privé",
 		"twitterDescription": "Suivi de cycle E2EE. Vos données de santé restent les vôtres.",
-		"tagline": "Un compagnon doux pour votre voyage de bien-être personnel. Suivez, réfléchissez et épanouissez-vous à votre propre rythme.",
+		"appClaim": "Suivez votre cycle sereinement. Vos données restent les vôtres.",
+		"tagline": "Lavender chiffre tout sur votre appareil avant que quoi que ce soit n'atteigne un serveur. Nous ne pouvons pas lire vos données — et personne d'autre non plus.",
+		"taglineSubhead": "Règles, signaux de fertilité, symptômes — tout suivi en privé. Sans publicités, sans courtiers en données, sans bruit.",
 		"aboutLink": "À propos de Lavender",
 		"signIn": "Se connecter",
 		"tryItOut": "Essayer",
 		"starting": "Démarrage…",
 		"demoError": "Impossible de démarrer la démo",
+		"trust": {
+			"encryption": "Chiffrement AES-256-GCM",
+			"noAnalytics": "Aucune analyse tierce",
+			"openMethodology": "Méthodologie ouverte",
+			"offline": "Utilisable hors ligne",
+			"autoDelete": "Suppression automatique configurable"
+		},
+		"useCases": {
+			"title": "À qui s'adresse Lavender ?",
+			"ttc": {
+				"title": "Essayer de concevoir",
+				"body": "Suivez la température basale et les pics de LH ensemble. Lavender confirme l'ovulation rétrospectivement selon la règle des 3 sur 6 — la même méthode utilisée par les éducateurs en conscience de fertilité."
+			},
+			"fam": {
+				"title": "Planification familiale naturelle",
+				"body": "Utilisez la méthode symptothermique en toute confiance. Pas d'abonnement requis, pas d'algorithme opaque. Votre fenêtre fertile est calculée à partir de vos propres données."
+			},
+			"awareness": {
+				"title": "Conscience hormonale",
+				"body": "Suivez votre cycle avec l'humeur, l'appétit, l'énergie et les symptômes physiques. Comprenez vos schémas sans que vos données soient monétisées."
+			}
+		},
+		"tracking": {
+			"title": "Ce que vous pouvez suivre",
+			"lead": "Un seul endroit pour les données qui comptent vraiment pour vous.",
+			"group": {
+				"cycle": "Cycle",
+				"fertility": "Signaux de fertilité",
+				"symptoms": "Symptômes",
+				"intimacy": "Intimité"
+			},
+			"methodologyLink": "Comment nous calculons votre fenêtre fertile →"
+		},
+		"howItWorks": {
+			"title": "Comment ça fonctionne",
+			"step1Title": "Créez votre compte",
+			"step1Body": "Votre mot de passe devient votre clé de chiffrement. Il reste sur votre appareil — nous ne le recevons ni ne le stockons jamais.",
+			"step2Title": "Enregistrez vos observations quotidiennement",
+			"step2Body": "Température basale, mucus cervical, tests LH, saignements, symptômes — tout ce que vous suivez. Tout est chiffré avant de quitter votre appareil.",
+			"step3Title": "Visualisez vos schémas",
+			"step3Body": "Fenêtres fertiles prévues, tendances de durée de cycle, confirmation d'ovulation — tout calculé sur votre appareil après déchiffrement."
+		},
 		"privacy": {
-			"title": "Pourquoi la confidentialité est importante ici",
-			"lead": "Les données de fertilité et de cycle comptent parmi les informations personnelles les plus sensibles que vous puissiez partager. La plupart des applications les monétisent. Lavender non — parce que nous ne pouvons pas.",
+			"title": "Une confidentialité sur laquelle vous pouvez compter",
+			"lead": "Les données de cycle et de fertilité sont personnelles. Lavender est conçu pour que même nous ne puissions pas y accéder — par conception, pas par politique.",
 			"card1Title": "Votre clé, vos données",
-			"card1Body": "Le chiffrement s'effectue sur votre appareil avant tout envoi. Nous utilisons AES-256-GCM avec une clé dérivée de votre mot de passe via PBKDF2 (100 000 itérations, SHA-256). La clé n'atteint jamais nos serveurs — même nous ne pouvons pas lire vos entrées.",
+			"card1Body": "Le chiffrement s'effectue sur votre appareil avant tout envoi. Nous utilisons AES-256-GCM avec une clé dérivée de votre mot de passe via PBKDF2 (100 000 itérations, SHA-256). La clé ne quitte jamais votre appareil.",
 			"card2Title": "Pas de traceurs. Pas de publicités.",
-			"card2Body": "Lavender n'a pas d'analyses tierces, pas de SDK publicitaire, et aucune télémétrie ne quitte votre appareil. La plupart des applications de fertilité profitent de la vente de données de cycle. Nous non.",
-			"card3Title": "Mot de passe oublié ? C'est le principe.",
-			"card3Body": "Il n'y a pas de flux « mot de passe oublié » qui pourrait exposer vos données — nous ne les avons pas. Un code de récupération vous permet de retrouver l'accès sans déchiffrement côté serveur. Perdez les deux et vos données sont perdues. C'est intentionnel.",
+			"card2Body": "Lavender n'a pas d'analyses tierces, pas de SDK publicitaire, et aucune télémétrie. Vos données ne sont jamais utilisées pour vous vendre quoi que ce soit — ici ou ailleurs.",
+			"card3Title": "Une récupération de mot de passe qui vous protège",
+			"card3Body": "Il n'y a pas de réinitialisation côté serveur qui pourrait exposer vos données — nous ne les détenons pas. Un code de récupération vous permet de retrouver l'accès à tout moment. Conservez-le en lieu sûr avec votre mot de passe.",
 			"compareRow1": "Chiffré sur l'appareil",
-			"compareRow2": "Le serveur voit les données de santé",
+			"compareRow2": "Le serveur peut lire les données",
 			"compareRow3": "Analyses tierces",
-			"compareRow4": "La réinitialisation expose les données",
+			"compareRow4": "Réinitialisation du mot de passe côté serveur",
 			"compareNever": "Jamais",
 			"compareNone": "Aucune",
 			"compareImpossible": "Impossible",
-			"compareYes": "Oui"
+			"compareYes": "Oui",
+			"compareRow5": "Suppression automatique configurable",
+			"compareRow5Lavender": "6–12 mois"
 		},
 		"freeTier": {
 			"spotsRemaining": "places gratuites de synchronisation multi-appareils restantes",
 			"tierFull": "le niveau gratuit est complet",
-			"descWithSpots": "Les 25 premiers utilisateurs bénéficient de la synchronisation multi-appareils gratuitement, pour toujours. Ensuite, ce sera payant.",
+			"descWithSpots": "Les 25 premiers utilisateurs bénéficient de la synchronisation multi-appareils gratuitement, à vie. Des plans payants seront introduits après le lancement.",
 			"descFull": "Le niveau gratuit est complet. La synchronisation multi-appareils sera disponible en tant que fonctionnalité payante.",
 			"claimSpot": "Réservez votre place"
+		},
+		"pricing": {
+			"title": "Tarifs",
+			"comingSoon": "Détails tarifaires à venir.",
+			"freeTierNote": "La synchronisation multi-appareils est gratuite pour les 25 premiers utilisateurs, à vie. Les plans payants seront annoncés avant le lancement."
+		},
+		"faq": {
+			"title": "Questions fréquentes",
+			"q1": "Que se passe-t-il si j'oublie mon mot de passe ?",
+			"a1": "Votre mot de passe est votre clé de chiffrement — nous ne le stockons jamais. Si vous l'oubliez, votre code de récupération vous permet de définir un nouveau mot de passe et de retrouver l'accès. Conservez les deux en lieu sûr ; si vous perdez les deux, vos données ne peuvent pas être récupérées. C'est la nature du chiffrement de bout en bout.",
+			"q2": "Lavender peut-il lire mes données de santé ?",
+			"a2": "Non. Toutes les données sont chiffrées sur votre appareil avant d'être envoyées. Nos serveurs ne stockent que des données chiffrées opaques. Nous n'avons aucune capacité technique à lire vos entrées.",
+			"q3": "Lavender fonctionne-t-il hors ligne ?",
+			"a3": "Oui. L'application fonctionne hors ligne et synchronise les modifications à la reconnexion. Les données sont stockées localement dans votre navigateur et chiffrées avant toute synchronisation.",
+			"q4": "Mes données sont-elles partagées avec des tiers ?",
+			"a4": "Jamais. Lavender n'a pas d'analyses tierces, pas de SDK publicitaire, pas de télémétrie. Nous ne vendons, ne partageons ni ne monétisons vos données sous aucune forme.",
+			"q5": "Combien de temps mes données sont-elles conservées ?",
+			"a5": "Vous contrôlez cela. La durée de conservation par défaut est de 180 jours, mais vous pouvez la configurer à 6, 9 ou 12 mois dans les paramètres. Les entrées plus anciennes que votre limite sont automatiquement supprimées."
 		},
 		"footer": {
 			"methodology": "Méthodologie détaillée et calculs →",
