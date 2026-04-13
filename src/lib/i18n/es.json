@@ -391,7 +391,7 @@
 		"freeTier": {
 			"spotsRemaining": "lugares gratuitos de sincronización entre dispositivos restantes",
 			"tierFull": "el nivel gratuito está lleno",
-			"descWithSpots": "Los primeros 100 usuarios obtienen sincronización entre dispositivos gratis, para siempre. Después será de pago.",
+			"descWithSpots": "Los primeros 25 usuarios obtienen sincronización entre dispositivos gratis, para siempre. Después será de pago.",
 			"descFull": "El nivel gratuito está lleno. La sincronización entre dispositivos estará disponible como función de pago.",
 			"claimSpot": "Reclama tu lugar"
 		},

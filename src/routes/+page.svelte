@@ -46,7 +46,7 @@
 			'@type': 'Offer',
 			price: '0',
 			priceCurrency: 'USD',
-			description: 'Free cross-device sync for the first 100 users',
+			description: 'Free cross-device sync for the first 25 users',
 		},
 		featureList: [
 			'AES-256-GCM end-to-end encryption',

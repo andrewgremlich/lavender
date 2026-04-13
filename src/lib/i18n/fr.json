@@ -391,7 +391,7 @@
 		"freeTier": {
 			"spotsRemaining": "places gratuites de synchronisation multi-appareils restantes",
 			"tierFull": "le niveau gratuit est complet",
-			"descWithSpots": "Les 100 premiers utilisateurs bénéficient de la synchronisation multi-appareils gratuitement, pour toujours. Ensuite, ce sera payant.",
+			"descWithSpots": "Les 25 premiers utilisateurs bénéficient de la synchronisation multi-appareils gratuitement, pour toujours. Ensuite, ce sera payant.",
 			"descFull": "Le niveau gratuit est complet. La synchronisation multi-appareils sera disponible en tant que fonctionnalité payante.",
 			"claimSpot": "Réservez votre place"
 		},
