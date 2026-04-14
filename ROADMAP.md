@@ -117,7 +117,7 @@ Allow visitors to explore the full app without registering. The demo account is 
 - `src/app.html` — global OG fallback meta tags (og:site_name, og:type, twitter:card)
 - **Note on Twitter/X:** SVG og:images don't render on Twitter; upgrade path is satori+resvg-wasm if needed
 
-### 14. Live User Count & Free Tier
+### 14. Live User Count & Free Tier ❌ completed in step 15
 - Use the existing `users` table for user count (`SELECT COUNT(*) FROM users`) — no new table needed
 - Landing page displays a live user count with a "free spots remaining" counter (first 100 users get cross-device sync free; after that it's paywalled)
 - Create `GET /api/subscribers` endpoint returning current user count (public)
@@ -151,22 +151,3 @@ Allow visitors to explore the full app without registering. The demo account is 
 - Add `changelog` as a `community_posts` type — admin-only posting
 - Display a "What's New" feed on the landing page showing recent updates
 - Publish an RSS feed (`/feed.xml`) of changelog entries for SEO and power users
-
-### 18. Referral System
-- Add a `referral_code` column to the `users` table (unique, auto-generated on registration)
-- Add a `referred_by` column to track who invited whom
-- Registration accepts an optional referral code via query param (`/auth/register?ref=CODE`)
-- Incentive: referrer and invitee both get free cross-device sync (even after the 100-user threshold)
-- Admin panel shows referral stats
-
-### 19. Social Proof / Testimonials
-- Add `testimonial` as a `community_posts` type
-- Users can submit testimonials (auth required); admin approves before they appear on the landing page
-- Add an `approved` boolean column to `community_posts` (default `false`, only admin can set `true`)
-- Landing page displays approved testimonials in a rotating or grid layout
-
-### 20. Public Roadmap View
-- Dedicated section on the landing page (or `/roadmap` route) showing feature requests from `community_posts`
-- Display vote counts, status (e.g. `planned`, `in_progress`, `shipped`), and allow logged-in users to vote
-- Add a `status` column to `community_posts` (`TEXT NOT NULL DEFAULT 'open'`, values: `open` | `planned` | `in_progress` | `shipped`)
-- Admin can update status from the admin panel
