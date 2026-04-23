@@ -42,10 +42,12 @@ export const PUT: RequestHandler = async (event) => {
 	const newSalt = generateSalt();
 	const newHash = await hashPassword(newPassword, newSalt);
 
+	const newEpoch = (user.token_epoch ?? 0) + 1;
+
 	const statements = [
 		db
-			.prepare('UPDATE users SET password_hash = ?, salt = ? WHERE id = ?')
-			.bind(newHash, newSalt, userId)
+			.prepare('UPDATE users SET password_hash = ?, salt = ?, token_epoch = ? WHERE id = ?')
+			.bind(newHash, newSalt, newEpoch, userId)
 	];
 
 	if (reEncryptedEntries?.length) {
@@ -66,6 +68,7 @@ export const PUT: RequestHandler = async (event) => {
 		{
 			sub: user.id,
 			username: user.username,
+			epoch: newEpoch,
 			exp: Math.floor(Date.now() / 1000) + 86400
 		},
 		jwtSecret

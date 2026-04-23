@@ -15,14 +15,22 @@ const handleAuth: Handle = async ({ event, resolve }) => {
 	const header = event.request.headers.get('authorization');
 	if (header?.startsWith('Bearer ')) {
 		const secret = event.platform?.env?.JWT_SECRET;
-		if (secret) {
+		const db = event.platform?.env?.lavender_db;
+		if (secret && db) {
 			const payload = await verifyJwt(header.slice(7), secret);
 			if (payload) {
-				event.locals.user = {
-					userId: payload.sub,
-					username: payload.username,
-					role: ((payload.role as string) ?? 'user') as Role
-				};
+				const epoch = typeof payload.epoch === 'number' ? payload.epoch : 0;
+				const row = await db
+					.prepare('SELECT token_epoch FROM users WHERE id = ?')
+					.bind(payload.sub)
+					.first<{ token_epoch: number }>();
+				if (row && row.token_epoch === epoch) {
+					event.locals.user = {
+						userId: payload.sub,
+						username: payload.username,
+						role: ((payload.role as string) ?? 'user') as Role
+					};
+				}
 			}
 		}
 	}

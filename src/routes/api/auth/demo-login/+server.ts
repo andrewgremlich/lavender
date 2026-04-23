@@ -34,6 +34,7 @@ export const POST: RequestHandler = async (event) => {
 			sub: user.id,
 			username: DEMO_USERNAME,
 			role: 'demo',
+			epoch: user.token_epoch ?? 0,
 			exp: Math.floor(Date.now() / 1000) + 86400
 		},
 		jwtSecret

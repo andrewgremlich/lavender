@@ -96,11 +96,9 @@ Severity scale:
 - **Mitigation available:** Return a generic "Invalid username or recovery code" (401) for all failure cases.
 - **File:** `src/routes/api/auth/recovery-start/+server.ts:27-39`
 
-### No token revocation on password change — **High**
-- **Risk:** After a password change or account recovery, a new JWT is issued but old tokens remain valid for up to 24 hours. If a token was stolen before the password change, the attacker retains access.
-- **Rationale:** Classic "change password, stolen token still works for 24h" gap. If a user rotates their password *because* they suspect compromise, the attacker retains access for up to a day.
-- **Mitigation available:** Store a `token_epoch` (integer) on the user row; increment it on password change. Include the epoch in the JWT and reject tokens with a stale epoch. Lightweight alternative to a full revocation list.
-- **Files:** `src/routes/api/auth/password/+server.ts`, `src/routes/api/auth/recover/+server.ts`, `src/lib/server/jwt.ts`
+### ~~No token revocation on password change~~ — **Fixed**
+- **Fix:** `token_epoch` column added to `users` table (migration `0006_add-token-epoch.sql`). Incremented on password change and recovery. `hooks.server.ts` validates JWT epoch matches DB value; stale tokens are rejected immediately.
+- **Files:** `migrations/0006_add-token-epoch.sql`, `src/hooks.server.ts`, `src/routes/api/auth/password/+server.ts`, `src/routes/api/auth/recover/+server.ts`
 
 ### No per-endpoint rate limiting on auth flows — **High**
 - **Risk:** The global rate limit (100 req / 15 min per IP) applies uniformly to all unauthenticated `/api/*` routes. Login, recovery-start, and demo-login should have stricter limits (e.g. 10 req / 15 min for login/recovery-start) to prevent credential brute-forcing and recovery code guessing.

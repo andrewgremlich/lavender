@@ -87,7 +87,7 @@ export const POST: RequestHandler = async (event) => {
 	await db.prepare('INSERT INTO user_settings (user_id) VALUES (?)').bind(id).run();
 
 	const token = await signJwt(
-		{ sub: id, username, exp: Math.floor(Date.now() / 1000) + 86400 },
+		{ sub: id, username, epoch: 0, exp: Math.floor(Date.now() / 1000) + 86400 },
 		jwtSecret
 	);
 	return json({ token, username, hasRecovery }, { status: 201 });

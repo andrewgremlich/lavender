@@ -66,13 +66,15 @@ export const POST: RequestHandler = async (event) => {
 
 	const newSalt = generateSalt();
 	const newHash = await hashPassword(newPassword, newSalt);
+	const newEpoch = (user.token_epoch ?? 0) + 1;
 
 	const statements = [
 		db
 			.prepare(
 				`UPDATE users SET password_hash = ?, salt = ?,
 				 wrapped_encryption_key = ?, wrapped_encryption_key_iv = ?,
-				 recovery_code_hash = ?, recovery_code_salt = ?
+				 recovery_code_hash = ?, recovery_code_salt = ?,
+				 token_epoch = ?
 				 WHERE id = ?`
 			)
 			.bind(
@@ -82,6 +84,7 @@ export const POST: RequestHandler = async (event) => {
 				newWrappedEncryptionKeyIv,
 				newRecoveryCodeHash,
 				newRecoveryCodeSalt,
+				newEpoch,
 				user.id
 			)
 	];
@@ -104,6 +107,7 @@ export const POST: RequestHandler = async (event) => {
 		{
 			sub: user.id,
 			username: user.username,
+			epoch: newEpoch,
 			exp: Math.floor(Date.now() / 1000) + 86400
 		},
 		jwtSecret

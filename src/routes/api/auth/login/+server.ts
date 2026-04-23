@@ -37,7 +37,13 @@ export const POST: RequestHandler = async (event) => {
 	const hasRecovery = !!(user.wrapped_encryption_key && user.recovery_code_hash);
 
 	const token = await signJwt(
-		{ sub: user.id, username, role: user.role, exp: Math.floor(Date.now() / 1000) + 86400 },
+		{
+			sub: user.id,
+			username,
+			role: user.role,
+			epoch: user.token_epoch ?? 0,
+			exp: Math.floor(Date.now() / 1000) + 86400
+		},
 		jwtSecret
 	);
 	return json({ token, username, hasRecovery, role: user.role });

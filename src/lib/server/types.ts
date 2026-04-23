@@ -14,6 +14,7 @@ export interface UserRow {
 	recovery_code_salt: string | null;
 	wrapped_encryption_key: string | null;
 	wrapped_encryption_key_iv: string | null;
+	token_epoch: number;
 }
 
 export interface HealthEntryRow {
