@@ -19,6 +19,11 @@
 	let newDescription = $state('');
 	let votedIds = $state<Set<string>>(new Set());
 
+	let editingId = $state<string | null>(null);
+	let editTitle = $state('');
+	let editDescription = $state('');
+	let editSaving = $state(false);
+
 	function showFlash(text: string, type: 'success' | 'error') {
 		flash = { text, type };
 		setTimeout(() => (flash = null), 4000);
@@ -55,6 +60,37 @@
 			votedIds = new Set(votedIds);
 		} catch (err) {
 			showFlash(err instanceof Error ? err.message : $_('community.voteError'), 'error');
+		}
+	}
+
+	function startEdit(post: CommunityPost) {
+		editingId = post.id;
+		editTitle = post.title;
+		editDescription = post.description;
+	}
+
+	function cancelEdit() {
+		editingId = null;
+		editTitle = '';
+		editDescription = '';
+	}
+
+	async function saveEdit(post: CommunityPost) {
+		if (!editTitle.trim() || !editDescription.trim()) {
+			showFlash($_('community.validationError'), 'error');
+			return;
+		}
+		editSaving = true;
+		try {
+			await communityApi.updatePost(post.id, editTitle.trim(), editDescription.trim());
+			post.title = editTitle.trim();
+			post.description = editDescription.trim();
+			editingId = null;
+			showFlash($_('community.saveSuccess'), 'success');
+		} catch (err) {
+			showFlash(err instanceof Error ? err.message : $_('community.saveError'), 'error');
+		} finally {
+			editSaving = false;
 		}
 	}
 
@@ -168,16 +204,38 @@
 					▲<br />{post.votes}
 				</button>
 				<div class="post-body">
-					<Text as="h4">{post.title}</Text>
-					<p class="description">{post.description}</p>
-					<div class="post-footer">
-						<span class="meta">{formatDate(post.created_at)}</span>
-						{#if auth.loggedIn && post.user_id === auth.userId}
-							<Button variant="ghost" size="sm" onclick={() => deletePost(post)}>
-								<Icon name="trash-2" size={14} /> {$_('community.delete')}
+					{#if editingId === post.id}
+						<Input label={$_('community.titleLabel')} bind:value={editTitle} maxlength={200} />
+						<div class="textarea-field">
+							<label for="edit-description-{post.id}">{$_('community.descriptionLabel')}</label>
+							<textarea
+								id="edit-description-{post.id}"
+								bind:value={editDescription}
+								maxlength={2000}
+								rows={4}
+							></textarea>
+						</div>
+						<div class="form-actions">
+							<Button variant="primary" disabled={editSaving} onclick={() => saveEdit(post)}>
+								{editSaving ? $_('community.saving') : $_('community.save')}
 							</Button>
-						{/if}
-					</div>
+							<Button variant="ghost" onclick={cancelEdit}>{$_('community.cancel')}</Button>
+						</div>
+					{:else}
+						<Text as="h4">{post.title}</Text>
+						<p class="description">{post.description}</p>
+						<div class="post-footer">
+							<span class="meta">{formatDate(post.created_at)}</span>
+							{#if auth.loggedIn && post.user_id === auth.userId}
+								<Button variant="ghost" size="sm" onclick={() => startEdit(post)}>
+									<Icon name="pencil" size={14} /> {$_('community.edit')}
+								</Button>
+								<Button variant="ghost" size="sm" onclick={() => deletePost(post)}>
+									<Icon name="trash-2" size={14} /> {$_('community.delete')}
+								</Button>
+							{/if}
+						</div>
+					{/if}
 				</div>
 			</li>
 		{/each}
