@@ -156,7 +156,7 @@ Severity scale:
 Order chosen so each step closes the biggest remaining gap.
 
 1. **Per-endpoint rate limits on login/recovery-start** (High, ~30 min)
-2. **Token epoch / revocation on password change** (High, ~1–2 h)
+2. ~~**Token epoch / revocation on password change** (High, ~1–2 h)~~
 3. **Move JWT + encryption key to `sessionStorage` or in-memory** (High, wider refactor — changes session-survival UX)
 4. **Collapse recovery-start error messages** (Medium, trivial)
 5. **Drop `unsafe-inline` from style-src** (Medium, needs testing with SvelteKit CSP hash mode)
