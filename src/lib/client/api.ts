@@ -186,6 +186,11 @@ export const communityApi = {
 		}),
 	vote: (id: string) =>
 		request<{ voted: boolean; votes: number }>(`/community-posts/${id}/vote`, { method: 'POST' }),
+	updatePost: (id: string, title: string, description: string) =>
+		request<{ message: string }>(`/community-posts/${id}`, {
+			method: 'PATCH',
+			body: JSON.stringify({ title, description })
+		}),
 	deletePost: (id: string) =>
 		request<{ message: string }>(`/community-posts/${id}`, { method: 'DELETE' })
 };
