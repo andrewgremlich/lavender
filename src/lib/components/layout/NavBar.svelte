@@ -21,7 +21,7 @@
 			? [{ href: '/app/analytics', icon: 'trending-up', label: $_('nav.analytics'), desktop: true }]
 			: []),
 		{ href: '/app/settings', icon: 'settings', label: $_('nav.settings'), desktop: true },
-		{ href: '/app/community', icon: 'users-round', label: 'Community', desktop: true },
+		{ href: '/app/community', icon: 'users-round', label: $_('nav.community'), desktop: true },
 		...(auth.role === 'admin'
 			? [{ href: '/app/admin', icon: 'shield', label: 'Admin', desktop: true }]
 			: [])

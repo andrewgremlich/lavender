@@ -1,6 +1,7 @@
 <script lang="ts">
 	import { auth } from '$lib/client/auth.svelte';
 	import { communityApi, type CommunityPost } from '$lib/client/api';
+	import { _ } from 'svelte-i18n';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Text from '$lib/components/ui/Text.svelte';
 	import FlashMessage from '$lib/components/display/FlashMessage.svelte';
@@ -28,7 +29,7 @@
 		try {
 			posts = await communityApi.getPosts('feature_request');
 		} catch (err) {
-			showFlash(err instanceof Error ? err.message : 'Failed to load posts', 'error');
+			showFlash(err instanceof Error ? err.message : $_('community.loadError'), 'error');
 		} finally {
 			loading = false;
 		}
@@ -40,7 +41,7 @@
 
 	async function vote(post: CommunityPost) {
 		if (!auth.loggedIn) {
-			showFlash('Log in to vote', 'error');
+			showFlash($_('community.loginToVote'), 'error');
 			return;
 		}
 		try {
@@ -53,24 +54,24 @@
 			}
 			votedIds = new Set(votedIds);
 		} catch (err) {
-			showFlash(err instanceof Error ? err.message : 'Vote failed', 'error');
+			showFlash(err instanceof Error ? err.message : $_('community.voteError'), 'error');
 		}
 	}
 
 	async function deletePost(post: CommunityPost) {
-		if (!confirm('Delete your feature request?')) return;
+		if (!confirm($_('community.deleteConfirm'))) return;
 		try {
 			await communityApi.deletePost(post.id);
 			posts = posts.filter((p: CommunityPost) => p.id !== post.id);
-			showFlash('Post deleted', 'success');
+			showFlash($_('community.deleteSuccess'), 'success');
 		} catch (err) {
-			showFlash(err instanceof Error ? err.message : 'Delete failed', 'error');
+			showFlash(err instanceof Error ? err.message : $_('community.deleteError'), 'error');
 		}
 	}
 
 	async function submitPost() {
 		if (!newTitle.trim() || !newDescription.trim()) {
-			showFlash('Title and description required', 'error');
+			showFlash($_('community.validationError'), 'error');
 			return;
 		}
 		submitting = true;
@@ -79,10 +80,10 @@
 			newTitle = '';
 			newDescription = '';
 			showForm = false;
-			showFlash('Post submitted!', 'success');
+			showFlash($_('community.submitSuccess'), 'success');
 			await loadPosts();
 		} catch (err) {
-			showFlash(err instanceof Error ? err.message : 'Submit failed', 'error');
+			showFlash(err instanceof Error ? err.message : $_('community.submitError'), 'error');
 		} finally {
 			submitting = false;
 		}
@@ -98,33 +99,40 @@
 </script>
 
 <svelte:head>
-	<title>Community — Lavender</title>
+	<title>{$_('community.pageTitle')}</title>
 </svelte:head>
 
-<Text as="h2">Feature Requests</Text>
+<Text as="h2">{$_('community.title')}</Text>
 
 <FlashMessage message={flash} />
 
 {#if auth.loggedIn && !auth.isDemo}
 	<div class="form-toggle">
 		{#if !showForm}
-			<Button variant="outline" onclick={() => (showForm = true)}>+ Request a Feature</Button>
+			<Button variant="outline" onclick={() => (showForm = true)}>
+				{$_('community.requestFeature')}
+			</Button>
 		{:else}
-			<SettingsCard title="New Feature Request">
-				<Input label="Title" bind:value={newTitle} maxlength={200} placeholder="Short summary…" />
+			<SettingsCard title={$_('community.newRequest')}>
+				<Input
+					label={$_('community.titleLabel')}
+					bind:value={newTitle}
+					maxlength={200}
+					placeholder={$_('community.titlePlaceholder')}
+				/>
 				<div class="textarea-field">
-					<label for="post-description">Description</label>
+					<label for="post-description">{$_('community.descriptionLabel')}</label>
 					<textarea
 						id="post-description"
 						bind:value={newDescription}
 						maxlength={2000}
 						rows={4}
-						placeholder="More detail…"
+						placeholder={$_('community.descriptionPlaceholder')}
 					></textarea>
 				</div>
 				<div class="form-actions">
 					<Button variant="primary" disabled={submitting} onclick={submitPost}>
-						{submitting ? 'Submitting…' : 'Submit'}
+						{submitting ? $_('community.submitting') : $_('community.submit')}
 					</Button>
 					<Button
 						variant="ghost"
@@ -134,7 +142,7 @@
 							newDescription = '';
 						}}
 					>
-						Cancel
+						{$_('community.cancel')}
 					</Button>
 				</div>
 			</SettingsCard>
@@ -143,9 +151,9 @@
 {/if}
 
 {#if loading}
-	<Text variant="muted">Loading…</Text>
+	<Text variant="muted">{$_('community.loading')}</Text>
 {:else if posts.length === 0}
-	<Text variant="muted">No feature requests yet. Be the first!</Text>
+	<Text variant="muted">{$_('community.noPosts')}</Text>
 {:else}
 	<ul class="post-list">
 		{#each posts as post (post.id)}
@@ -155,7 +163,7 @@
 					class:voted={votedIds.has(post.id)}
 					disabled={!auth.loggedIn}
 					onclick={() => vote(post)}
-					title={auth.loggedIn ? 'Upvote' : 'Log in to vote'}
+					title={auth.loggedIn ? $_('community.upvote') : $_('community.loginToVote')}
 				>
 					▲<br />{post.votes}
 				</button>
@@ -166,7 +174,7 @@
 						<span class="meta">{formatDate(post.created_at)}</span>
 						{#if auth.loggedIn && post.user_id === auth.userId}
 							<Button variant="ghost" size="sm" onclick={() => deletePost(post)}>
-								<Icon name="trash-2" size={14} /> Delete
+								<Icon name="trash-2" size={14} /> {$_('community.delete')}
 							</Button>
 						{/if}
 					</div>
