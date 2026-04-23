@@ -155,11 +155,11 @@
 				<h3 class="tracking-group-title">{$_('home.tracking.group.fertility')}</h3>
 				<div class="tracking-pills">
 					<span class="pill">{$_('entryCard.labels.basalBodyTemp')}</span>
-					<span class="pill">{$_('entry.mucus.dry')}</span>
-					<span class="pill">{$_('entry.mucus.sticky')}</span>
-					<span class="pill">{$_('entry.mucus.creamy')}</span>
-					<span class="pill">{$_('entry.mucus.watery')}</span>
-					<span class="pill">{$_('entry.mucus.eggWhite')}</span>
+					<span class="pill">{$_('options.mucus.dry')}</span>
+					<span class="pill">{$_('options.mucus.sticky')}</span>
+					<span class="pill">{$_('options.mucus.creamy')}</span>
+					<span class="pill">{$_('options.mucus.watery')}</span>
+					<span class="pill">{$_('options.mucus.eggWhite')}</span>
 					<span class="pill">{$_('entry.lhSurge')}</span>
 				</div>
 			</div>
@@ -180,8 +180,8 @@
 			<div class="tracking-group">
 				<h3 class="tracking-group-title">{$_('home.tracking.group.intimacy')}</h3>
 				<div class="tracking-pills">
-					<span class="pill">{$_('entry.intimacy.unprotected')}</span>
-					<span class="pill">{$_('entry.intimacy.protected')}</span>
+					<span class="pill">{$_('options.intimacy.unprotected')}</span>
+					<span class="pill">{$_('options.intimacy.protected')}</span>
 				</div>
 			</div>
 		</div>
@@ -619,7 +619,6 @@
 		margin-bottom: var(--space-lg);
 	}
 	.tracking-group {
-		background: var(--color-background, #fff);
 		border: 1px solid var(--color-border);
 		border-radius: var(--radius-lg);
 		padding: var(--space-md);

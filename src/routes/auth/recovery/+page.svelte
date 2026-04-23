@@ -76,15 +76,15 @@
 		<div class="code-wrapper">
 			<pre class="code">{generatedCode}</pre>
 			<Button variant="outline" size="sm" type="button" onclick={copyCode}>
-				{copied ? $_('auth.recovery.copied') : $_('auth.recovery.copy')}
+				{copied ? $_('common.copied') : $_('common.copy')}
 			</Button>
 		</div>
 		<label class="checkbox">
 			<input type="checkbox" bind:checked={acknowledged} />
-			{$_('auth.recovery.acknowledged')}
+			{$_('common.acknowledged')}
 		</label>
 		<Button type="button" disabled={!acknowledged} onclick={handleContinue}>
-			{$_('auth.recovery.continue')}
+			{$_('common.continue')}
 		</Button>
 	{:else if isSetupMode}
 		<Text as="h1">{$_('auth.recovery.setupTitle')}</Text>

@@ -126,9 +126,9 @@
 		bind:value={confirmPassword}
 	/>
 	<ul class="requirements">
-		<li class:met={reqs.length}>{$_('settings.changePassword.requirements.length')}</li>
-		<li class:met={reqs.number}>{$_('settings.changePassword.requirements.number')}</li>
-		<li class:met={reqs.special}>{$_('settings.changePassword.requirements.special')}</li>
+		<li class:met={reqs.length}>{$_('passwordRequirements.length')}</li>
+		<li class:met={reqs.number}>{$_('passwordRequirements.number')}</li>
+		<li class:met={reqs.special}>{$_('passwordRequirements.special')}</li>
 	</ul>
 	<Button type="button" onclick={changePassword} disabled={changing}>
 		{changing ? $_('settings.changePassword.changing') : $_('settings.changePassword.change')}

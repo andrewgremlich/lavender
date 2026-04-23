@@ -178,7 +178,7 @@
 							newDescription = '';
 						}}
 					>
-						{$_('community.cancel')}
+						{$_('common.cancel')}
 					</Button>
 				</div>
 			</SettingsCard>
@@ -187,7 +187,7 @@
 {/if}
 
 {#if loading}
-	<Text variant="muted">{$_('community.loading')}</Text>
+	<Text variant="muted">{$_('common.loading')}</Text>
 {:else if posts.length === 0}
 	<Text variant="muted">{$_('community.noPosts')}</Text>
 {:else}
@@ -217,9 +217,9 @@
 						</div>
 						<div class="form-actions">
 							<Button variant="primary" disabled={editSaving} onclick={() => saveEdit(post)}>
-								{editSaving ? $_('community.saving') : $_('community.save')}
+								{editSaving ? $_('community.saving') : $_('common.save')}
 							</Button>
-							<Button variant="ghost" onclick={cancelEdit}>{$_('community.cancel')}</Button>
+							<Button variant="ghost" onclick={cancelEdit}>{$_('common.cancel')}</Button>
 						</div>
 					{:else}
 						<Text as="h4">{post.title}</Text>
@@ -228,10 +228,10 @@
 							<span class="meta">{formatDate(post.created_at)}</span>
 							{#if auth.loggedIn && post.user_id === auth.userId}
 								<Button variant="ghost" size="sm" onclick={() => startEdit(post)}>
-									<Icon name="pencil" size={14} /> {$_('community.edit')}
+									<Icon name="pencil" size={14} /> {$_('common.edit')}
 								</Button>
 								<Button variant="ghost" size="sm" onclick={() => deletePost(post)}>
-									<Icon name="trash-2" size={14} /> {$_('community.delete')}
+									<Icon name="trash-2" size={14} /> {$_('common.delete')}
 								</Button>
 							{/if}
 						</div>

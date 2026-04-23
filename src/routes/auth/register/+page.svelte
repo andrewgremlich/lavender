@@ -93,15 +93,15 @@
 		<div class="code-wrapper">
 			<pre class="code">{recoveryCode}</pre>
 			<Button variant="outline" size="sm" type="button" onclick={copyCode}>
-				{copied ? $_('auth.register.recoveryCode.copied') : $_('auth.register.recoveryCode.copy')}
+				{copied ? $_('common.copied') : $_('common.copy')}
 			</Button>
 		</div>
 		<label class="checkbox">
 			<input type="checkbox" bind:checked={acknowledged} />
-			{$_('auth.register.recoveryCode.acknowledged')}
+			{$_('common.acknowledged')}
 		</label>
 		<Button type="button" disabled={!acknowledged} onclick={handleContinue}>
-			{$_('auth.register.recoveryCode.continue')}
+			{$_('common.continue')}
 		</Button>
 	{:else}
 		<Text as="h1">{$_('auth.register.title')}</Text>
@@ -123,9 +123,9 @@
 				disabled={submitting}
 			/>
 			<ul class="requirements">
-				<li class:met={reqs.length}>{$_('auth.register.requirements.length')}</li>
-				<li class:met={reqs.number}>{$_('auth.register.requirements.number')}</li>
-				<li class:met={reqs.special}>{$_('auth.register.requirements.special')}</li>
+				<li class:met={reqs.length}>{$_('passwordRequirements.length')}</li>
+				<li class:met={reqs.number}>{$_('passwordRequirements.number')}</li>
+				<li class:met={reqs.special}>{$_('passwordRequirements.special')}</li>
 			</ul>
 			<Input
 				label={$_('auth.register.confirmPassword')}

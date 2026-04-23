@@ -14,20 +14,20 @@
 	let deleting = $state(false);
 
 	const MUCUS_LABELS = $derived<Record<string, string>>({
-		dry: $_('entryCard.mucus.dry'),
-		sticky: $_('entryCard.mucus.sticky'),
-		creamy: $_('entryCard.mucus.creamy'),
-		watery: $_('entryCard.mucus.watery'),
-		eggWhite: $_('entryCard.mucus.eggWhite')
+		dry: $_('options.mucus.dry'),
+		sticky: $_('options.mucus.sticky'),
+		creamy: $_('options.mucus.creamy'),
+		watery: $_('options.mucus.watery'),
+		eggWhite: $_('options.mucus.eggWhite')
 	});
 	const FLOW_LABELS = $derived<Record<string, string>>({
-		light: $_('entryCard.flow.light'),
-		medium: $_('entryCard.flow.medium'),
-		heavy: $_('entryCard.flow.heavy')
+		light: $_('options.flow.light'),
+		medium: $_('options.flow.medium'),
+		heavy: $_('options.flow.heavy')
 	});
 	const INTIMACY_LABELS = $derived<Record<string, string>>({
-		unprotected: $_('entryCard.intimacy.unprotected'),
-		protected: $_('entryCard.intimacy.protected')
+		unprotected: $_('options.intimacy.unprotected'),
+		protected: $_('options.intimacy.protected')
 	});
 	const LH_LABELS = $derived<Record<number, string>>({
 		1: $_('entryCard.lh.light'),

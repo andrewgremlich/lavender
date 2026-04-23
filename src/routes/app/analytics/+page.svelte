@@ -60,7 +60,7 @@
 <Text as="h2">{$_('analytics.title')}</Text>
 
 {#if entriesStore.loading && entriesStore.entries.length === 0}
-	<Text variant="muted">{$_('analytics.loading')}</Text>
+	<Text variant="muted">{$_('common.loading')}</Text>
 {:else if entriesStore.entries.length === 0}
 	<div class="empty">
 		<Text as="h3">{$_('analytics.notEnoughData')}</Text>

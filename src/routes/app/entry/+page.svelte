@@ -26,11 +26,11 @@
 	};
 
 	const MUCUS_OPTIONS = $derived([
-		{ value: 'dry', icon: 'circle', label: $_('entry.mucus.dry') },
-		{ value: 'sticky', icon: 'circle-dot', label: $_('entry.mucus.sticky') },
-		{ value: 'creamy', icon: 'droplet', label: $_('entry.mucus.creamy') },
-		{ value: 'watery', icon: 'droplets', label: $_('entry.mucus.watery') },
-		{ value: 'eggWhite', icon: 'egg', label: $_('entry.mucus.eggWhite') }
+		{ value: 'dry', icon: 'circle', label: $_('options.mucus.dry') },
+		{ value: 'sticky', icon: 'circle-dot', label: $_('options.mucus.sticky') },
+		{ value: 'creamy', icon: 'droplet', label: $_('options.mucus.creamy') },
+		{ value: 'watery', icon: 'droplets', label: $_('options.mucus.watery') },
+		{ value: 'eggWhite', icon: 'egg', label: $_('options.mucus.eggWhite') }
 	] as const);
 
 	const LH_OPTIONS = $derived([
@@ -40,14 +40,14 @@
 	] as const);
 
 	const FLOW_OPTIONS = $derived([
-		{ value: 'light', icon: 'minus', label: $_('entry.flow.light') },
-		{ value: 'medium', icon: 'droplet', label: $_('entry.flow.medium') },
-		{ value: 'heavy', icon: 'droplets', label: $_('entry.flow.heavy') }
+		{ value: 'light', icon: 'minus', label: $_('options.flow.light') },
+		{ value: 'medium', icon: 'droplet', label: $_('options.flow.medium') },
+		{ value: 'heavy', icon: 'droplets', label: $_('options.flow.heavy') }
 	] as const);
 
 	const INTIMACY_OPTIONS = $derived([
-		{ value: 'unprotected', icon: 'shield-off', label: $_('entry.intimacy.unprotected') },
-		{ value: 'protected', icon: 'shield', label: $_('entry.intimacy.protected') }
+		{ value: 'unprotected', icon: 'shield-off', label: $_('options.intimacy.unprotected') },
+		{ value: 'protected', icon: 'shield', label: $_('options.intimacy.protected') }
 	] as const);
 
 	const today = new Date().toISOString().split('T')[0];
