@@ -1,15 +1,13 @@
 <script lang="ts">
 	import { auth } from '$lib/client/auth.svelte';
-	import { communityApi, type CommunityPost, type PostType } from '$lib/client/api';
+	import { communityApi, type CommunityPost } from '$lib/client/api';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Text from '$lib/components/ui/Text.svelte';
 	import FlashMessage from '$lib/components/display/FlashMessage.svelte';
 	import SettingsCard from '$lib/components/layout/SettingsCard.svelte';
 	import Input from '$lib/components/forms/Input.svelte';
+	import Icon from '$lib/components/ui/Icon.svelte';
 
-	type Tab = PostType;
-
-	let activeTab = $state<Tab>('feature_request');
 	let posts = $state<CommunityPost[]>([]);
 	let loading = $state(true);
 	let flash = $state<{ text: string; type: 'success' | 'error' } | null>(null);
@@ -28,7 +26,7 @@
 	async function loadPosts() {
 		loading = true;
 		try {
-			posts = await communityApi.getPosts(activeTab);
+			posts = await communityApi.getPosts('feature_request');
 		} catch (err) {
 			showFlash(err instanceof Error ? err.message : 'Failed to load posts', 'error');
 		} finally {
@@ -37,7 +35,6 @@
 	}
 
 	$effect(() => {
-		activeTab;
 		loadPosts();
 	});
 
@@ -60,6 +57,17 @@
 		}
 	}
 
+	async function deletePost(post: CommunityPost) {
+		if (!confirm('Delete your feature request?')) return;
+		try {
+			await communityApi.deletePost(post.id);
+			posts = posts.filter((p: CommunityPost) => p.id !== post.id);
+			showFlash('Post deleted', 'success');
+		} catch (err) {
+			showFlash(err instanceof Error ? err.message : 'Delete failed', 'error');
+		}
+	}
+
 	async function submitPost() {
 		if (!newTitle.trim() || !newDescription.trim()) {
 			showFlash('Title and description required', 'error');
@@ -67,7 +75,7 @@
 		}
 		submitting = true;
 		try {
-			await communityApi.createPost(activeTab, newTitle.trim(), newDescription.trim());
+			await communityApi.createPost('feature_request', newTitle.trim(), newDescription.trim());
 			newTitle = '';
 			newDescription = '';
 			showForm = false;
@@ -93,43 +101,16 @@
 	<title>Community — Lavender</title>
 </svelte:head>
 
-<Text as="h2">Community</Text>
+<Text as="h2">Feature Requests</Text>
 
 <FlashMessage message={flash} />
-
-<div class="tabs">
-	<button
-		class="tab"
-		class:active={activeTab === 'feature_request'}
-		onclick={() => {
-			activeTab = 'feature_request';
-			showForm = false;
-		}}
-	>
-		Feature Requests
-	</button>
-	<button
-		class="tab"
-		class:active={activeTab === 'question'}
-		onclick={() => {
-			activeTab = 'question';
-			showForm = false;
-		}}
-	>
-		Q&amp;A
-	</button>
-</div>
 
 {#if auth.loggedIn && !auth.isDemo}
 	<div class="form-toggle">
 		{#if !showForm}
-			<Button variant="outline" onclick={() => (showForm = true)}>
-				{activeTab === 'feature_request' ? '+ Request a Feature' : '+ Ask a Question'}
-			</Button>
+			<Button variant="outline" onclick={() => (showForm = true)}>+ Request a Feature</Button>
 		{:else}
-			<SettingsCard
-				title={activeTab === 'feature_request' ? 'New Feature Request' : 'New Question'}
-			>
+			<SettingsCard title="New Feature Request">
 				<Input label="Title" bind:value={newTitle} maxlength={200} placeholder="Short summary…" />
 				<div class="textarea-field">
 					<label for="post-description">Description</label>
@@ -164,9 +145,7 @@
 {#if loading}
 	<Text variant="muted">Loading…</Text>
 {:else if posts.length === 0}
-	<Text variant="muted">
-		No {activeTab === 'feature_request' ? 'feature requests' : 'questions'} yet. Be the first!
-	</Text>
+	<Text variant="muted">No feature requests yet. Be the first!</Text>
 {:else}
 	<ul class="post-list">
 		{#each posts as post (post.id)}
@@ -183,7 +162,14 @@
 				<div class="post-body">
 					<Text as="h4">{post.title}</Text>
 					<p class="description">{post.description}</p>
-					<span class="meta">{formatDate(post.created_at)}</span>
+					<div class="post-footer">
+						<span class="meta">{formatDate(post.created_at)}</span>
+						{#if auth.loggedIn && post.user_id === auth.userId}
+							<Button variant="ghost" size="sm" onclick={() => deletePost(post)}>
+								<Icon name="trash-2" size={14} /> Delete
+							</Button>
+						{/if}
+					</div>
 				</div>
 			</li>
 		{/each}
@@ -191,31 +177,6 @@
 {/if}
 
 <style>
-	.tabs {
-		display: flex;
-		gap: var(--space-xs);
-		margin-bottom: var(--space-lg);
-		border-bottom: 2px solid var(--color-border);
-	}
-
-	.tab {
-		background: none;
-		border: none;
-		padding: var(--space-sm) var(--space-md);
-		font-size: var(--text-sm);
-		font-weight: 600;
-		color: var(--color-text-muted);
-		cursor: pointer;
-		border-bottom: 2px solid transparent;
-		margin-bottom: -2px;
-		transition: color 0.15s, border-color 0.15s;
-	}
-
-	.tab.active {
-		color: var(--color-primary);
-		border-bottom-color: var(--color-primary);
-	}
-
 	.form-toggle {
 		margin-bottom: var(--space-lg);
 	}
@@ -325,8 +286,15 @@
 		white-space: pre-wrap;
 	}
 
+	.post-footer {
+		display: flex;
+		align-items: center;
+		gap: var(--space-sm);
+	}
+
 	.meta {
 		font-size: var(--text-xs);
 		color: var(--color-text-muted);
+		flex: 1;
 	}
 </style>

@@ -49,6 +49,15 @@ export const POST: RequestHandler = async (event) => {
 		return json({ error: 'title and description cannot be empty' }, { status: 400 });
 	}
 
+	const existing = await db
+		.prepare('SELECT id FROM community_posts WHERE user_id = ? AND type = ?')
+		.bind(authResult.userId, type)
+		.first();
+	if (existing) {
+		const label = type === 'feature_request' ? 'feature request' : 'question';
+		return json({ error: `You already have an active ${label}. Delete it before submitting another.` }, { status: 409 });
+	}
+
 	const id = generateId();
 	await db
 		.prepare(
