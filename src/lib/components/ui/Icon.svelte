@@ -20,6 +20,7 @@
 	import ShieldOff from '@lucide/svelte/icons/shield-off';
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import TrendingUp from '@lucide/svelte/icons/trending-up';
+	import UsersRound from '@lucide/svelte/icons/users-round';
 	import type { Component } from 'svelte';
 
 	const ICONS: Record<string, Component<{ size?: number; strokeWidth?: number }>> = {
@@ -43,7 +44,8 @@
 		shield: Shield,
 		'shield-off': ShieldOff,
 		'trash-2': Trash2,
-		'trending-up': TrendingUp
+		'trending-up': TrendingUp,
+		'users-round': UsersRound
 	};
 
 	export type IconName = keyof typeof ICONS;
