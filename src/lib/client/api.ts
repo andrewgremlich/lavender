@@ -161,3 +161,31 @@ export const adminApi = {
 			body: JSON.stringify({ role })
 		})
 };
+
+export type PostType = 'feature_request' | 'question';
+
+export interface CommunityPost {
+	id: string;
+	user_id: string;
+	type: PostType;
+	title: string;
+	description: string;
+	votes: number;
+	created_at: string;
+}
+
+export const communityApi = {
+	getPosts: (type?: PostType) => {
+		const params = type ? `?type=${type}` : '';
+		return request<CommunityPost[]>(`/community-posts${params}`);
+	},
+	createPost: (type: PostType, title: string, description: string) =>
+		request<{ id: string }>('/community-posts', {
+			method: 'POST',
+			body: JSON.stringify({ type, title, description })
+		}),
+	vote: (id: string) =>
+		request<{ voted: boolean; votes: number }>(`/community-posts/${id}/vote`, { method: 'POST' }),
+	deletePost: (id: string) =>
+		request<{ message: string }>(`/community-posts/${id}`, { method: 'DELETE' })
+};
