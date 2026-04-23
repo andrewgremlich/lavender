@@ -34,19 +34,30 @@ function markVerified(): void {
 
 interface AuthState {
 	username: string | null;
+	userId: string | null;
 	loggedIn: boolean;
 	role: Role | null;
 }
 
+function parseUserId(token: string): string | null {
+	try {
+		const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))) as { sub?: string };
+		return payload.sub ?? null;
+	} catch {
+		return null;
+	}
+}
+
 function readInitial(): AuthState {
 	if (typeof localStorage === 'undefined') {
-		return { username: null, loggedIn: false, role: null };
+		return { username: null, userId: null, loggedIn: false, role: null };
 	}
 	const token = getToken();
-	if (!token) return { username: null, loggedIn: false, role: null };
+	if (!token) return { username: null, userId: null, loggedIn: false, role: null };
 	// JWT payload is the middle segment, base64url-encoded JSON.
 	try {
 		const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))) as {
+			sub?: string;
 			username?: string;
 			exp?: number;
 			role?: Role;
@@ -54,15 +65,16 @@ function readInitial(): AuthState {
 		if (payload.exp && payload.exp * 1000 < Date.now()) {
 			clearToken();
 			clearStoredKey();
-			return { username: null, loggedIn: false, role: null };
+			return { username: null, userId: null, loggedIn: false, role: null };
 		}
-		return { username: payload.username ?? null, loggedIn: true, role: payload.role ?? 'user' };
+		return { username: payload.username ?? null, userId: payload.sub ?? null, loggedIn: true, role: payload.role ?? 'user' };
 	} catch {
-		return { username: null, loggedIn: true, role: null };
+		return { username: null, userId: null, loggedIn: true, role: null };
 	}
 }
 
 const state = $state<AuthState>(readInitial());
+
 
 // During SSR, sessionStorage is unavailable so state initializes as logged-out.
 // Re-check on the client after hydration to pick up the persisted token.
@@ -76,6 +88,9 @@ if (globalThis.window !== undefined) {
 export const auth = {
 	get username() {
 		return state.username;
+	},
+	get userId() {
+		return state.userId;
 	},
 	get loggedIn() {
 		return state.loggedIn;
@@ -116,6 +131,7 @@ export const auth = {
 		setToken(result.token);
 		storeKey(encryptionKey);
 		state.username = result.username;
+		state.userId = parseUserId(result.token);
 		state.loggedIn = true;
 		state.role = result.role ?? 'user';
 		markVerified();
@@ -134,6 +150,7 @@ export const auth = {
 		const legacyKey = await deriveLegacyKey(password, username);
 		storeLegacyKey(legacyKey);
 		state.username = result.username;
+		state.userId = parseUserId(result.token);
 		state.loggedIn = true;
 		state.role = result.role ?? 'user';
 		markVerified();
@@ -152,6 +169,7 @@ export const auth = {
 		const legacyKey = await deriveLegacyKey(DEMO_PASSWORD, 'demo');
 		storeLegacyKey(legacyKey);
 		state.username = 'demo';
+		state.userId = parseUserId(result.token);
 		state.loggedIn = true;
 		state.role = 'demo';
 		markVerified();
@@ -236,6 +254,7 @@ export const auth = {
 		const legacyKey = await deriveLegacyKey(newPassword, username);
 		storeLegacyKey(legacyKey);
 		state.username = result.username;
+		state.userId = parseUserId(result.token);
 		state.loggedIn = true;
 		state.role = result.role ?? 'user';
 		markVerified();
@@ -248,6 +267,7 @@ export const auth = {
 		settingsApi.clearCache();
 		localStorage.removeItem(VERIFY_KEY);
 		state.username = null;
+		state.userId = null;
 		state.loggedIn = false;
 		state.role = null;
 	}
