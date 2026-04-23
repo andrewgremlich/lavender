@@ -53,22 +53,10 @@
 		"viewChart": "Voir le graphique",
 		"selectDateError": "Veuillez sélectionner une date.",
 		"saveError": "Échec de la sauvegarde.",
-		"mucus": {
-			"dry": "Sec",
-			"sticky": "Collant",
-			"creamy": "Crémeux",
-			"watery": "Aqueux",
-			"eggWhite": "Blanc d'œuf"
-		},
 		"lh": {
 			"none": "Aucun",
 			"light": "Léger",
 			"positive": "Positif"
-		},
-		"flow": {
-			"light": "Léger",
-			"medium": "Moyen",
-			"heavy": "Abondant"
 		},
 		"bleeding": {
 			"none": "Aucun",
@@ -76,15 +64,12 @@
 			"ended": "Terminé"
 		},
 		"intimacy": {
-			"title": "Intimité",
-			"unprotected": "Non protégé",
-			"protected": "Protégé"
+			"title": "Intimité"
 		}
 	},
 	"analytics": {
 		"pageTitle": "Analyses — Lavender",
 		"title": "Analyses",
-		"loading": "Chargement de vos données…",
 		"noDataYet": "Aucune donnée",
 		"noDataDescription": "Ajoutez des entrées de santé pour voir les analyses et tendances.",
 		"needsTwoCycles": "Les analyses nécessitent au moins 2 cycles enregistrés. Continuez à suivre pour débloquer cette vue.",
@@ -195,11 +180,6 @@
 			"currentPassword": "Mot de passe actuel",
 			"newPassword": "Nouveau mot de passe",
 			"confirmPassword": "Confirmer le nouveau mot de passe",
-			"requirements": {
-				"length": "Au moins 12 caractères",
-				"number": "Au moins un chiffre",
-				"special": "Au moins un caractère spécial"
-			},
 			"change": "Changer le mot de passe",
 			"changing": "Rechiffrement des données…",
 			"success": "Mot de passe changé avec succès.",
@@ -248,19 +228,10 @@
 			"failed": "Échec de l'inscription",
 			"passwordsMismatch": "Les mots de passe ne correspondent pas",
 			"passwordRequirementsNotMet": "Le mot de passe ne remplit pas toutes les conditions",
-			"requirements": {
-				"length": "Au moins 12 caractères",
-				"number": "Au moins un chiffre",
-				"special": "Au moins un caractère spécial"
-			},
 			"recoveryCode": {
 				"title": "Sauvegardez votre code de récupération",
 				"description": "Ce code est le {strong} pour récupérer vos données si vous oubliez votre mot de passe. Conservez-le en lieu sûr — nous ne pourrons plus vous le montrer.",
-				"onlyWay": "seul moyen",
-				"acknowledged": "J'ai sauvegardé mon code de récupération en lieu sûr.",
-				"copy": "Copier",
-				"copied": "✓ Copié",
-				"continue": "Continuer vers l'application"
+				"onlyWay": "seul moyen"
 			}
 		},
 		"recovery": {
@@ -283,10 +254,6 @@
 			"recover": "Récupérer le compte",
 			"recovering": "Récupération…",
 			"backToSignIn": "Retour à la connexion",
-			"acknowledged": "J'ai sauvegardé mon code de récupération en lieu sûr.",
-			"copy": "Copier",
-			"copied": "✓ Copié",
-			"continue": "Continuer vers l'application",
 			"passwordsMismatch": "Les mots de passe ne correspondent pas",
 			"failed": "Échec de la récupération",
 			"setupFailed": "Échec de la génération du code de récupération"
@@ -312,25 +279,9 @@
 			"intimacy": "Intimité",
 			"notes": "Notes"
 		},
-		"mucus": {
-			"dry": "Sec",
-			"sticky": "Collant",
-			"creamy": "Crémeux",
-			"watery": "Aqueux",
-			"eggWhite": "Blanc d'œuf"
-		},
-		"flow": {
-			"light": "Léger",
-			"medium": "Moyen",
-			"heavy": "Abondant"
-		},
 		"lh": {
 			"light": "LH Léger",
 			"positive": "LH+"
-		},
-		"intimacy": {
-			"unprotected": "Non protégé",
-			"protected": "Protégé"
 		},
 		"period": "Règles",
 		"indicators": "{count} indicateur",
@@ -350,7 +301,6 @@
 	"community": {
 		"pageTitle": "Demandes de fonctionnalités — Lavender",
 		"title": "Demandes de fonctionnalités",
-		"loading": "Chargement…",
 		"noPosts": "Aucune demande de fonctionnalité pour l'instant. Soyez le premier !",
 		"requestFeature": "+ Demander une fonctionnalité",
 		"newRequest": "Nouvelle demande de fonctionnalité",
@@ -360,22 +310,18 @@
 		"descriptionPlaceholder": "Plus de détails…",
 		"submit": "Envoyer",
 		"submitting": "Envoi en cours…",
-		"cancel": "Annuler",
-		"edit": "Modifier",
-		"editRequest": "Modifier la demande de fonctionnalité",
-		"save": "Enregistrer",
 		"saving": "Enregistrement…",
-		"saveSuccess": "Publication mise à jour !",
-		"saveError": "Échec de la mise à jour",
-		"delete": "Supprimer",
+		"editRequest": "Modifier la demande de fonctionnalité",
 		"deleteConfirm": "Supprimer votre demande de fonctionnalité ?",
 		"upvote": "Voter",
 		"loginToVote": "Connectez-vous pour voter",
 		"submitSuccess": "Publication envoyée !",
+		"saveSuccess": "Publication mise à jour !",
 		"deleteSuccess": "Publication supprimée",
 		"loadError": "Échec du chargement des publications",
 		"voteError": "Échec du vote",
 		"submitError": "Échec de l'envoi",
+		"saveError": "Échec de la mise à jour",
 		"deleteError": "Échec de la suppression",
 		"validationError": "Le titre et la description sont requis"
 	},
@@ -386,7 +332,34 @@
 		"no": "Non",
 		"edit": "Modifier",
 		"delete": "Supprimer",
-		"loading": "Chargement…"
+		"loading": "Chargement…",
+		"copy": "Copier",
+		"copied": "✓ Copié",
+		"continue": "Continuer vers l'application",
+		"acknowledged": "J'ai sauvegardé mon code de récupération en lieu sûr."
+	},
+	"options": {
+		"mucus": {
+			"dry": "Sec",
+			"sticky": "Collant",
+			"creamy": "Crémeux",
+			"watery": "Aqueux",
+			"eggWhite": "Blanc d'œuf"
+		},
+		"flow": {
+			"light": "Léger",
+			"medium": "Moyen",
+			"heavy": "Abondant"
+		},
+		"intimacy": {
+			"unprotected": "Non protégé",
+			"protected": "Protégé"
+		}
+	},
+	"passwordRequirements": {
+		"length": "Au moins 12 caractères",
+		"number": "Au moins un chiffre",
+		"special": "Au moins un caractère spécial"
 	},
 	"home": {
 		"pageTitle": "Lavender — Suivi de fertilité privé, chiffré de bout en bout",

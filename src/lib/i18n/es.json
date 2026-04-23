@@ -53,22 +53,10 @@
 		"viewChart": "Ver gráfica",
 		"selectDateError": "Por favor selecciona una fecha.",
 		"saveError": "Error al guardar la entrada.",
-		"mucus": {
-			"dry": "Seco",
-			"sticky": "Pegajoso",
-			"creamy": "Cremoso",
-			"watery": "Acuoso",
-			"eggWhite": "Clara de huevo"
-		},
 		"lh": {
 			"none": "Ninguno",
 			"light": "Leve",
 			"positive": "Positivo"
-		},
-		"flow": {
-			"light": "Leve",
-			"medium": "Moderado",
-			"heavy": "Intenso"
 		},
 		"bleeding": {
 			"none": "Ninguno",
@@ -76,15 +64,12 @@
 			"ended": "Terminó"
 		},
 		"intimacy": {
-			"title": "Intimidad",
-			"unprotected": "Sin protección",
-			"protected": "Con protección"
+			"title": "Intimidad"
 		}
 	},
 	"analytics": {
 		"pageTitle": "Análisis — Lavender",
 		"title": "Análisis",
-		"loading": "Cargando tus datos…",
 		"noDataYet": "Sin datos aún",
 		"noDataDescription": "Añade entradas de salud para ver análisis y tendencias.",
 		"needsTwoCycles": "Los análisis requieren al menos 2 ciclos registrados. Sigue registrando para desbloquear esta vista.",
@@ -195,11 +180,6 @@
 			"currentPassword": "Contraseña actual",
 			"newPassword": "Nueva contraseña",
 			"confirmPassword": "Confirmar nueva contraseña",
-			"requirements": {
-				"length": "Al menos 12 caracteres",
-				"number": "Al menos un número",
-				"special": "Al menos un carácter especial"
-			},
 			"change": "Cambiar contraseña",
 			"changing": "Volviendo a cifrar datos…",
 			"success": "Contraseña cambiada con éxito.",
@@ -248,19 +228,10 @@
 			"failed": "Error en el registro",
 			"passwordsMismatch": "Las contraseñas no coinciden",
 			"passwordRequirementsNotMet": "La contraseña no cumple todos los requisitos",
-			"requirements": {
-				"length": "Al menos 12 caracteres",
-				"number": "Al menos un número",
-				"special": "Al menos un carácter especial"
-			},
 			"recoveryCode": {
 				"title": "Guarda tu código de recuperación",
 				"description": "Este código es la {strong} para recuperar tus datos si olvidas tu contraseña. Guárdalo en un lugar seguro — no podremos mostrártelo de nuevo.",
-				"onlyWay": "única forma",
-				"acknowledged": "He guardado mi código de recuperación en un lugar seguro.",
-				"copy": "Copiar",
-				"copied": "✓ Copiado",
-				"continue": "Continuar a la aplicación"
+				"onlyWay": "única forma"
 			}
 		},
 		"recovery": {
@@ -283,10 +254,6 @@
 			"recover": "Recuperar cuenta",
 			"recovering": "Recuperando…",
 			"backToSignIn": "Volver al inicio de sesión",
-			"acknowledged": "He guardado mi código de recuperación en un lugar seguro.",
-			"copy": "Copiar",
-			"copied": "✓ Copiado",
-			"continue": "Continuar a la aplicación",
 			"passwordsMismatch": "Las contraseñas no coinciden",
 			"failed": "Error en la recuperación",
 			"setupFailed": "Error al generar el código de recuperación"
@@ -312,25 +279,9 @@
 			"intimacy": "Intimidad",
 			"notes": "Notas"
 		},
-		"mucus": {
-			"dry": "Seco",
-			"sticky": "Pegajoso",
-			"creamy": "Cremoso",
-			"watery": "Acuoso",
-			"eggWhite": "Clara de huevo"
-		},
-		"flow": {
-			"light": "Leve",
-			"medium": "Moderado",
-			"heavy": "Intenso"
-		},
 		"lh": {
 			"light": "LH Leve",
 			"positive": "LH+"
-		},
-		"intimacy": {
-			"unprotected": "Sin protección",
-			"protected": "Con protección"
 		},
 		"period": "Período",
 		"indicators": "{count} indicador",
@@ -350,7 +301,6 @@
 	"community": {
 		"pageTitle": "Solicitudes de funciones — Lavender",
 		"title": "Solicitudes de funciones",
-		"loading": "Cargando…",
 		"noPosts": "Aún no hay solicitudes de funciones. ¡Sé el primero!",
 		"requestFeature": "+ Solicitar una función",
 		"newRequest": "Nueva solicitud de función",
@@ -360,22 +310,18 @@
 		"descriptionPlaceholder": "Más detalles…",
 		"submit": "Enviar",
 		"submitting": "Enviando…",
-		"cancel": "Cancelar",
-		"edit": "Editar",
-		"editRequest": "Editar solicitud de función",
-		"save": "Guardar",
 		"saving": "Guardando…",
-		"saveSuccess": "¡Publicación actualizada!",
-		"saveError": "Error al actualizar",
-		"delete": "Eliminar",
+		"editRequest": "Editar solicitud de función",
 		"deleteConfirm": "¿Eliminar tu solicitud de función?",
 		"upvote": "Votar",
 		"loginToVote": "Inicia sesión para votar",
 		"submitSuccess": "¡Publicación enviada!",
+		"saveSuccess": "¡Publicación actualizada!",
 		"deleteSuccess": "Publicación eliminada",
 		"loadError": "Error al cargar publicaciones",
 		"voteError": "Error al votar",
 		"submitError": "Error al enviar",
+		"saveError": "Error al actualizar",
 		"deleteError": "Error al eliminar",
 		"validationError": "Se requiere título y descripción"
 	},
@@ -386,7 +332,34 @@
 		"no": "No",
 		"edit": "Editar",
 		"delete": "Eliminar",
-		"loading": "Cargando…"
+		"loading": "Cargando…",
+		"copy": "Copiar",
+		"copied": "✓ Copiado",
+		"continue": "Continuar a la aplicación",
+		"acknowledged": "He guardado mi código de recuperación en un lugar seguro."
+	},
+	"options": {
+		"mucus": {
+			"dry": "Seco",
+			"sticky": "Pegajoso",
+			"creamy": "Cremoso",
+			"watery": "Acuoso",
+			"eggWhite": "Clara de huevo"
+		},
+		"flow": {
+			"light": "Leve",
+			"medium": "Moderado",
+			"heavy": "Intenso"
+		},
+		"intimacy": {
+			"unprotected": "Sin protección",
+			"protected": "Con protección"
+		}
+	},
+	"passwordRequirements": {
+		"length": "Al menos 12 caracteres",
+		"number": "Al menos un número",
+		"special": "Al menos un carácter especial"
 	},
 	"home": {
 		"pageTitle": "Lavender — Rastreador de fertilidad privado, cifrado de extremo a extremo",

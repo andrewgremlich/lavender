@@ -53,22 +53,10 @@
 		"viewChart": "View Chart",
 		"selectDateError": "Please select a date.",
 		"saveError": "Failed to save entry.",
-		"mucus": {
-			"dry": "Dry",
-			"sticky": "Sticky",
-			"creamy": "Creamy",
-			"watery": "Watery",
-			"eggWhite": "Egg White"
-		},
 		"lh": {
 			"none": "None",
 			"light": "Light",
 			"positive": "Positive"
-		},
-		"flow": {
-			"light": "Light",
-			"medium": "Medium",
-			"heavy": "Heavy"
 		},
 		"bleeding": {
 			"none": "None",
@@ -76,15 +64,12 @@
 			"ended": "Ended"
 		},
 		"intimacy": {
-			"title": "Intimacy",
-			"unprotected": "Unprotected",
-			"protected": "Protected"
+			"title": "Intimacy"
 		}
 	},
 	"analytics": {
 		"pageTitle": "Analytics — Lavender",
 		"title": "Analytics",
-		"loading": "Loading your data…",
 		"noDataYet": "No Data Yet",
 		"noDataDescription": "Add health entries to see analytics and trends.",
 		"needsTwoCycles": "Analytics requires at least 2 logged cycles. Keep tracking to unlock this view.",
@@ -195,11 +180,6 @@
 			"currentPassword": "Current password",
 			"newPassword": "New password",
 			"confirmPassword": "Confirm new password",
-			"requirements": {
-				"length": "At least 12 characters",
-				"number": "At least one number",
-				"special": "At least one special character"
-			},
 			"change": "Change Password",
 			"changing": "Re-encrypting data…",
 			"success": "Password changed successfully.",
@@ -256,11 +236,7 @@
 			"recoveryCode": {
 				"title": "Save your recovery code",
 				"description": "This code is the {strong} to recover your data if you forget your password. Store it somewhere safe — we cannot show it to you again.",
-				"onlyWay": "only way",
-				"acknowledged": "I have saved my recovery code in a safe place.",
-				"copy": "Copy",
-				"copied": "✓ Copied",
-				"continue": "Continue to app"
+				"onlyWay": "only way"
 			}
 		},
 		"recovery": {
@@ -283,10 +259,6 @@
 			"recover": "Recover account",
 			"recovering": "Recovering…",
 			"backToSignIn": "Back to sign in",
-			"acknowledged": "I have saved my recovery code in a safe place.",
-			"copy": "Copy",
-			"copied": "✓ Copied",
-			"continue": "Continue to app",
 			"passwordsMismatch": "Passwords do not match",
 			"failed": "Recovery failed",
 			"setupFailed": "Failed to generate recovery code"
@@ -312,25 +284,9 @@
 			"intimacy": "Intimacy",
 			"notes": "Notes"
 		},
-		"mucus": {
-			"dry": "Dry",
-			"sticky": "Sticky",
-			"creamy": "Creamy",
-			"watery": "Watery",
-			"eggWhite": "Egg White"
-		},
-		"flow": {
-			"light": "Light",
-			"medium": "Medium",
-			"heavy": "Heavy"
-		},
 		"lh": {
 			"light": "LH Light",
 			"positive": "LH+"
-		},
-		"intimacy": {
-			"unprotected": "Unprotected",
-			"protected": "Protected"
 		},
 		"period": "Period",
 		"indicators": "{count} indicator",
@@ -350,7 +306,6 @@
 	"community": {
 		"pageTitle": "Feature Requests — Lavender",
 		"title": "Feature Requests",
-		"loading": "Loading…",
 		"noPosts": "No feature requests yet. Be the first!",
 		"requestFeature": "+ Request a Feature",
 		"newRequest": "New Feature Request",
@@ -360,22 +315,18 @@
 		"descriptionPlaceholder": "More detail…",
 		"submit": "Submit",
 		"submitting": "Submitting…",
-		"cancel": "Cancel",
-		"edit": "Edit",
-		"editRequest": "Edit Feature Request",
-		"save": "Save",
 		"saving": "Saving…",
-		"saveSuccess": "Post updated!",
-		"saveError": "Update failed",
-		"delete": "Delete",
+		"editRequest": "Edit Feature Request",
 		"deleteConfirm": "Delete your feature request?",
 		"upvote": "Upvote",
 		"loginToVote": "Log in to vote",
 		"submitSuccess": "Post submitted!",
+		"saveSuccess": "Post updated!",
 		"deleteSuccess": "Post deleted",
 		"loadError": "Failed to load posts",
 		"voteError": "Vote failed",
 		"submitError": "Submit failed",
+		"saveError": "Update failed",
 		"deleteError": "Delete failed",
 		"validationError": "Title and description required"
 	},
@@ -386,7 +337,34 @@
 		"no": "No",
 		"edit": "Edit",
 		"delete": "Delete",
-		"loading": "Loading…"
+		"loading": "Loading…",
+		"copy": "Copy",
+		"copied": "✓ Copied",
+		"continue": "Continue to app",
+		"acknowledged": "I have saved my recovery code in a safe place."
+	},
+	"options": {
+		"mucus": {
+			"dry": "Dry",
+			"sticky": "Sticky",
+			"creamy": "Creamy",
+			"watery": "Watery",
+			"eggWhite": "Egg White"
+		},
+		"flow": {
+			"light": "Light",
+			"medium": "Medium",
+			"heavy": "Heavy"
+		},
+		"intimacy": {
+			"unprotected": "Unprotected",
+			"protected": "Protected"
+		}
+	},
+	"passwordRequirements": {
+		"length": "At least 12 characters",
+		"number": "At least one number",
+		"special": "At least one special character"
 	},
 	"home": {
 		"pageTitle": "Lavender — Private Fertility Tracker, End-to-End Encrypted",
