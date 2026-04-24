@@ -20,7 +20,7 @@ const config = {
 			directives: {
 				'default-src': ['self'],
 				'script-src': ['self', 'https://challenges.cloudflare.com'],
-				'style-src': ['self', 'unsafe-inline'],
+				'style-src': ['self'],
 				'img-src': ['self', 'data:', 'blob:'],
 				'connect-src': ['self', 'https://challenges.cloudflare.com'],
 				'frame-src': ['https://challenges.cloudflare.com'],

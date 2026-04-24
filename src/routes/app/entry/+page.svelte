@@ -80,10 +80,11 @@
 	);
 
 	$effect(() => {
-		const raw = sessionStorage.getItem('lavender_edit_entry');
-		if (!raw) return;
+		const id = sessionStorage.getItem('lavender_edit_entry');
+		if (!id) return;
 		try {
-			const parsed = JSON.parse(raw) as HealthEntryData & { id?: string };
+			const parsed = entriesStore.entries.find((e) => e.id === id) as (HealthEntryData & { id?: string }) | undefined;
+			if (!parsed) return;
 			editId = parsed.id ?? null;
 			const next = blankForm();
 			if (parsed.date) next.date = parsed.date;

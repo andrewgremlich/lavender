@@ -113,7 +113,7 @@ export const auth = {
 	async register(username: string, password: string, turnstileToken?: string): Promise<string> {
 		const encryptionKey = await deriveKeyFromPassword(password, username);
 		const recoveryCode = generateRecoveryCode();
-		const { wrapped, iv } = await wrapEncryptionKey(encryptionKey, recoveryCode);
+		const { wrapped, iv } = await wrapEncryptionKey(encryptionKey, recoveryCode, username);
 		const recoverySalt = generateClientSalt();
 		const recoveryCodeHash = await hashWithSalt(recoveryCode, recoverySalt);
 
@@ -183,9 +183,10 @@ export const auth = {
 	async setupRecovery(): Promise<string> {
 		const encKeyBase64 = getStoredKey();
 		if (!encKeyBase64) throw new Error('No encryption key in session');
+		if (!state.username) throw new Error('No username in session');
 
 		const recoveryCode = generateRecoveryCode();
-		const { wrapped, iv } = await wrapEncryptionKey(encKeyBase64, recoveryCode);
+		const { wrapped, iv } = await wrapEncryptionKey(encKeyBase64, recoveryCode, state.username);
 		const recoverySalt = generateClientSalt();
 		const recoveryCodeHash = await hashWithSalt(recoveryCode, recoverySalt);
 
@@ -216,7 +217,8 @@ export const auth = {
 		const oldEncKeyBase64 = await unwrapEncryptionKey(
 			wrappedEncryptionKey,
 			wrappedEncryptionKeyIv,
-			formatted
+			formatted,
+			username
 		);
 		const newEncKeyBase64 = await deriveKeyFromPassword(newPassword, username);
 
@@ -233,7 +235,8 @@ export const auth = {
 		const newRecoveryCode = generateRecoveryCode();
 		const { wrapped: newWrapped, iv: newWrappedIv } = await wrapEncryptionKey(
 			newEncKeyBase64,
-			newRecoveryCode
+			newRecoveryCode,
+			username
 		);
 		const newRecoverySalt = generateClientSalt();
 		const newRecoveryCodeHash = await hashWithSalt(newRecoveryCode, newRecoverySalt);

@@ -23,6 +23,15 @@ export const POST: RequestHandler = async (event) => {
 		return json({ error: 'All recovery fields required' }, { status: 400 });
 	}
 
+	if (
+		wrappedEncryptionKey.length > 1024 ||
+		wrappedEncryptionKeyIv.length > 64 ||
+		recoveryCodeHash.length > 512 ||
+		recoveryCodeSalt.length > 512
+	) {
+		return json({ error: 'Invalid recovery fields' }, { status: 400 });
+	}
+
 	await db
 		.prepare(
 			`UPDATE users SET wrapped_encryption_key = ?, wrapped_encryption_key_iv = ?,

@@ -50,18 +50,27 @@ export const POST: RequestHandler = async (event) => {
 		return json({ error: 'All fields required' }, { status: 400 });
 	}
 
+	if (
+		newWrappedEncryptionKey.length > 1024 ||
+		newWrappedEncryptionKeyIv.length > 64 ||
+		newRecoveryCodeHash.length > 512 ||
+		newRecoveryCodeSalt.length > 512
+	) {
+		return json({ error: 'Invalid recovery fields' }, { status: 400 });
+	}
+
 	const user = await db
 		.prepare('SELECT * FROM users WHERE username = ?')
 		.bind(username)
 		.first<UserRow>();
 
 	if (!user || !user.recovery_code_hash || !user.recovery_code_salt) {
-		return json({ error: 'No recovery code found for this account' }, { status: 404 });
+		return json({ error: 'Invalid username or recovery code' }, { status: 401 });
 	}
 
 	const suppliedHash = await hashPassword(recoveryCode, user.recovery_code_salt);
 	if (!timingSafeEqual(suppliedHash, user.recovery_code_hash)) {
-		return json({ error: 'Invalid recovery code' }, { status: 401 });
+		return json({ error: 'Invalid username or recovery code' }, { status: 401 });
 	}
 
 	const newSalt = generateSalt();
@@ -90,7 +99,17 @@ export const POST: RequestHandler = async (event) => {
 	];
 
 	if (reEncryptedEntries?.length) {
+		if (reEncryptedEntries.length > 365) {
+			return json({ error: 'Too many entries' }, { status: 400 });
+		}
 		for (const entry of reEncryptedEntries) {
+			if (
+				typeof entry.id !== 'string' || !/^[a-zA-Z0-9_-]{1,64}$/.test(entry.id) ||
+				typeof entry.encryptedData !== 'string' || entry.encryptedData.length > 131072 ||
+				typeof entry.iv !== 'string' || entry.iv.length > 64
+			) {
+				return json({ error: 'Invalid entry data' }, { status: 400 });
+			}
 			statements.push(
 				db
 					.prepare(
@@ -107,6 +126,7 @@ export const POST: RequestHandler = async (event) => {
 		{
 			sub: user.id,
 			username: user.username,
+			role: user.role,
 			epoch: newEpoch,
 			exp: Math.floor(Date.now() / 1000) + 86400
 		},

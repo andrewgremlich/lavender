@@ -73,37 +73,35 @@ export async function decrypt(
 }
 
 // --- Key storage ---
-// Stored in localStorage so sessions survive across tabs and refreshes.
-// Both storages are equally accessible to same-origin JS; the real security
-// boundary is that data is encrypted client-side and the server never sees
-// plaintext.
+// sessionStorage: cleared on tab close, never persists across restarts.
+// Limits exposure window if XSS occurs — attacker must be in an active session.
 
 const EK_KEY = 'lavender_ek';
 const EK_LEGACY_KEY = 'lavender_ek_legacy';
 
 export function storeKey(base64Key: string): void {
-	localStorage.setItem(EK_KEY, base64Key);
+	sessionStorage.setItem(EK_KEY, base64Key);
 }
 
 export function getStoredKey(): string | null {
-	return localStorage.getItem(EK_KEY);
+	return sessionStorage.getItem(EK_KEY);
 }
 
 export function clearStoredKey(): void {
-	localStorage.removeItem(EK_KEY);
-	localStorage.removeItem(EK_LEGACY_KEY);
+	sessionStorage.removeItem(EK_KEY);
+	sessionStorage.removeItem(EK_LEGACY_KEY);
 }
 
 export function storeLegacyKey(base64Key: string): void {
-	localStorage.setItem(EK_LEGACY_KEY, base64Key);
+	sessionStorage.setItem(EK_LEGACY_KEY, base64Key);
 }
 
 export function getLegacyKey(): string | null {
-	return localStorage.getItem(EK_LEGACY_KEY);
+	return sessionStorage.getItem(EK_LEGACY_KEY);
 }
 
 export function clearLegacyKey(): void {
-	localStorage.removeItem(EK_LEGACY_KEY);
+	sessionStorage.removeItem(EK_LEGACY_KEY);
 }
 
 // --- Recovery code helpers ---
@@ -136,7 +134,7 @@ export async function hashWithSalt(value: string, salt: string): Promise<string>
 }
 
 /** Derive an AES-GCM wrapping key from the recovery code via PBKDF2. */
-async function deriveWrappingKey(recoveryCode: string): Promise<CryptoKey> {
+async function deriveWrappingKey(recoveryCode: string, username: string): Promise<CryptoKey> {
 	const enc = new TextEncoder();
 	const baseKey = await crypto.subtle.importKey('raw', enc.encode(recoveryCode), 'PBKDF2', false, [
 		'deriveKey'
@@ -144,7 +142,7 @@ async function deriveWrappingKey(recoveryCode: string): Promise<CryptoKey> {
 	return crypto.subtle.deriveKey(
 		{
 			name: 'PBKDF2',
-			salt: enc.encode('lavender-recovery'),
+			salt: enc.encode(`lavender-recovery:${username}`),
 			iterations: 100000,
 			hash: 'SHA-256'
 		},
@@ -158,9 +156,10 @@ async function deriveWrappingKey(recoveryCode: string): Promise<CryptoKey> {
 /** Wrap the base64 encryption key using the recovery code. */
 export async function wrapEncryptionKey(
 	encKeyBase64: string,
-	recoveryCode: string
+	recoveryCode: string,
+	username: string
 ): Promise<{ wrapped: string; iv: string }> {
-	const wrappingKey = await deriveWrappingKey(recoveryCode);
+	const wrappingKey = await deriveWrappingKey(recoveryCode, username);
 	const iv = crypto.getRandomValues(new Uint8Array(12));
 	const keyBytes = Uint8Array.from(atob(encKeyBase64), (c) => c.charCodeAt(0));
 	const wrapped = await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, wrappingKey, keyBytes);
@@ -174,9 +173,10 @@ export async function wrapEncryptionKey(
 export async function unwrapEncryptionKey(
 	wrappedBase64: string,
 	ivBase64: string,
-	recoveryCode: string
+	recoveryCode: string,
+	username: string
 ): Promise<string> {
-	const wrappingKey = await deriveWrappingKey(recoveryCode);
+	const wrappingKey = await deriveWrappingKey(recoveryCode, username);
 	const wrapped = Uint8Array.from(atob(wrappedBase64), (c) => c.charCodeAt(0));
 	const iv = Uint8Array.from(atob(ivBase64), (c) => c.charCodeAt(0));
 	const decrypted = await crypto.subtle.decrypt({ name: 'AES-GCM', iv }, wrappingKey, wrapped);

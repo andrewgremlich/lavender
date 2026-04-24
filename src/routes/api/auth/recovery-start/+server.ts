@@ -31,12 +31,12 @@ export const POST: RequestHandler = async (event) => {
 		!user.wrapped_encryption_key ||
 		!user.wrapped_encryption_key_iv
 	) {
-		return json({ error: 'No recovery code found for this account' }, { status: 404 });
+		return json({ error: 'Invalid username or recovery code' }, { status: 401 });
 	}
 
 	const suppliedHash = await hashPassword(recoveryCode, user.recovery_code_salt);
 	if (!timingSafeEqual(suppliedHash, user.recovery_code_hash)) {
-		return json({ error: 'Invalid recovery code' }, { status: 401 });
+		return json({ error: 'Invalid username or recovery code' }, { status: 401 });
 	}
 
 	type EntryRow = { id: string; encrypted_data: string; iv: string };

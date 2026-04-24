@@ -129,7 +129,7 @@
 
 	function onEdit(e: MouseEvent) {
 		e.stopPropagation();
-		sessionStorage.setItem('lavender_edit_entry', JSON.stringify(entry));
+		sessionStorage.setItem('lavender_edit_entry', entry.id);
 		goto('/app/entry');
 	}
 </script>
