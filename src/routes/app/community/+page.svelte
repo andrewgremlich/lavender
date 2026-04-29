@@ -7,7 +7,7 @@
 	import Dialog from '$lib/components/ui/Dialog.svelte';
 	import FlashMessage from '$lib/components/display/FlashMessage.svelte';
 	import Input from '$lib/components/forms/Input.svelte';
-	import Icon from '$lib/components/ui/Icon.svelte';
+	import PostCard from '$lib/components/display/PostCard.svelte';
 
 	let posts = $state<CommunityPost[]>([]);
 	let loading = $state(true);
@@ -19,12 +19,9 @@
 	let newDescription = $state('');
 	let votedIds = $state<Set<string>>(new Set());
 
-	let editingId = $state<string | null>(null);
-	let editTitle = $state('');
-	let editDescription = $state('');
-	let editSaving = $state(false);
-
-	// let dialog: Dialog;
+	const hasExistingPost = $derived(
+		auth.loggedIn && posts.some((p: CommunityPost) => p.user_id === auth.userId)
+	);
 
 	function showFlash(text: string, type: 'success' | 'error') {
 		flash = { text, type };
@@ -65,37 +62,6 @@
 		}
 	}
 
-	function startEdit(post: CommunityPost) {
-		editingId = post.id;
-		editTitle = post.title;
-		editDescription = post.description;
-	}
-
-	function cancelEdit() {
-		editingId = null;
-		editTitle = '';
-		editDescription = '';
-	}
-
-	async function saveEdit(post: CommunityPost) {
-		if (!editTitle.trim() || !editDescription.trim()) {
-			showFlash($_('community.validationError'), 'error');
-			return;
-		}
-		editSaving = true;
-		try {
-			await communityApi.updatePost(post.id, editTitle.trim(), editDescription.trim());
-			post.title = editTitle.trim();
-			post.description = editDescription.trim();
-			editingId = null;
-			showFlash($_('community.saveSuccess'), 'success');
-		} catch (err) {
-			showFlash(err instanceof Error ? err.message : $_('community.saveError'), 'error');
-		} finally {
-			editSaving = false;
-		}
-	}
-
 	async function deletePost(post: CommunityPost) {
 		if (!confirm($_('community.deleteConfirm'))) return;
 		try {
@@ -126,14 +92,6 @@
 			submitting = false;
 		}
 	}
-
-	function formatDate(iso: string) {
-		return new Date(iso).toLocaleDateString(undefined, {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric'
-		});
-	}
 </script>
 
 <svelte:head>
@@ -145,9 +103,14 @@
 <FlashMessage message={flash} />
 
 {#if auth.loggedIn && !auth.isDemo}
-	<Button variant="outline" onclick={() => newPostDialog.open()}>
-		{$_('community.requestFeature')}
-	</Button>
+	<div class="request-feature">
+		<Button variant="outline" disabled={hasExistingPost} onclick={() => newPostDialog.open()}>
+			{$_('community.requestFeature')}
+		</Button>
+		{#if hasExistingPost}
+			<span class="limit-notice">{$_('community.maxOneRequest')}</span>
+		{/if}
+	</div>
 
 	<Dialog bind:this={newPostDialog} header={$_('community.newRequest')}>
 		<Input
@@ -184,61 +147,37 @@
 	<Text variant="muted">{$_('community.noPosts')}</Text>
 {:else}
 	<ul class="post-list">
-		{#each posts as post (post.id)}
-			<li class="post-card">
-				<button
-					class="vote-btn"
-					class:voted={votedIds.has(post.id)}
-					disabled={!auth.loggedIn}
-					onclick={() => vote(post)}
-					title={auth.loggedIn ? $_('community.upvote') : $_('community.loginToVote')}
-				>
-					▲<br />{post.votes}
-				</button>
-				<div class="post-body">
-					{#if editingId === post.id}
-						<Input label={$_('community.titleLabel')} bind:value={editTitle} maxlength={200} />
-						<div class="textarea-field">
-							<label for="edit-description-{post.id}">{$_('community.descriptionLabel')}</label>
-							<textarea
-								id="edit-description-{post.id}"
-								bind:value={editDescription}
-								maxlength={2000}
-								rows={4}
-							></textarea>
-						</div>
-						<div class="form-actions">
-							<Button variant="primary" disabled={editSaving} onclick={() => saveEdit(post)}>
-								{editSaving ? $_('community.saving') : $_('common.save')}
-							</Button>
-							<Button variant="ghost" onclick={cancelEdit}>{$_('common.cancel')}</Button>
-						</div>
-					{:else}
-						<Text as="h4">{post.title}</Text>
-						<p class="description">{post.description}</p>
-						<div class="post-footer">
-							<span class="meta">{formatDate(post.created_at)}</span>
-							{#if auth.loggedIn && post.user_id === auth.userId}
-								<Button variant="ghost" size="sm" onclick={() => startEdit(post)}>
-									<Icon name="pencil" size={14} />
-									{$_('common.edit')}
-								</Button>
-								<Button variant="ghost" size="sm" onclick={() => deletePost(post)}>
-									<Icon name="trash-2" size={14} />
-									{$_('common.delete')}
-								</Button>
-							{/if}
-						</div>
-					{/if}
-				</div>
-			</li>
+		{#each posts as post, i (post.id)}
+			<PostCard
+				{post}
+				index={i}
+				voted={votedIds.has(post.id)}
+				canEdit={auth.loggedIn && post.user_id === auth.userId}
+				loggedIn={auth.loggedIn}
+				onvote={() => vote(post)}
+				onsave={async (title, description) => {
+					await communityApi.updatePost(post.id, title, description);
+					post.title = title;
+					post.description = description;
+					showFlash($_('community.saveSuccess'), 'success');
+				}}
+				ondelete={() => deletePost(post)}
+			/>
 		{/each}
 	</ul>
 {/if}
 
 <style>
-	.mb-1 {
-		margin-bottom: 0.25rem;
+	.request-feature {
+		margin-bottom: 1rem;
+		display: flex;
+		align-items: center;
+		gap: var(--space-sm);
+	}
+
+	.limit-notice {
+		font-size: var(--text-sm);
+		color: var(--color-text-muted);
 	}
 
 	.textarea-field {
@@ -273,11 +212,6 @@
 		box-shadow: 0 0 0 3px var(--color-primary-alpha, rgba(124, 58, 237, 0.12));
 	}
 
-	.form-actions {
-		display: flex;
-		gap: var(--space-sm);
-	}
-
 	.post-list {
 		list-style: none;
 		margin: 0;
@@ -285,77 +219,5 @@
 		display: flex;
 		flex-direction: column;
 		gap: var(--space-md);
-	}
-
-	.post-card {
-		display: flex;
-		gap: var(--space-md);
-		background: var(--color-surface);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-lg);
-		padding: var(--space-md);
-		box-shadow: var(--shadow-sm);
-	}
-
-	.vote-btn {
-		display: flex;
-		flex-direction: column;
-		align-items: center;
-		justify-content: center;
-		min-width: 3rem;
-		padding: var(--space-xs);
-		background: var(--color-bg);
-		border: 1px solid var(--color-border);
-		border-radius: var(--radius-sm);
-		font-size: var(--text-sm);
-		font-weight: 700;
-		color: var(--color-text-muted);
-		cursor: pointer;
-		transition:
-			background 0.15s,
-			color 0.15s,
-			border-color 0.15s;
-		line-height: 1.3;
-	}
-
-	.vote-btn:hover:not(:disabled) {
-		border-color: var(--color-primary);
-		color: var(--color-primary);
-	}
-
-	.vote-btn.voted {
-		background: var(--color-primary-alpha);
-		border-color: var(--color-primary);
-		color: var(--color-primary);
-	}
-
-	.vote-btn:disabled {
-		cursor: default;
-	}
-
-	.post-body {
-		flex: 1;
-		display: flex;
-		flex-direction: column;
-		gap: var(--space-xs);
-	}
-
-	.description {
-		font-size: var(--text-sm);
-		color: var(--color-text);
-		margin: 0;
-		white-space: pre-wrap;
-	}
-
-	.post-footer {
-		display: flex;
-		align-items: center;
-		gap: var(--space-sm);
-	}
-
-	.meta {
-		font-size: var(--text-xs);
-		color: var(--color-text-muted);
-		flex: 1;
 	}
 </style>
