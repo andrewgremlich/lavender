@@ -1,4 +1,5 @@
 <script lang="ts" module>
+	import ArrowUpToLine from '@lucide/svelte/icons/arrow-up-to-line';
 	import ChevronDown from '@lucide/svelte/icons/chevron-down';
 	import Circle from '@lucide/svelte/icons/circle';
 	import CircleCheck from '@lucide/svelte/icons/circle-check';
@@ -45,7 +46,8 @@
 		'shield-off': ShieldOff,
 		'trash-2': Trash2,
 		'trending-up': TrendingUp,
-		'users-round': UsersRound
+		'users-round': UsersRound,
+		'arrow-up-to-line': ArrowUpToLine
 	};
 
 	export type IconName = keyof typeof ICONS;
