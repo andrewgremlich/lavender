@@ -328,7 +328,8 @@
 		"submitError": "Submit failed",
 		"saveError": "Update failed",
 		"deleteError": "Delete failed",
-		"validationError": "Title and description required"
+		"validationError": "Title and description required",
+		"maxOneRequest": "Max 1 requested feature per person"
 	},
 	"common": {
 		"save": "Save",

@@ -323,7 +323,8 @@
 		"submitError": "Error al enviar",
 		"saveError": "Error al actualizar",
 		"deleteError": "Error al eliminar",
-		"validationError": "Se requiere título y descripción"
+		"validationError": "Se requiere título y descripción",
+		"maxOneRequest": "Máximo 1 solicitud de función por persona"
 	},
 	"common": {
 		"save": "Guardar",

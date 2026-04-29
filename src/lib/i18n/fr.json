@@ -323,7 +323,8 @@
 		"submitError": "Échec de l'envoi",
 		"saveError": "Échec de la mise à jour",
 		"deleteError": "Échec de la suppression",
-		"validationError": "Le titre et la description sont requis"
+		"validationError": "Le titre et la description sont requis",
+		"maxOneRequest": "Maximum 1 demande de fonctionnalité par personne"
 	},
 	"common": {
 		"save": "Sauvegarder",
