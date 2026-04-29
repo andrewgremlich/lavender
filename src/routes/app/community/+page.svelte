@@ -4,17 +4,16 @@
 	import { _ } from 'svelte-i18n';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Text from '$lib/components/ui/Text.svelte';
-	// import Dialog from '$lib/components/ui/Dialog.svelte';
+	import Dialog from '$lib/components/ui/Dialog.svelte';
 	import FlashMessage from '$lib/components/display/FlashMessage.svelte';
-	import SettingsCard from '$lib/components/layout/SettingsCard.svelte';
 	import Input from '$lib/components/forms/Input.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
 
 	let posts = $state<CommunityPost[]>([]);
 	let loading = $state(true);
 	let flash = $state<{ text: string; type: 'success' | 'error' } | null>(null);
-	let showForm = $state(false);
 	let submitting = $state(false);
+	let newPostDialog = $state<Dialog>(null!);
 
 	let newTitle = $state('');
 	let newDescription = $state('');
@@ -118,7 +117,7 @@
 			await communityApi.createPost('feature_request', newTitle.trim(), newDescription.trim());
 			newTitle = '';
 			newDescription = '';
-			showForm = false;
+			newPostDialog.close();
 			showFlash($_('community.submitSuccess'), 'success');
 			await loadPosts();
 		} catch (err) {
@@ -143,58 +142,40 @@
 
 <Text as="h2">{$_('community.title')}</Text>
 
-<!-- <Dialog bind:this={dialog} header="Hello world">
-	<Text as="p">This is a simple dialog box.</Text>
-</Dialog>
-
-<Button variant="outline" onclick={() => dialog.open()}>
-	open dialog
-</Button> -->
-
 <FlashMessage message={flash} />
 
 {#if auth.loggedIn && !auth.isDemo}
-	<div class="form-toggle">
-		{#if !showForm}
-			<Button variant="outline" onclick={() => (showForm = true)}>
-				{$_('community.requestFeature')}
+	<Button variant="outline" onclick={() => newPostDialog.open()}>
+		{$_('community.requestFeature')}
+	</Button>
+
+	<Dialog bind:this={newPostDialog} header={$_('community.newRequest')}>
+		<Input
+			label={$_('community.titleLabel')}
+			bind:value={newTitle}
+			maxlength={200}
+			placeholder={$_('community.titlePlaceholder')}
+		/>
+		<div class="textarea-field">
+			<label for="post-description">{$_('community.descriptionLabel')}</label>
+			<textarea
+				id="post-description"
+				bind:value={newDescription}
+				maxlength={2000}
+				rows={4}
+				placeholder={$_('community.descriptionPlaceholder')}
+			></textarea>
+		</div>
+
+		{#snippet footer()}
+			<Button variant="ghost" onclick={() => { newPostDialog.close(); newTitle = ''; newDescription = ''; }}>
+				{$_('common.cancel')}
 			</Button>
-		{:else}
-			<SettingsCard title={$_('community.newRequest')}>
-				<Input
-					label={$_('community.titleLabel')}
-					bind:value={newTitle}
-					maxlength={200}
-					placeholder={$_('community.titlePlaceholder')}
-				/>
-				<div class="textarea-field">
-					<label for="post-description">{$_('community.descriptionLabel')}</label>
-					<textarea
-						id="post-description"
-						bind:value={newDescription}
-						maxlength={2000}
-						rows={4}
-						placeholder={$_('community.descriptionPlaceholder')}
-					></textarea>
-				</div>
-				<div class="form-actions">
-					<Button variant="primary" disabled={submitting} onclick={submitPost}>
-						{submitting ? $_('community.submitting') : $_('community.submit')}
-					</Button>
-					<Button
-						variant="ghost"
-						onclick={() => {
-							showForm = false;
-							newTitle = '';
-							newDescription = '';
-						}}
-					>
-						{$_('common.cancel')}
-					</Button>
-				</div>
-			</SettingsCard>
-		{/if}
-	</div>
+			<Button variant="primary" disabled={submitting} onclick={submitPost}>
+				{submitting ? $_('community.submitting') : $_('community.submit')}
+			</Button>
+		{/snippet}
+	</Dialog>
 {/if}
 
 {#if loading}
@@ -256,8 +237,8 @@
 {/if}
 
 <style>
-	.form-toggle {
-		margin-bottom: var(--space-lg);
+	.mb-1 {
+		margin-bottom: 0.25rem;
 	}
 
 	.textarea-field {
@@ -269,6 +250,7 @@
 	.textarea-field label {
 		font-size: var(--text-sm);
 		font-weight: 500;
+		color: var(--color-text);
 	}
 
 	.textarea-field textarea {

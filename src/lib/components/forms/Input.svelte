@@ -17,3 +17,17 @@
 	<label for={id}>{label}</label>
 	<input {id} bind:value {...rest} />
 </div>
+
+<style>
+	label {
+		display: block;
+		margin-bottom: 0.25rem;
+		font-size: var(--text-sm);
+		font-weight: 500;
+		color: var(--color-text);
+	}
+
+	.input-field {
+		margin-bottom: 1rem;
+	}
+</style>

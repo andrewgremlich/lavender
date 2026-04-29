@@ -10,6 +10,7 @@
 	cursor: pointer;
 	transition: all var(--transition-fast);
 	white-space: nowrap;
+	margin-bottom: 1rem;
 }
 
 .btn:disabled {
