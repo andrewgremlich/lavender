@@ -88,7 +88,7 @@
 		</Button>
 	{:else if isSetupMode}
 		<Text as="h1">{$_('auth.recovery.setupTitle')}</Text>
-		<p>{$_('auth.recovery.setupDescription')}</p>
+		<Text as="p">{$_('auth.recovery.setupDescription')}</Text>
 		{#if error}
 			<Text variant="error" role="alert">{error}</Text>
 		{/if}
@@ -97,7 +97,7 @@
 		</Button>
 	{:else}
 		<Text as="h1">{$_('auth.recovery.recoverTitle')}</Text>
-		<p>{$_('auth.recovery.recoverDescription')}</p>
+		<Text as="p">{$_('auth.recovery.recoverDescription')}</Text>
 		<form onsubmit={handleRecover}>
 			<Input
 				label={$_('auth.recovery.username')}

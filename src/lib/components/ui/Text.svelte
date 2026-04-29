@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
 	import type { HTMLAttributes } from 'svelte/elements';
-	import './Text.css';
+	import './Text.css'; // this makes the styles global so as to apply to all text elements
 
 	type Element = 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'h6' | 'p' | 'span';
 	type Variant = 'default' | 'muted' | 'error' | 'success' | 'small';
