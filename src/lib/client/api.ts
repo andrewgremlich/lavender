@@ -174,6 +174,13 @@ export interface CommunityPost {
 	created_at: string;
 }
 
+export const stripeApi = {
+	createCheckoutSession: () =>
+		request<{ url: string }>('/stripe/create-checkout-session', { method: 'POST' }),
+	createPortalSession: () =>
+		request<{ url: string }>('/stripe/create-portal-session', { method: 'POST' })
+};
+
 export const communityApi = {
 	getPosts: (type?: PostType) => {
 		const params = type ? `?type=${type}` : '';

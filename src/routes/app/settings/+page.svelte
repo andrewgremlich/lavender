@@ -14,6 +14,7 @@
 	import ImportSection from '$lib/components/settings/ImportSection.svelte';
 	import ChangePasswordSection from '$lib/components/settings/ChangePasswordSection.svelte';
 	import DangerZoneSection from '$lib/components/settings/DangerZoneSection.svelte';
+	import BillingSection from '$lib/components/settings/BillingSection.svelte';
 	import { _, locale } from 'svelte-i18n';
 
 	let unitSystem = $state<UnitSystem>(getUnitSystem());
@@ -28,6 +29,7 @@
 			.get()
 			.then((s) => {
 				retentionDays = s.dataRetentionDays;
+				auth.setSubscriptionStatus(s.subscriptionStatus);
 			})
 			.catch(() => {});
 	});
@@ -116,6 +118,9 @@
 
 <ExportSection />
 <ImportSection />
+{#if !auth.isDemo}
+	<BillingSection />
+{/if}
 {#if !auth.isDemo}
 	<ChangePasswordSection />
 	<DangerZoneSection />

@@ -29,9 +29,12 @@ export interface EncryptedEntry {
 
 export type DateRange = '7' | '30' | 'all';
 
+export type SubscriptionStatus = 'free' | 'active' | 'canceled' | 'past_due' | 'trialing';
+
 export interface UserSettings {
 	dataRetentionDays: number;
 	defaultDateRange: DateRange;
+	subscriptionStatus: SubscriptionStatus;
 }
 
 export type Role = 'user' | 'demo' | 'admin' | 'banned';

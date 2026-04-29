@@ -3,7 +3,7 @@ import type { RequestHandler } from './$types';
 import { requireUser } from '$lib/server/auth';
 import { getPlatform } from '$lib/server/db';
 import type { UserSettingsRow } from '$lib/server/types';
-import type { UserSettings } from '$lib/types';
+import type { SubscriptionStatus, UserSettings } from '$lib/types';
 
 const VALID_DATE_RANGES = new Set<UserSettings['defaultDateRange']>(['7', '30', 'all']);
 
@@ -18,16 +18,24 @@ export const GET: RequestHandler = async (event) => {
 		.bind(userId)
 		.first<UserSettingsRow>();
 
+	const userRow = await db
+		.prepare('SELECT subscription_status FROM users WHERE id = ?')
+		.bind(userId)
+		.first<{ subscription_status: SubscriptionStatus }>();
+	const subscriptionStatus: SubscriptionStatus = userRow?.subscription_status ?? 'free';
+
 	if (!row) {
 		return json({
 			dataRetentionDays: 180,
-			defaultDateRange: '30'
+			defaultDateRange: '30',
+			subscriptionStatus
 		} satisfies UserSettings);
 	}
 
 	return json({
 		dataRetentionDays: row.data_retention_days,
-		defaultDateRange: (row.default_date_range ?? '30') as UserSettings['defaultDateRange']
+		defaultDateRange: (row.default_date_range ?? '30') as UserSettings['defaultDateRange'],
+		subscriptionStatus
 	} satisfies UserSettings);
 };
 
@@ -89,8 +97,14 @@ export const PUT: RequestHandler = async (event) => {
 		.bind(userId)
 		.first<UserSettingsRow>();
 
+	const userRow2 = await db
+		.prepare('SELECT subscription_status FROM users WHERE id = ?')
+		.bind(userId)
+		.first<{ subscription_status: SubscriptionStatus }>();
+
 	return json({
 		dataRetentionDays: row?.data_retention_days ?? 180,
-		defaultDateRange: (row?.default_date_range ?? '30') as UserSettings['defaultDateRange']
+		defaultDateRange: (row?.default_date_range ?? '30') as UserSettings['defaultDateRange'],
+		subscriptionStatus: userRow2?.subscription_status ?? 'free'
 	} satisfies UserSettings);
 };

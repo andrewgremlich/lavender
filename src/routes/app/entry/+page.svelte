@@ -2,6 +2,7 @@
 	import { goto } from '$app/navigation';
 	import { entriesStore } from '$lib/client/entries.svelte';
 	import Button from '$lib/components/ui/Button.svelte';
+	import UpgradeBanner from '$lib/components/display/UpgradeBanner.svelte';
 	import Icon from '$lib/components/ui/Icon.svelte';
 	import Input from '$lib/components/forms/Input.svelte';
 	import PillGroup from '$lib/components/ui/PillGroup.svelte';
@@ -72,6 +73,7 @@
 	let error = $state<string | null>(null);
 	let saved = $state(false);
 	let submitting = $state(false);
+	let showUpgradeBanner = $state(false);
 
 	// If there's already an entry for the selected date (and we're not editing it),
 	// prompt the user to edit that entry instead of creating a duplicate.
@@ -161,7 +163,12 @@
 			saved = true;
 			if (editId) editId = null;
 		} catch (err) {
-			error = err instanceof Error ? err.message : $_('entry.saveError');
+			const msg = err instanceof Error ? err.message : $_('entry.saveError');
+			if (msg.includes('Upgrade to Pro')) {
+				showUpgradeBanner = true;
+			} else {
+				error = msg;
+			}
 		} finally {
 			submitting = false;
 		}
@@ -184,6 +191,9 @@
 <Text as="h2">{editId ? $_('entry.editTitle') : $_('entry.title')}</Text>
 
 <div class="card">
+	{#if showUpgradeBanner}
+		<UpgradeBanner />
+	{/if}
 	{#if error}
 		<div class="msg error">{error}</div>
 	{/if}

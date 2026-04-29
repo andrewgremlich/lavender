@@ -61,6 +61,27 @@ export const POST: RequestHandler = async (event) => {
 		return json({ id: fakeId, createdAt: new Date().toISOString(), expiresAt: fakeExpiresAt }, { status: 201 });
 	}
 
+	const userRow = await db
+		.prepare('SELECT subscription_status FROM users WHERE id = ?')
+		.bind(userId)
+		.first<{ subscription_status: string }>();
+	const isPro = userRow?.subscription_status === 'active' || userRow?.subscription_status === 'trialing';
+
+	if (!isPro) {
+		const { count: monthCount } = await db
+			.prepare(
+				"SELECT COUNT(*) as count FROM health_entries WHERE user_id = ? AND created_at >= datetime('now', 'start of month')"
+			)
+			.bind(userId)
+			.first<{ count: number }>() ?? { count: 0 };
+		if (monthCount >= 14) {
+			return json(
+				{ error: 'Monthly entry limit reached. Upgrade to Pro for unlimited entries.', code: 'UPGRADE_REQUIRED' },
+				{ status: 402 }
+			);
+		}
+	}
+
 	const { count } = await db
 		.prepare('SELECT COUNT(*) as count FROM health_entries WHERE user_id = ?')
 		.bind(userId)

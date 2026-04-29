@@ -16,6 +16,9 @@ declare global {
 				RATE_LIMIT_KV: KVNamespace;
 				DEMO_PASSWORD: string;
 				TURNSTILE_SECRET_KEY: string;
+				STRIPE_SECRET_KEY: string;
+				STRIPE_WEBHOOK_SECRET: string;
+				STRIPE_PRICE_ID: string;
 			};
 			context: {
 				waitUntil(promise: Promise<unknown>): void;

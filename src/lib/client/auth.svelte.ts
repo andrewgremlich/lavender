@@ -3,7 +3,7 @@
 // operations. Handles token + encryption key persistence via the api and
 // crypto modules; UI never touches sessionStorage or crypto directly.
 
-import type { Role } from '$lib/types';
+import type { Role, SubscriptionStatus } from '$lib/types';
 import { authApi, clearToken, getToken, setToken, settingsApi } from './api';
 import {
 	clearStoredKey,
@@ -37,6 +37,7 @@ interface AuthState {
 	userId: string | null;
 	loggedIn: boolean;
 	role: Role | null;
+	subscriptionStatus: SubscriptionStatus;
 }
 
 function parseUserId(token: string): string | null {
@@ -50,10 +51,10 @@ function parseUserId(token: string): string | null {
 
 function readInitial(): AuthState {
 	if (typeof localStorage === 'undefined') {
-		return { username: null, userId: null, loggedIn: false, role: null };
+		return { username: null, userId: null, loggedIn: false, role: null, subscriptionStatus: 'free' };
 	}
 	const token = getToken();
-	if (!token) return { username: null, userId: null, loggedIn: false, role: null };
+	if (!token) return { username: null, userId: null, loggedIn: false, role: null, subscriptionStatus: 'free' };
 	// JWT payload is the middle segment, base64url-encoded JSON.
 	try {
 		const payload = JSON.parse(atob(token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/'))) as {
@@ -65,11 +66,11 @@ function readInitial(): AuthState {
 		if (payload.exp && payload.exp * 1000 < Date.now()) {
 			clearToken();
 			clearStoredKey();
-			return { username: null, userId: null, loggedIn: false, role: null };
+			return { username: null, userId: null, loggedIn: false, role: null, subscriptionStatus: 'free' };
 		}
-		return { username: payload.username ?? null, userId: payload.sub ?? null, loggedIn: true, role: payload.role ?? 'user' };
+		return { username: payload.username ?? null, userId: payload.sub ?? null, loggedIn: true, role: payload.role ?? 'user', subscriptionStatus: 'free' };
 	} catch {
-		return { username: null, userId: null, loggedIn: true, role: null };
+		return { username: null, userId: null, loggedIn: true, role: null, subscriptionStatus: 'free' };
 	}
 }
 
@@ -103,6 +104,15 @@ export const auth = {
 	},
 	get hasEncryptionKey() {
 		return !!getStoredKey();
+	},
+	get subscriptionStatus() {
+		return state.subscriptionStatus;
+	},
+	get isPro() {
+		return state.subscriptionStatus === 'active' || state.subscriptionStatus === 'trialing';
+	},
+	setSubscriptionStatus(status: SubscriptionStatus) {
+		state.subscriptionStatus = status;
 	},
 
 	/**
@@ -273,5 +283,6 @@ export const auth = {
 		state.userId = null;
 		state.loggedIn = false;
 		state.role = null;
+		state.subscriptionStatus = 'free';
 	}
 };
