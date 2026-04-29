@@ -205,10 +205,7 @@
 				<Button
 					type="button"
 					onclick={() => {
-						sessionStorage.setItem(
-							'lavender_edit_entry',
-							JSON.stringify({ ...existingForDate })
-						);
+						sessionStorage.setItem('lavender_edit_entry', existingForDate.id!);
 						location.reload();
 					}}
 				>
