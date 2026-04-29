@@ -4,62 +4,63 @@
 	};
 
 	let { message }: Props = $props();
+
+	let dialog: HTMLDialogElement;
+	let inner: HTMLSpanElement;
+
+	$effect(() => {
+		if (!dialog) return;
+		if (message) {
+			if (!dialog.open) dialog.show();
+			if (inner) {
+				inner.style.animation = 'none';
+				void inner.offsetWidth;
+				inner.style.animation = '';
+			}
+		} else {
+			if (dialog.open) dialog.close();
+		}
+	});
 </script>
 
-<div class="msg {message?.type} {message ? 'visible' : 'hidden'}">
-	{message?.text ?? 'Flash message'}
-</div>
+<dialog bind:this={dialog} class="msg {message?.type ?? ''}">
+	<span bind:this={inner} class="inner">{message?.text ?? ''}</span>
+</dialog>
 
 <style>
-	.hidden {
-		top: -10px;
-		opacity: 0;
-		pointer-events: none;
-	}
-
-	.visible {
+	dialog {
+		z-index: 1000;
+		position: fixed;
 		top: var(--space-lg);
-		opacity: 1;
-		pointer-events: auto;
-
-		animation-name: fadeInOut;
-		animation-duration: 4s;
-		animation-fill-mode: forwards;
-	}
-
-	.msg {
-		position: absolute;
 		left: 50%;
-		transform: translateX(-50%);
-
+		translate: -50% 0;
+		margin: 0;
+		border: none;
 		padding: var(--space-sm) var(--space-md);
-		margin: var(--space-md) 0;
 		border-radius: var(--radius-md);
 		font-size: var(--text-sm);
+		background: transparent;
 	}
 
-	.msg.success {
+	dialog.success {
 		background: var(--color-success-bg);
 		color: var(--color-success);
 	}
 
-	.msg.error {
+	dialog.error {
 		background: var(--color-error-bg);
 		color: var(--color-error);
 	}
 
+	.inner {
+		animation: fadeInOut 4s forwards;
+		display: block;
+	}
+
 	@keyframes fadeInOut {
-		0% {
-			opacity: 0;
-		}
-		10% {
-			opacity: 1;
-		}
-		90% {
-			opacity: 1;
-		}
-		100% {
-			opacity: 0;
-		}
+		0% { opacity: 0; }
+		10% { opacity: 1; }
+		90% { opacity: 1; }
+		100% { opacity: 0; }
 	}
 </style>
