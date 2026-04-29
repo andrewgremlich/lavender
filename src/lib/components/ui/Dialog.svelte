@@ -1,15 +1,16 @@
 <script lang="ts">
 	import type { Snippet } from 'svelte';
-	import Text from './Text.svelte';
 	import Icon from './Icon.svelte';
 	import Button from './Button.svelte';
 
 	type Props = {
-		header: string;
+		header?: string;
 		children: Snippet;
+		footer?: Snippet;
+		class?: string;
 	};
 
-	let { children, header }: Props = $props();
+	let { children, header, footer, class: className }: Props = $props();
 	let dialog: HTMLDialogElement;
 
 	export function open() {
@@ -40,16 +41,32 @@
 			event.clientY > rect.bottom;
 		if (clickedBackdrop) close();
 	}
+
+	function handleCancel(event: Event) {
+		event.preventDefault();
+		close();
+	}
 </script>
 
-<dialog bind:this={dialog} onclick={handleClick}>
+<dialog
+	bind:this={dialog}
+	onclick={handleClick}
+	oncancel={handleCancel}
+	aria-labelledby={header ? 'dialog-title' : undefined}
+	class={className}
+>
 	<header>
-		<h2>{header}</h2>
-    <Button variant="ghost" aria-label="Close dialog" onclick={close}>
-      <Icon name="arrow-up-to-line" size={32} />
-    </Button>
+		{#if header}
+			<h2 id="dialog-title">{header}</h2>
+		{/if}
+		<Button variant="ghost" aria-label="Close dialog" onclick={close}>
+			<Icon name="x" size={20} />
+		</Button>
 	</header>
 	{@render children()}
+	{#if footer}
+		<footer>{@render footer()}</footer>
+	{/if}
 </dialog>
 
 <style>
@@ -60,13 +77,20 @@
     margin-bottom: var(--space-md);
   }
 
+	footer {
+		margin-top: var(--space-md);
+		display: flex;
+		justify-content: flex-end;
+		gap: var(--space-sm);
+	}
+
 	dialog {
 		border: none;
 		border-radius: var(--radius-lg);
 		padding: var(--space-lg);
 		box-shadow: var(--shadow-lg);
 		background-color: var(--color-bg);
-    min-width: 300px;
+		min-width: 300px;
 
 		animation-name: dialog-open;
 		animation-duration: 0.2s;

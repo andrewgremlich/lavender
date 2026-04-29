@@ -22,6 +22,7 @@
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import TrendingUp from '@lucide/svelte/icons/trending-up';
 	import UsersRound from '@lucide/svelte/icons/users-round';
+	import X from '@lucide/svelte/icons/x';
 	import type { Component } from 'svelte';
 
 	const ICONS: Record<string, Component<{ size?: number; strokeWidth?: number }>> = {
@@ -47,7 +48,8 @@
 		'trash-2': Trash2,
 		'trending-up': TrendingUp,
 		'users-round': UsersRound,
-		'arrow-up-to-line': ArrowUpToLine
+		'arrow-up-to-line': ArrowUpToLine,
+		x: X
 	};
 
 	export type IconName = keyof typeof ICONS;
