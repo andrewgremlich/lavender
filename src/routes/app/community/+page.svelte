@@ -4,6 +4,7 @@
 	import { _ } from 'svelte-i18n';
 	import Button from '$lib/components/ui/Button.svelte';
 	import Text from '$lib/components/ui/Text.svelte';
+	// import Dialog from '$lib/components/ui/Dialog.svelte';
 	import FlashMessage from '$lib/components/display/FlashMessage.svelte';
 	import SettingsCard from '$lib/components/layout/SettingsCard.svelte';
 	import Input from '$lib/components/forms/Input.svelte';
@@ -23,6 +24,8 @@
 	let editTitle = $state('');
 	let editDescription = $state('');
 	let editSaving = $state(false);
+
+	// let dialog: Dialog;
 
 	function showFlash(text: string, type: 'success' | 'error') {
 		flash = { text, type };
@@ -140,6 +143,14 @@
 
 <Text as="h2">{$_('community.title')}</Text>
 
+<!-- <Dialog bind:this={dialog} header="Hello world">
+	<Text as="p">This is a simple dialog box.</Text>
+</Dialog>
+
+<Button variant="outline" onclick={() => dialog.open()}>
+	open dialog
+</Button> -->
+
 <FlashMessage message={flash} />
 
 {#if auth.loggedIn && !auth.isDemo}
@@ -228,10 +239,12 @@
 							<span class="meta">{formatDate(post.created_at)}</span>
 							{#if auth.loggedIn && post.user_id === auth.userId}
 								<Button variant="ghost" size="sm" onclick={() => startEdit(post)}>
-									<Icon name="pencil" size={14} /> {$_('common.edit')}
+									<Icon name="pencil" size={14} />
+									{$_('common.edit')}
 								</Button>
 								<Button variant="ghost" size="sm" onclick={() => deletePost(post)}>
-									<Icon name="trash-2" size={14} /> {$_('common.delete')}
+									<Icon name="trash-2" size={14} />
+									{$_('common.delete')}
 								</Button>
 							{/if}
 						</div>
