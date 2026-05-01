@@ -198,24 +198,26 @@
 				<Button type="button" onclick={() => goto('/app')}>{$_('entry.viewChart')}</Button>
 			</div>
 		</div>
-	{:else if existingForDate}
-		<div class="msg warning">
-			You already have an entry for {form.date}. Would you like to edit it instead?
-			<div class="success-actions">
-				<Button
-					type="button"
-					onclick={() => {
-						sessionStorage.setItem('lavender_edit_entry', existingForDate.id!);
-						location.reload();
-					}}
-				>
-					Edit existing entry
-				</Button>
-			</div>
-		</div>
 	{:else}
 		<form onsubmit={handleSubmit}>
 			<Input label={$_('entry.date')} id="entry-date" type="date" bind:value={form.date} required />
+
+			{#if existingForDate}
+				<div class="msg warning">
+					You already have an entry for {form.date}. Would you like to edit it instead?
+					<div class="success-actions">
+						<Button
+							type="button"
+							onclick={() => {
+								sessionStorage.setItem('lavender_edit_entry', existingForDate.id!);
+								location.reload();
+							}}
+						>
+							Edit existing entry
+						</Button>
+					</div>
+				</div>
+			{:else}
 
 			<details open>
 				<summary>{$_('entry.temperature')}</summary>
@@ -356,6 +358,7 @@
 				<Icon name="save" />
 				{submitting ? $_('entry.saving') : editId ? $_('entry.update') : $_('entry.save')}
 			</Button>
+			{/if}
 		</form>
 	{/if}
 </div>
