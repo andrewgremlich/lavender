@@ -22,3 +22,17 @@ Feedback from women is very welcome!
 https://helloclue.com/
 
 https://flo.health/
+
+## research for data enhancement?
+
+https://github.com/phanidasut/period-tracker
+
+https://pmc.ncbi.nlm.nih.gov/articles/PMC8714275/
+
+https://github.com/Kitzuken/Menstrual-Tracker
+
+https://github.com/cilab-ufersa/period_cycle_prediction
+
+https://arxiv.org/abs/2102.12439
+
+https://pubmed.ncbi.nlm.nih.gov/39889448/
