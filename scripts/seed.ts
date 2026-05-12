@@ -151,6 +151,7 @@ interface HealthEntry {
 	bleedingStart?: boolean;
 	bleedingEnd?: boolean;
 	bleedingFlow?: FlowType;
+	intimacy?: "unprotected" | "protected";
 	notes?: string;
 }
 
@@ -234,6 +235,18 @@ function generateCycle(startDate: string, cycleLength: number): HealthEntry[] {
 			entry.lhSurge = 1;
 			entry.mildSpotting = true;
 			entry.notes = "LH declining. Mild ovulation spotting observed.";
+		}
+
+		// Intimacy: unprotected during fertile window / ovulation, protected a few days around it
+		if (cycleDay === ovulationDay - 3 || cycleDay === ovulationDay + 2) {
+			entry.intimacy = "protected";
+		} else if (
+			cycleDay >= ovulationDay - 2 &&
+			cycleDay <= ovulationDay + 1
+		) {
+			entry.intimacy = "unprotected";
+		} else if (cycleDay === ovulationDay - 4 || cycleDay === ovulationDay + 3) {
+			entry.intimacy = "protected";
 		}
 		if (cycleDay >= ovulationDay + 5 && cycleDay <= ovulationDay + 10) {
 			entry.breastTenderness = true;

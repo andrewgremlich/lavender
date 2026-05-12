@@ -125,13 +125,13 @@
 					<span class="day-indicators">
 						{#if isOvulation}
 							<span class="indicator ovulation-egg" aria-label="Ovulation">
-								<Icon name="egg" size={10} strokeWidth={1.5} />
+								<Icon name="egg" size={32} strokeWidth={2} />
 							</span>
 						{/if}
 						{#if intimacyType}
 							<span class="indicator intimacy-indicator {intimacyType}" aria-label="Intimacy ({intimacyType})">
-								<Icon name="heart" size={10} strokeWidth={1.5} />
-								<Icon name={intimacyType === 'protected' ? 'shield' : 'shield-off'} size={8} strokeWidth={1.5} />
+								<Icon name="heart" size={32} strokeWidth={2} />
+								<Icon name={intimacyType === 'protected' ? 'shield' : 'shield-off'} size={32} strokeWidth={2} />
 							</span>
 						{/if}
 					</span>
@@ -296,11 +296,7 @@
 	}
 
 	.intimacy-indicator {
-		color: #888;
-	}
-
-	.intimacy-indicator.unprotected {
-		color: #e11d48;
+		color: white;
 	}
 
 	.legend {
