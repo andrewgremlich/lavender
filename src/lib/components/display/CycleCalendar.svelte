@@ -121,20 +121,20 @@
 					fertility.predictedOvulationDays.has(cell.dateStr)}
 				{@const intimacyType = intimacyDays.get(cell.dateStr)}
 				<div class="day-cell {classes.join(' ')}" title={tooltip}>
-					{#if isOvulation}
-						<span class="ovulation-egg" aria-label="Ovulation">
-							<Icon name="egg" size={40} strokeWidth={1.5} />
-							<span class="egg-day">{cell.day}</span>
-						</span>
-					{:else if intimacyType}
-						<span class="intimacy-fill {intimacyType}" aria-label="Intimacy ({intimacyType})">
-							<span class="intimacy-half"><Icon name="heart" strokeWidth={1.5} /></span>
-							<span class="intimacy-half"><Icon name={intimacyType === 'protected' ? 'shield' : 'shield-off'} strokeWidth={1.5} /></span>
-							<span class="egg-day">{cell.day}</span>
-						</span>
-					{:else}
-						<span class="day-number">{cell.day}</span>
-					{/if}
+					<span class="day-number">{cell.day}</span>
+					<span class="day-indicators">
+						{#if isOvulation}
+							<span class="indicator ovulation-egg" aria-label="Ovulation">
+								<Icon name="egg" size={10} strokeWidth={1.5} />
+							</span>
+						{/if}
+						{#if intimacyType}
+							<span class="indicator intimacy-indicator {intimacyType}" aria-label="Intimacy ({intimacyType})">
+								<Icon name="heart" size={10} strokeWidth={1.5} />
+								<Icon name={intimacyType === 'protected' ? 'shield' : 'shield-off'} size={8} strokeWidth={1.5} />
+							</span>
+						{/if}
+					</span>
 				</div>
 			{/if}
 		{/each}
@@ -201,9 +201,9 @@
 
 	.day-cell {
 		display: flex;
+		flex-direction: column;
 		align-items: center;
 		justify-content: center;
-		
 		position: relative;
 		aspect-ratio: 1;
 		border-radius: var(--radius-sm);
@@ -277,52 +277,30 @@
 		line-height: 1;
 	}
 
-	.ovulation-egg {
-		position: relative;
-		
+	.day-indicators {
 		display: flex;
 		align-items: center;
 		justify-content: center;
-
-		width: 90%;
-		height: 90%;
+		gap: 1px;
+		min-height: 12px;
 	}
 
-	.ovulation-egg :global(svg) {
-		width: 85%;
-		height: 85%;
-	}
-
-	.egg-day {
-		position: absolute;
-		font-size: var(--text-xs);
-		font-weight: 600;
-		line-height: 1;
-	}
-
-	.intimacy-fill {
+	.indicator {
 		display: flex;
 		align-items: center;
-		justify-content: space-around;
-		
-		position: relative;
-		width: 100%;
-		height: 100%;
-		color: white;
 		gap: 0;
 	}
 
-	.intimacy-half {
-		display: flex;
-		align-items: center;
-		justify-content: space-evenly;
-		width: 40%;
-		height: 100%;
+	.ovulation-egg {
+		color: var(--cal-ovulation-text, #5b21b6);
 	}
 
-	.intimacy-half :global(svg) {
-		width: 80%;
-		height: 80%;
+	.intimacy-indicator {
+		color: #888;
+	}
+
+	.intimacy-indicator.unprotected {
+		color: #e11d48;
 	}
 
 	.legend {
