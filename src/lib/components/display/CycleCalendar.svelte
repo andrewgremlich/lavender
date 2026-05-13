@@ -14,7 +14,11 @@
 	let current = $state(new Date());
 
 	const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-	const todayStr = new Date().toISOString().split('T')[0];
+	function toLocalDateStr(d: Date): string {
+		return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+	}
+
+	const todayStr = toLocalDateStr(new Date());
 
 	function getDayClasses(dateStr: string): string[] {
 		const classes: string[] = [];
@@ -49,7 +53,7 @@
 			for (let i = 0; i < 7; i++) {
 				const d = new Date(start);
 				d.setDate(start.getDate() + i);
-				out.push({ day: d.getDate(), dateStr: d.toISOString().split('T')[0] });
+				out.push({ day: d.getDate(), dateStr: toLocalDateStr(d) });
 			}
 			return out;
 		}
